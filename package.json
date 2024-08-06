@@ -4,10 +4,11 @@
   "private": true,
   "packageManager": "pnpm@9.4.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint --fix",
+    "format:write": "prettier --write \"src/{app,lib,components,styles}/**/*.{ts,tsx,css,mdx}\" --cache"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
