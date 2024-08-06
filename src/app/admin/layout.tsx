@@ -4,11 +4,11 @@ export const metadata: Metadata = {
   title: "控制台 - 如何看待",
 };
 
-interface ConsoleLayoutProps {
+interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
-export default async function ConsoleLayout({ children }: ConsoleLayoutProps) {
+export default async function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <html lang="en">
       <body className={"min-h-full min-w-full flex-1 bg-slate-600"}>
