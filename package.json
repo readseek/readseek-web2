@@ -2,12 +2,12 @@
   "name": "ruhekandai",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@9.4.0",
   "scripts": {
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint --fix",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
     "format:write": "prettier --write \"src/{app,lib,components,styles}/**/*.{ts,tsx,css,mdx}\" --cache"
   },
   "dependencies": {
@@ -65,16 +65,25 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@typescript-eslint/parser": "^8.0.1",
     "autoprefixer": "^10.4.20",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-tailwindcss": "^3.17.4",
     "postcss": "^8",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.5",
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^3.4.4",
     "typescript": "^5"
   },
   "engines": {
     "node": ">=18"
+  },
+  "packageManager": "pnpm@9.4.0",
+  "author": {
+    "name": "Thomas Tang",
+    "email": "hello@tangkunyin.com",
+    "url": "https://github.com/tangkunyin/ruhekandai"
   }
 }
