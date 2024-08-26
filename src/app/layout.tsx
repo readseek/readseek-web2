@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "如何看待 - 像朋友聊天一样愉快",
+  title: "如何看待 - 像朋友聊天一样交流信息",
   keywords: "聊天机器人，如何看待",
   applicationName: "如何看待",
   description:

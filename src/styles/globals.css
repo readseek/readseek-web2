@@ -63,7 +63,15 @@
   * {
     @apply border-border;
   }
+  html,
   body {
-    @apply bg-background text-foreground;
+    @apply m-0 h-screen bg-background bg-gray-50 p-0 text-foreground;
+  }
+}
+
+/* 自定义或修改预置指令样式 */
+@layer utilities {
+  .center {
+    @apply flex items-center justify-center;
   }
 }
