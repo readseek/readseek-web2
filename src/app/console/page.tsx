@@ -1,9 +1,9 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "控制台 - 如何看待",
+};
+
 export default async function Console() {
-  return (
-    <div>
-      <button className="bg-sky-700 px-4 py-2 text-white hover:bg-sky-800 sm:px-8 sm:py-3">
-        ...
-      </button>
-    </div>
-  );
+  return <main className="flex flex-col bg-green-600">控制台</main>;
 }
