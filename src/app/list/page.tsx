@@ -154,7 +154,7 @@ export const columns: ColumnDef<Payment>[] = [
   },
 ];
 
-export default function Messages() {
+export default function FileListPage() {
   useEffect(() => {
     document.title = metadata.title;
   }, []);
@@ -186,7 +186,7 @@ export default function Messages() {
     <main className="container flex flex-col">
       <div className="flex items-center py-4">
         <Input
-          placeholder="筛选文档信息"
+          placeholder="根据书名筛选信息"
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("name")?.setFilterValue(event.target.value)

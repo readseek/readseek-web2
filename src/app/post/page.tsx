@@ -13,10 +13,10 @@ import { UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "内容发布控制台 - 如何看待",
+  title: "内容发布 - 如何看待",
 };
 
-export default async function Console() {
+export default async function PostContentPage() {
   return (
     <main className="flex flex-col items-center pt-24">
       <div className="flex h-24 w-1/3 items-center justify-start">

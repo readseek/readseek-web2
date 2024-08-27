@@ -55,21 +55,21 @@ export default function RootLayout({
                   </Link>
                 </li>
                 <li className="center h-12 w-full">
-                  <Link href="/console">
+                  <Link href="/post">
                     <Button type="button">
                       <Notebook className="mr-2 h-4 w-4" /> 发布
                     </Button>
                   </Link>
                 </li>
                 <li className="center h-12 w-full">
-                  <Link href="/messages">
+                  <Link href="/list">
                     <Button type="button">
                       <MessageSquareText className="mr-2 h-4 w-4" /> 通知
                     </Button>
                   </Link>
                 </li>
                 <li className="center h-12 w-full">
-                  <Link href="/profile">
+                  <Link href="/personal">
                     <Button type="button">
                       <User className="mr-2 h-4 w-4" /> 个人
                     </Button>

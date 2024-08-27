@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: "用户中心 - 如何看待",
 };
 
-export default async function Profile() {
+export default async function PersonalPage() {
   return (
     <main className="container flex flex-col px-52 pt-32">
       <ul className="grid w-2/3 grid-rows-4 gap-4">
