@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "next dev --turbo -p 4455",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 4455",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "format:write": "prettier --write \"src/{app,lib,components,styles}/**/*.{ts,tsx,css,mdx}\" --cache"
