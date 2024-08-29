@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Upload } from '@/components/Chat/Upload';
 
 export const metadata: Metadata = {
   title: "内容发布 - 如何看待",
@@ -20,15 +21,18 @@ export default async function PostContentPage() {
   return (
     <main className="flex flex-col items-center pt-24">
       <div className="flex h-24 w-1/3 items-center justify-start">
-        <Label htmlFor="picture" className="w-28 text-lg">
-          上传文档：
-        </Label>
-        <Input
-          id="bookFile"
-          type="file"
-          accept=".doc,.docx,.pdf,.txt"
-          className="w-1/2"
-        />
+      <Upload
+                      onIndexChange={(index) =>
+                        console.log(index)
+                      }
+                      keyConfiguration={keyConfiguration}
+                      handleIsUploading={handleIsUploading}
+                      handleIsUploadSuccess={handleIsUploadSuccess}
+                      handleUploadError={handleUploadError}
+                      handleKeyConfigurationValidation={
+                        handleKeyConfigurationValidation
+                      }
+                    />
       </div>
 
       <div className="flex h-24 w-1/3 items-center justify-start">

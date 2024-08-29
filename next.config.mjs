@@ -1,4 +1,10 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+import i18next from './next-i18next.config.mjs'
+
+
+const nextConfig = {
+    i18n: i18next.i18n,
+    reactStrictMode: true,
+};
 
 export default nextConfig;
