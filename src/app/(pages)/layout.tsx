@@ -1,5 +1,4 @@
 import "@/styles/globals.css";
-import { Inter } from "next/font/google";
 import type { Metadata } from "next";
 import {
   FileSearchIcon,
@@ -12,8 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "如何看待 - 像朋友聊天一样交流信息",
@@ -28,7 +25,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
         <div className="grid h-screen grid-rows-[5rem_1fr]">
           <header className="sticky top-0 flex h-20 flex-row items-center justify-between border-b bg-white px-10 shadow">
             <Avatar className="w-36">

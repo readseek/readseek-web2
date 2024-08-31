@@ -5,9 +5,9 @@ import { FC, memo, MutableRefObject, useEffect, useRef, useState } from "react";
 import { ChatInput } from "./ChatInput";
 import { ChatLoader } from "./ChatLoader";
 import { ChatMessage } from "./ChatMessage";
-import { Upload } from "@/components/Chat/Upload";
+import { UploadBox } from "@/components/Chat/UploadBox";
 import { CHAT_FILES_MAX_SIZE } from "@/utils/app/const";
-import { humanFileSize } from "@/utils/app/files";
+import { validFileSize } from "@/utils/app/files";
 
 interface Props {
   conversation: Conversation;
@@ -160,7 +160,7 @@ export const Chat: FC<Props> = memo(
 
                 <div className="mx-auto flex w-[350px] flex-col space-y-10 pt-12 sm:w-[600px]">
                   <div className="flex h-full flex-col space-y-4 rounded border border-neutral-200 p-4 dark:border-neutral-600">
-                    <Upload
+                    <UploadBox
                       onIndexChange={(index) =>
                         onUpdateConversation(conversation, {
                           key: "index",
@@ -180,7 +180,7 @@ export const Chat: FC<Props> = memo(
                         <p className="mt-2 px-8 text-xs text-gray-500 dark:text-gray-400">
                           This environment is only for trial and supports a
                           maximum file size of{" "}
-                          {humanFileSize(CHAT_FILES_MAX_SIZE)}.
+                          {validFileSize(CHAT_FILES_MAX_SIZE)}.
                         </p>
                         <p className="mt-2 px-8 text-xs text-gray-500 dark:text-gray-400">
                           Here are some good starting questions:
