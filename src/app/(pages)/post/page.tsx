@@ -29,7 +29,7 @@ export default function PostContentPage() {
   };
 
   return (
-    <main className="flex flex-col items-center pt-28">
+    <main className="pageBody">
       <div className="flex w-1/3 items-center justify-start">
         <UploadBox onFileSelected={onFileSelected} />
       </div>

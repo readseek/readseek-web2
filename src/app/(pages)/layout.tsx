@@ -6,6 +6,8 @@ import {
   User,
   Notebook,
   PackageSearch,
+  BookPlus,
+  LibrarySquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,11 +15,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "如何看待 - 像朋友聊天一样交流信息",
-  keywords: "聊天机器人，如何看待",
-  applicationName: "如何看待",
+  title: "如何看待 - 用聊天的方式阅读一本书 - 交互式阅读先驱",
   description:
-    "一个神奇的网站，如何看待将现有文档（PDF、TXT、Words、EPUB）提取并转录成AI知识库，通过对话形式交流原来需要主动阅读消化的信息，像与朋友聊天一样简单、愉快。",
+    "一款神奇的辅助阅读应用，通过将文档、语音提取并转录成AI知识库，然后用聊天的方式阅读一本书、并交流关于如何看待书中的各种问题。如何看待，交互式阅读先驱",
+  applicationName: "如何看待",
+  keywords: "阅读机器人,聊天机器人,交互式阅读,如何看待",
 };
 
 export default function RootLayout({
@@ -34,7 +36,7 @@ export default function RootLayout({
             </Avatar>
 
             <div className="flex w-1/2 items-center space-x-2">
-              <Input type="text" placeholder="搜的一下，你就知道" />
+              <Input type="text" placeholder="搜的一下，你就知道好多 🤪" />
               <Button type="submit">
                 <FileSearchIcon className="mr-2 h-4 w-4" /> 搜索
               </Button>
@@ -54,14 +56,14 @@ export default function RootLayout({
                 <li className="center h-12 w-full">
                   <Link href="/post">
                     <Button type="button">
-                      <Notebook className="mr-2 h-4 w-4" /> 发布
+                      <BookPlus className="mr-2 h-4 w-4" /> 发布
                     </Button>
                   </Link>
                 </li>
                 <li className="center h-12 w-full">
                   <Link href="/list">
                     <Button type="button">
-                      <MessageSquareText className="mr-2 h-4 w-4" /> 通知
+                      <LibrarySquare className="mr-2 h-4 w-4" /> 文库
                     </Button>
                   </Link>
                 </li>

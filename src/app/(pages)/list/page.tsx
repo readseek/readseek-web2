@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/table";
 
 const metadata = {
-  title: "通知中心 - 如何看待",
+  title: "文库中心 - 如何看待",
 };
 
 type Payment = {

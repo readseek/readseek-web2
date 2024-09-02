@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 
 export default async function PersonalPage() {
   return (
-    <main className="container flex flex-col px-52 pt-32">
-      <ul className="grid w-2/3 grid-rows-4 gap-4">
+    <main className="pageBody">
+      <ul className="grid w-1/3 grid-rows-4 gap-4">
         <li className="flex items-center justify-between">
           <Label htmlFor="avatar" className="w-28">
             头像

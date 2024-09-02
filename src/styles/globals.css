@@ -88,4 +88,8 @@
   .rectangle {
     @apply h-72 content-center rounded-md text-center leading-[3rem] text-white xl:h-96;
   }
+
+  .pageBody {
+    @apply flex flex-col items-center pt-28;
+  }
 }
