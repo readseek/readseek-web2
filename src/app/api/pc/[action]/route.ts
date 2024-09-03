@@ -4,16 +4,19 @@
 import { fileUpload, fileDelete } from "@/service/file";
 import { home, list, userUpdate } from "@/service/system";
 
-async function index(request?: Request) {
-  return new Response(JSON.stringify({ message: "Default Action Called!" }), {
-    status: 200,
+/**
+ * 处理错误请求
+ */
+async function error(request?: Request) {
+  return new Response(JSON.stringify({ message: "Action error ..." }), {
+    status: 403,
   });
 }
 
 export async function GET(request: Request, { params }: RouteContext) {
   const { action } = params;
   const routes: any = {
-    index,
+    error,
     home,
     list,
   };
@@ -21,7 +24,7 @@ export async function GET(request: Request, { params }: RouteContext) {
   if (routes[action]) {
     return routes[action](request);
   }
-  return routes.index(request);
+  return routes.error(request);
 }
 
 export async function POST(request: Request, { params }: RouteContext) {
