@@ -15,9 +15,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "如何看待 - 用聊天的方式阅读一本书 - 交互式阅读先驱",
+  title: "如何看待 - 交互式阅读先驱 - 用聊天的方式阅读一本书",
   description:
-    "一款神奇的辅助阅读应用，通过将文档、语音提取并转录成AI知识库，然后用聊天的方式阅读一本书、并交流关于如何看待书中的各种问题。如何看待，交互式阅读先驱",
+    "一款神奇的智能辅助阅读工具，通过将文档（pdf,txt,epub,markdown,docx）提取并转录成AI知识库，然后用聊天的方式进行深度阅读、并交流关于如何看待书中的各种问题。如何看待是交互式阅读先驱，让我们用聊天的方式阅读一本书吧。",
   applicationName: "如何看待",
   keywords: "阅读机器人,聊天机器人,交互式阅读,如何看待",
 };

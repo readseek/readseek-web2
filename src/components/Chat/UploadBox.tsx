@@ -8,7 +8,7 @@ interface Props {
   onFileSelected: (file: File) => void;
 }
 
-const supportFileType = ["pdf", "epub", "docx", "txt", "md", "mp3"];
+const supportFileType = ["pdf", "epub", "docx", "txt", "md"];
 const supportFileExts = supportFileType.map((item) => `.${item}`);
 
 export const UploadBox = ({ onFileSelected }: Props) => {
@@ -72,7 +72,7 @@ export const UploadBox = ({ onFileSelected }: Props) => {
             {"或者 把文件拖到此处放下"}
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            {"支持的文件类型：TXT, PDF, EPUB, Markdown, MP3"}
+            {"支持的文件类型：TXT, PDF, EPUB, Markdown, DOCX"}
           </p>
         </div>
         {uploadFile ? (
