@@ -1,11 +1,16 @@
 import { v4 as uuidv4 } from "uuid";
+import { getDocumentLoader } from "@/utils/langchain/documentLoader";
+import { getSplitterDocument } from "@/utils/langchain/splitter";
+
+const testFile = '/Users/tangkunyin/dev-workspace/OpenSource/ruhekandai/public/upload/富甲美国.pdf'
 
 const createEmbeddings = async (data: any) => {
 
-  return {
-    id: 123,
-    name: 'createEmbeddings'
-  }
+  const loader = getDocumentLoader('pdf', testFile)
+
+  const document = await loader.load();
+
+  return document
 };
 
 export const fileUpload = async (data: any) => {
@@ -23,10 +28,6 @@ export const fileUpload = async (data: any) => {
 };
 
 
-export const fileDelete = async (file: File) => {
-  return new Response(JSON.stringify({ message: "file delete success!" }), {
-    status: 200,
-  });
-};
+
 
 
