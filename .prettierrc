@@ -1,4 +1,15 @@
 {
+    "semi": true,
+    "tabWidth": 4,
+    "printWidth": 260,
+    "endOfLine": "auto",
+    "arrowParens": "avoid",
+    "requirePragma": false,
+    "bracketSpacing": true,
+    "singleQuote": true,
+    "proseWrap": "preserve",
+    "bracketSameLine": true,
+    "htmlWhitespaceSensitivity": "css",
     "plugins": ["prettier-plugin-tailwindcss"],
     "tailwindFunctions": ["clsx"]
 }

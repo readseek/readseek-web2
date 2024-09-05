@@ -1,8 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
 
 const createEmbeddings = async (data: any) => {
-  console.log(data)
 
+  return {
+    id: 123,
+    name: 'createEmbeddings'
+  }
 };
 
 export const fileUpload = async (data: any) => {
@@ -14,10 +17,7 @@ export const fileUpload = async (data: any) => {
 
     const ret = await createEmbeddings(data);
 
-
-    console.log("upload success...")
-
-    return new Response(JSON.stringify({ message: "upload success!" }), {
+    return new Response(JSON.stringify({ message: "upload success!", data: ret }), {
       status: 200,
     });
 };

@@ -1,4 +1,4 @@
 export interface EmbeddingCreateRequest {
-  fileName: string;
-  fileType: string;
+    fileName: string;
+    fileType: string;
 }
