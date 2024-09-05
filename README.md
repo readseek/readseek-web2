@@ -16,6 +16,10 @@
 
 - nextjs: https://nextjs.org/learn/dashboard-app/getting-started
 - shadcnUI: https://ui.shadcn.com/docs
+- 预训练模型：
+    - BGE-M3：https://huggingface.co/BAAI/bge-m3
+    - all-MiniLM-L6-v2：https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+    - text-embedding-ada-002：https://huggingface.co/Xenova/text-embedding-ada-002
 
 
 ## 其他
