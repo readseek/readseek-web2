@@ -1,13 +1,10 @@
-import { Conversation, KeyConfiguration, KeyValuePair, Message } from '@/types';
-import { throttle } from '@/utils';
 import { IconClearAll } from '@tabler/icons-react';
 import { FC, memo, MutableRefObject, useEffect, useRef, useState } from 'react';
 import { ChatInput } from './ChatInput';
 import { ChatLoader } from './ChatLoader';
 import { ChatMessage } from './ChatMessage';
 import { UploadBox } from '@/components/Chat/UploadBox';
-import { CHAT_FILES_MAX_SIZE } from '@/utils/app/const';
-import { validFileSize } from '@/utils/app/files';
+import { validFileSize, throttle } from '@/utils/';
 
 interface Props {
     conversation: Conversation;

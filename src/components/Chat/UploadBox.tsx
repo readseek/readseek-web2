@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
-import { validFileSize } from '@/utils/files';
+import { validFileSize } from '@/utils';
 
 interface Props {
     onFileSelected: (file: File) => void;

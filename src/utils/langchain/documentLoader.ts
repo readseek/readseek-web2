@@ -5,38 +5,48 @@ import { EPubLoader } from '@langchain/community/document_loaders/fs/epub';
 import { DocxLoader } from '@langchain/community/document_loaders/fs/docx';
 import { CSVLoader } from '@langchain/community/document_loaders/fs/csv';
 import { UnstructuredLoader } from '@langchain/community/document_loaders/fs/unstructured';
+import { DocumentType } from '@/types';
 
-export const getDocumentLoader = (fileType: string, filePath: string): DocumentLoader => {
+export const getDocumentLoader = (fileType: DocumentType, filePath: string): DocumentLoader => {
     let loader;
     switch (fileType) {
-        case 'pdf':
+        case DocumentType.PDF:
             loader = new PDFLoader(filePath, {
                 splitPages: false,
+                parsedItemSeparator: '',
             });
-            return loader;
-        case 'epub':
+            break;
+        case DocumentType.EPUB:
             loader = new EPubLoader(filePath, {
                 splitChapters: false,
             });
-            return loader;
-        case 'docx':
+            break;
+        case DocumentType.DOC:
+        case DocumentType.DOCX:
             loader = new DocxLoader(filePath);
-            return loader;
-        case 'csv':
+            break;
+        case DocumentType.CSV:
             loader = new CSVLoader(filePath);
-            return loader;
-        case 'tsv':
+            break;
+        case DocumentType.TSV:
             loader = new CSVLoader(filePath, {
                 separator: '\t',
             });
-            return loader;
-        case 'txt':
-        case 'md':
-        case 'html':
+            break;
+        case DocumentType.TXT:
             loader = new TextLoader(filePath);
-            return loader;
+            break;
         default:
-            loader = new UnstructuredLoader(filePath);
-            return loader;
+            // for markdown and html
+            loader = new UnstructuredLoader(filePath, {
+                encoding: 'utf8',
+                strategy: 'auto',
+                xmlKeepTags: false,
+                includePageBreaks: false,
+                ocrLanguages: ['en', 'zh-Hans'],
+                skipInferTableTypes: ['pdf', 'epub', 'docx', 'pptx'],
+            });
+            break;
     }
+    return loader;
 };
