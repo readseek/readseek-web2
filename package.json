@@ -12,8 +12,7 @@
     "dev": "next dev --turbo -p 4455",
     "build": "next build",
     "start": "next start -p 4455",
-    "lint": "next lint",
-    "type-check": "tsc --noEmit",
+    "lint:fix": "next lint --fix",
     "format:write": "prettier --write \"src/**/*.{ts,tsx,css,json}\" --cache"
   },
   "dependencies": {

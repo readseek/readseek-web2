@@ -27,7 +27,7 @@ export const getSplitterDocument = (type: DocumentType, texts: string[]): Promis
                     chunkOverlap: 64,
                 }).createDocuments(texts);
             default:
-                const docs = texts.map((text) => new Document({ pageContent: text }));
+                const docs = texts.map(text => new Document({ pageContent: text }));
                 return new TokenTextSplitter({
                     chunkSize: 2048,
                     chunkOverlap: 128,

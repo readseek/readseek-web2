@@ -33,8 +33,7 @@ const ToggleGroupItem = React.forwardRef<React.ElementRef<typeof ToggleGroupPrim
                 }),
                 className,
             )}
-            {...props}
-        >
+            {...props}>
             {children}
         </ToggleGroupPrimitive.Item>
     );

@@ -62,8 +62,8 @@ const data: Payment[] = [
 export const columns: ColumnDef<Payment>[] = [
     {
         id: 'select',
-        header: ({ table }) => <Checkbox checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')} onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)} aria-label="全选" />,
-        cell: ({ row }) => <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="选择一列" />,
+        header: ({ table }) => <Checkbox checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')} onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)} aria-label="全选" />,
+        cell: ({ row }) => <Checkbox checked={row.getIsSelected()} onCheckedChange={value => row.toggleSelected(!!value)} aria-label="选择一列" />,
         enableSorting: false,
         enableHiding: false,
     },
@@ -135,7 +135,7 @@ export default function FileListPage() {
     return (
         <main className="container flex flex-col">
             <div className="flex items-center py-4">
-                <Input placeholder="根据书名筛选信息" value={(table.getColumn('name')?.getFilterValue() as string) ?? ''} onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)} className="max-w-sm" />
+                <Input placeholder="根据书名筛选信息" value={(table.getColumn('name')?.getFilterValue() as string) ?? ''} onChange={event => table.getColumn('name')?.setFilterValue(event.target.value)} className="max-w-sm" />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">
@@ -145,10 +145,10 @@ export default function FileListPage() {
                     <DropdownMenuContent align="end">
                         {table
                             .getAllColumns()
-                            .filter((column) => column.getCanHide())
-                            .map((column) => {
+                            .filter(column => column.getCanHide())
+                            .map(column => {
                                 return (
-                                    <DropdownMenuCheckboxItem key={column.id} className="capitalize" checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
+                                    <DropdownMenuCheckboxItem key={column.id} className="capitalize" checked={column.getIsVisible()} onCheckedChange={value => column.toggleVisibility(!!value)}>
                                         {column.id}
                                     </DropdownMenuCheckboxItem>
                                 );
@@ -159,9 +159,9 @@ export default function FileListPage() {
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
+                        {table.getHeaderGroups().map(headerGroup => (
                             <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
+                                {headerGroup.headers.map(header => {
                                     return <TableHead key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</TableHead>;
                                 })}
                             </TableRow>
@@ -169,9 +169,9 @@ export default function FileListPage() {
                     </TableHeader>
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
+                            table.getRowModel().rows.map(row => (
                                 <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                                    {row.getVisibleCells().map((cell) => (
+                                    {row.getVisibleCells().map(cell => (
                                         <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                                     ))}
                                 </TableRow>

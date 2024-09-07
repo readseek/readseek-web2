@@ -16,11 +16,11 @@ const createEmbeddings = async (faPath: string) => {
         const document: Document[] = await loader.load();
         const splitDocuments = await getSplitterDocument(
             fileType,
-            document.map((doc) => doc.pageContent),
+            document.map(doc => doc.pageContent),
         );
 
         if (Array.isArray(splitDocuments)) {
-            splitDocuments.map((doc) => {
+            splitDocuments.map(doc => {
                 doc.metadata = { file_name: name };
             });
         }
