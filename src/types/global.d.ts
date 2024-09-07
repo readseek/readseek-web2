@@ -9,4 +9,13 @@ export declare global {
             [key: string]: any;
         };
     };
+
+    /**
+     * Service returned
+     */
+    declare type APIRet = {
+        code: number;
+        message: string;
+        data: any?;
+    };
 }

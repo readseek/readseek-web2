@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import type { Metadata } from 'next';
+import { UploadBox } from '@/components/Chat/UploadBox';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UploadCloud } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { UploadBox } from '@/components/Chat/UploadBox';
+import { useEffect } from 'react';
 
 const metadata = {
     title: '内容发布 - 如何看待',

@@ -1,15 +1,12 @@
 {
-    "semi": true,
     "tabWidth": 4,
-    "printWidth": 260,
-    "endOfLine": "auto",
-    "arrowParens": "avoid",
-    "requirePragma": false,
-    "bracketSpacing": true,
+    "printWidth": 280,
+    "semi": true,
     "singleQuote": true,
-    "proseWrap": "preserve",
-    "bracketSameLine": true,
-    "htmlWhitespaceSensitivity": "css",
-    "plugins": ["prettier-plugin-tailwindcss"],
-    "tailwindFunctions": ["clsx"]
+    "bracketSpacing": true,
+    "tailwindFunctions": ["clsx"],
+    "plugins": [
+        "prettier-plugin-organize-imports",
+        "prettier-plugin-tailwindcss"
+    ]
 }

@@ -1,30 +1,19 @@
-export const home = async () => {
-    return new Response(JSON.stringify({ message: "Get HomeData Called!" }), {
-        status: 200,
-      });
-}
+export const home = async (): Promise<APIRet> => {
+    return { code: 0, data: [], message: 'home success' };
+};
 
-export const list = async () => {
-    return new Response(JSON.stringify({ message: "Book list Called!" }), {
-        status: 200,
-      });
-}
+export const list = async (): Promise<APIRet> => {
+    return { code: 0, data: [], message: 'list success' };
+};
 
+export const userLogin = async (): Promise<APIRet> => {
+    return { code: 0, data: [], message: 'userLogin success' };
+};
 
-export const userLogin = async () => {
-    return new Response(JSON.stringify({ message: "userLogin Called!" }), {
-        status: 200,
-      });
-}
+export const userUpdate = async (): Promise<APIRet> => {
+    return { code: 0, data: [], message: 'userUpdate success' };
+};
 
-export const userUpdate = async () => {
-    return new Response(JSON.stringify({ message: "userUpdate Called!" }), {
-        status: 200,
-      });
-}
-
-export const userDelete = async () => {
-    return new Response(JSON.stringify({ message: "userDelete Called!" }), {
-        status: 200,
-      });
-}
+export const userDelete = async (): Promise<APIRet> => {
+    return { code: 0, data: [], message: 'userDelete success' };
+};

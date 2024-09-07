@@ -1,25 +1,37 @@
-import type { Document } from 'langchain/document';
-import { TokenTextSplitter, RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { DocumentType } from '@/types';
+import { Document } from 'langchain/document';
+import { RecursiveCharacterTextSplitter, TokenTextSplitter } from 'langchain/text_splitter';
 
-export const getSplitterDocument = (type: DocumentType, documents: any): Promise<Document[]> | null => {
+export const getSplitterDocument = (type: DocumentType, texts: string[]): Promise<Document[]> | null => {
     try {
         switch (type) {
+            case DocumentType.TXT:
+            case DocumentType.PDF:
+            case DocumentType.EPUB:
+            case DocumentType.DOC:
+            case DocumentType.DOCX:
+            case DocumentType.CSV:
+            case DocumentType.TSV:
+                return new RecursiveCharacterTextSplitter({
+                    chunkSize: 1024,
+                    chunkOverlap: 64,
+                }).createDocuments(texts);
             case DocumentType.Markdown:
                 return RecursiveCharacterTextSplitter.fromLanguage('markdown', {
-                    chunkSize: 256,
+                    chunkSize: 1024,
                     chunkOverlap: 64,
-                }).createDocuments(documents);
+                }).createDocuments(texts);
             case DocumentType.HTML:
                 return RecursiveCharacterTextSplitter.fromLanguage('html', {
-                    chunkSize: 256,
+                    chunkSize: 1024,
                     chunkOverlap: 64,
-                }).createDocuments(documents);
+                }).createDocuments(texts);
             default:
+                const docs = texts.map((text) => new Document({ pageContent: text }));
                 return new TokenTextSplitter({
                     chunkSize: 2048,
                     chunkOverlap: 128,
-                }).splitDocuments(documents);
+                }).splitDocuments(docs);
         }
     } catch (error) {
         console.warn('getSplitterDocument error', error);

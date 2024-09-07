@@ -1,6 +1,3 @@
-import { FileSearchIcon, MessageSquareText, User, Notebook, PackageSearch } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 
 const BookCard = () => {

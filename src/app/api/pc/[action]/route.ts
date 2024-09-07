@@ -1,45 +1,42 @@
 /**
  * 负责service分发，处理标准网络协议请求、Cookie验证等逻辑
  */
-import { fileUpload, fileDelete } from '@/service/file';
+import { fileUpload } from '@/service/file';
 import { home, list, userUpdate } from '@/service/system';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * 处理错误请求
  */
-async function error(request?: Request) {
-    return new Response(JSON.stringify({ message: 'Action error ...' }), {
-        status: 403,
-    });
+async function error(req?: NextRequest, ret?: APIRet) {
+    return NextResponse.json(ret || { code: -1, message: 'server error' }, { status: 500 });
 }
 
-export async function GET(request: Request, { params }: RouteContext) {
+export async function GET(req: NextRequest, { params }: RouteContext) {
     const { action } = params;
     const routes: any = {
-        error,
         home,
         list,
     };
 
     if (routes[action]) {
-        return routes[action](request);
+        const ret: APIRet = await routes[action](req);
+        return NextResponse.json(ret, { status: 200 });
     }
-    return routes.error(request);
+    return error(req);
 }
 
-export async function POST(request: Request, { params }: RouteContext) {
+export async function POST(req: NextRequest, { params }: RouteContext) {
     const { action } = params;
     const routes: any = {
         fileUpload,
-        fileDelete,
         userUpdate,
     };
 
     if (routes[action]) {
-        return routes[action](request);
-    } else {
-        return new Response(JSON.stringify({ error: 'Not Found' }), {
-            status: 404,
-        });
+        const ret: APIRet = await routes[action](req);
+        return NextResponse.json(ret, { status: 200 });
     }
+
+    return error(req);
 }

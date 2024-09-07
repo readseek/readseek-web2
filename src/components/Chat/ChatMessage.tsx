@@ -1,6 +1,6 @@
 import { Message } from '@/types';
 import { IconEdit } from '@tabler/icons-react';
-import { FC, useEffect, useRef, useState, memo } from 'react';
+import { FC, memo, useEffect, useRef, useState } from 'react';
 import rehypeMathjax from 'rehype-mathjax';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -68,14 +68,11 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex, onEditMessa
 
     return (
         <div
-            className={`group ${
-                message.role === 'assistant'
-                    ? 'border-b border-black/10 bg-gray-50 text-gray-800 dark:border-gray-900/50 dark:bg-[#444654] dark:text-gray-100'
-                    : 'border-b border-black/10 bg-white text-gray-800 dark:border-gray-900/50 dark:bg-[#343541] dark:text-gray-100'
-            }`}
+            className={`group ${message.role === 'assistant' ? 'border-b border-black/10 bg-gray-50 text-gray-800 dark:border-gray-900/50 dark:bg-[#444654] dark:text-gray-100' : 'border-b border-black/10 bg-white text-gray-800 dark:border-gray-900/50 dark:bg-[#343541] dark:text-gray-100'}`}
             style={{ overflowWrap: 'anywhere' }}
             onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}>
+            onMouseLeave={() => setIsHovering(false)}
+        >
             <div className="relative m-auto flex gap-4 p-4 text-base md:max-w-2xl md:gap-6 md:py-6 lg:max-w-2xl lg:px-0 xl:max-w-3xl">
                 <div className="min-w-[40px] font-bold">{message.role === 'assistant' ? 'AI' : 'You'}:</div>
 
@@ -109,7 +106,8 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex, onEditMessa
                                             onClick={() => {
                                                 setMessageContent(message.content);
                                                 setIsEditing(false);
-                                            }}>
+                                            }}
+                                        >
                                             {'Cancel'}
                                         </button>
                                     </div>
@@ -151,7 +149,8 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex, onEditMessa
                                     td({ children }) {
                                         return <td className="break-words border border-black px-3 py-1 dark:border-white">{children}</td>;
                                     },
-                                }}>
+                                }}
+                            >
                                 {message.content}
                             </MemoizedReactMarkdown>
 
