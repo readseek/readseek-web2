@@ -7,6 +7,11 @@ import { UnstructuredLoader } from '@langchain/community/document_loaders/fs/uns
 import type { DocumentLoader } from 'langchain/document_loaders/base';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 
+// Unstructured Serverless API: https://app.unstructured.io/keys
+// The free edition: https://docs.unstructured.io/api-reference/api-services/free-api
+const UNSTRUCTURED_API_KEY = 'XGoZgbsGEESJPZ9TpLp0nP0sSihlf5';
+const UNSTRUCTURED_API_URL = 'https://api.unstructuredapp.io/general/v0/general';
+
 export const getDocumentLoader = (fileType: DocumentType, filePath: string): DocumentLoader => {
     let loader;
     switch (fileType) {
@@ -38,15 +43,19 @@ export const getDocumentLoader = (fileType: DocumentType, filePath: string): Doc
             break;
         default:
             // for markdown and html
-            loader = new UnstructuredLoader(filePath, {
-                encoding: 'utf8',
-                strategy: 'auto',
-                xmlKeepTags: false,
-                includePageBreaks: false,
-                ocrLanguages: ['en', 'zh-Hans'],
-                skipInferTableTypes: ['pdf', 'epub', 'docx', 'pptx'],
-            });
+            loader = getUnstructuredLoader(filePath);
             break;
     }
+    return loader;
+};
+
+export const getUnstructuredLoader = (filePath: string): DocumentLoader => {
+    const loader = new UnstructuredLoader(filePath, {
+        apiKey: UNSTRUCTURED_API_KEY,
+        apiUrl: UNSTRUCTURED_API_URL,
+        encoding: 'utf8',
+        strategy: 'auto',
+        ocrLanguages: ['en', 'zh-Hans'],
+    });
     return loader;
 };

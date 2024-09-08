@@ -1,5 +1,5 @@
 import { getFileType } from '@/utils';
-import { getDocumentLoader } from '@/utils/langchain/documentLoader';
+import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
 import { getSplitterDocument } from '@/utils/langchain/splitter';
 import type { Document } from 'langchain/document';
 import type { NextRequest } from 'next/server';
@@ -7,25 +7,19 @@ import path from 'node:path';
 
 const createEmbeddings = async (faPath: string) => {
     try {
-        console.time('createEmbeddings');
-
         const { name, ext } = path.parse(faPath);
         const fileType = getFileType(ext);
 
-        const loader = getDocumentLoader(fileType, faPath);
-        const document: Document[] = await loader.load();
-        const splitDocuments = await getSplitterDocument(
-            fileType,
-            document.map(doc => doc.pageContent),
-        );
+        const loader = getUnstructuredLoader(faPath);
+        const documents: Document[] = await loader.load();
+        const splitDocuments = await getSplitterDocument(documents);
 
         if (Array.isArray(splitDocuments)) {
-            splitDocuments.map(doc => {
-                doc.metadata = { file_name: name };
+            splitDocuments.map((doc: any) => {
+                doc.metadata = { file_name: name, file_type: fileType };
             });
         }
 
-        console.timeEnd('createEmbeddings');
         return splitDocuments;
     } catch (error) {
         console.warn('createEmbeddings', error);
@@ -40,7 +34,8 @@ export const fileUpload = async (req: NextRequest): Promise<APIRet> => {
     // const formData = new FormData();
     // formData.append("file", file);
 
-    const testFile = '/Users/tangkunyin/dev-workspace/OpenSource/ruhekandai/public/upload/富甲美国.pdf';
+    const testFile = '/Users/tangkunyin/dev-workspace/OpenSource/ruhekandai/public/upload/Milvus.md';
+    // const testFile = '/Users/tangkunyin/dev-workspace/OpenSource/ruhekandai/public/upload/富甲美国.pdf';
 
     const ret = await createEmbeddings(testFile);
 
