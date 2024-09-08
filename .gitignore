@@ -16,6 +16,13 @@
 # production
 /build
 
+# AI models
+/src/lib/onnx/model.onnx_data
+/src/lib/onnx/sentencepiece.bpe.model
+/src/lib/onnx/special_tokens_map.json
+/src/lib/onnx/tokenizer.json
+/src/lib/onnx/tokenizer_config.json
+
 # upload files
 /public/upload/*.pdf
 /public/upload/*.epub
