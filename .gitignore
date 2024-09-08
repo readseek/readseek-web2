@@ -16,7 +16,13 @@
 # production
 /build
 
-/public/upload/*
+# upload files
+/public/upload/*.pdf
+/public/upload/*.epub
+/public/upload/*.csv
+/public/upload/*.tsv
+/public/upload/*.mp3
+
 
 # misc
 .DS_Store
