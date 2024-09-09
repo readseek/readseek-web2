@@ -7,10 +7,10 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-    title: '如何看待 - 交互式阅读先驱 - 用聊天的方式阅读一本书',
-    description: '一款神奇的智能辅助阅读工具，通过将文档（pdf,txt,epub,markdown,docx）提取并转录成AI知识库，然后用聊天的方式进行深度阅读、并交流关于如何看待书中的各种问题。如何看待是交互式阅读先驱，让我们用聊天的方式阅读一本书吧。',
-    applicationName: '如何看待',
-    keywords: '阅读机器人,聊天机器人,交互式阅读,如何看待',
+    title: '搜读 - 用对话的方式精读一本书 - 交互式阅读先驱',
+    description: '搜读是一款神奇的智能阅读工具，通过将文档（pdf,txt,epub,markdown,docx）提取并转录成AI知识库，然后用对话的方式进行有深度的高效阅读和互动。用创新的方式提升阅读的快乐指数，交互式阅读先驱。',
+    keywords: '搜读,交互式阅读,对话式阅读,智能阅读工具,在线阅读平台',
+    applicationName: '搜读',
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -20,7 +20,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <div className="grid h-screen grid-rows-[5rem_1fr]">
                     <header className="sticky top-0 flex h-20 flex-row items-center justify-between border-b bg-white px-10 shadow">
                         <Avatar className="w-36">
-                            <AvatarImage src="logo.svg" alt="@ruhekandai" />
+                            <AvatarImage src="logo.svg" alt="@readseek" />
                             <AvatarFallback>LOGO</AvatarFallback>
                         </Avatar>
 

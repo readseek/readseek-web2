@@ -8,7 +8,7 @@ import { UploadCloud } from 'lucide-react';
 import { useEffect } from 'react';
 
 const metadata = {
-    title: '内容发布 - 如何看待',
+    title: '内容发布 - 搜读',
 };
 
 export default function PostContentPage() {

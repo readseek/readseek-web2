@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: '交流中心 - 如何看待',
+    title: '交流中心 - 搜读',
 };
 
 export default async function ChatPage() {

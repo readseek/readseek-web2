@@ -10,7 +10,7 @@ import { ArrowUpDown, ChevronDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const metadata = {
-    title: '文库中心 - 如何看待',
+    title: '文库中心 - 搜读',
 };
 
 type Payment = {
@@ -25,35 +25,35 @@ const data: Payment[] = [
     {
         id: 'm5gr84i9',
         name: 'HTTP权威指南',
-        author: 'jack@ruhekandai.com',
+        author: 'jack@readseek.com',
         amount: 88,
         status: 'success',
     },
     {
         id: '3u1reuv4',
         name: 'TypeScript进阶',
-        author: 'thomas@ruhekandai.com',
+        author: 'thomas@readseek.com',
         amount: 58,
         status: 'success',
     },
     {
         id: 'derv1ws0',
         name: '低欲望社会',
-        author: 'pony@ruhekandai.com',
+        author: 'pony@readseek.com',
         amount: 43,
         status: 'pending',
     },
     {
         id: '5kma53ae',
         name: '聪明的投资',
-        author: 'tony@ruhekandai.com',
+        author: 'tony@readseek.com',
         amount: 72,
         status: 'processing',
     },
     {
         id: 'bhqecj4p',
         name: '看见',
-        author: 'lucy@ruhekandai.com',
+        author: 'lucy@readseek.com',
         amount: 50,
         status: 'failed',
     },

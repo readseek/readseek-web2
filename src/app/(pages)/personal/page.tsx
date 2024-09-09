@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: '用户中心 - 如何看待',
+    title: '用户中心 - 搜读',
 };
 
 export default async function PersonalPage() {

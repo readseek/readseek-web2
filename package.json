@@ -1,12 +1,12 @@
 {
-  "name": "ruhekandai",
+  "name": "readseek-next",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@9.8.0",
   "author": {
     "name": "Thomas Tang",
     "email": "hello@tangkunyin.com",
-    "url": "https://github.com/tangkunyin/ruhekandai"
+    "url": "https://github.com/readseek/readseek-next"
   },
   "scripts": {
     "dev": "next dev --turbo -p 4455",
