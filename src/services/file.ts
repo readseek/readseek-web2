@@ -34,10 +34,10 @@ export const fileUpload = async (req: NextRequest): Promise<APIRet> => {
     // const formData = new FormData();
     // formData.append("file", file);
 
-    const testFile = '~/dev-workspace/Tomartisan/Readseek/readseek-next/public/upload/Milvus.md';
-    // const testFile = '~/dev-workspace/Tomartisan/Readseek/readseek-next/public/upload/upload/富甲美国.pdf';
+    const filePath = path.resolve('public/upload/', 'Milvus.md');
+    console.log('join here is: ', filePath);
 
-    const ret = await createEmbeddings(testFile);
+    const ret = await createEmbeddings(filePath);
 
     return { code: 0, data: ret, message: 'success' };
 };

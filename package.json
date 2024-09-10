@@ -13,7 +13,9 @@
     "build": "next build",
     "start": "next start -p 4455",
     "lint:fix": "next lint --fix",
-    "format:write": "prettier --write \"src/**/*.{ts,tsx,css,json}\" --cache"
+    "type-check": "tsc --noEmit",
+    "format:write": "prettier --write \"src/**/*.{ts,tsx,css,json}\" --cache",
+    "emit:onnxruntime": "tsc node_modules/onnxruntime-node/lib/*.ts --lib esnext --allowJs --declaration --emitDeclarationOnly --outDir ./dist"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
