@@ -14,8 +14,7 @@
     "start": "next start -p 4455",
     "lint:fix": "next lint --fix",
     "type-check": "tsc --noEmit",
-    "format:write": "prettier --write \"src/**/*.{ts,tsx,css,json}\" --cache",
-    "emit:onnxruntime": "tsc node_modules/onnxruntime-node/lib/*.ts --lib esnext --allowJs --declaration --emitDeclarationOnly --outDir ./dist"
+    "format:write": "prettier --write \"src/**/*.{ts,tsx,css,json}\" --cache"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -72,7 +71,7 @@
     "next-i18next": "^15.3.1",
     "next-themes": "^0.3.0",
     "node-fetch": "^3.3.2",
-    "onnxruntime-node": "^1.19.2",
+    "onnxruntime-node": "1.19.2",
     "pdf-parse": "^1.1.1",
     "react": "^18",
     "react-dom": "^18",
