@@ -1,11 +1,12 @@
 import { getFileType } from '@/utils';
+import { createEmbeddings } from '@/utils/embeddings';
 import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
 import { getSplitterDocument } from '@/utils/langchain/splitter';
 import type { Document } from 'langchain/document';
 import type { NextRequest } from 'next/server';
 import path from 'node:path';
 
-const createEmbeddings = async (faPath: string) => {
+const saveEmbeddings = async (faPath: string) => {
     try {
         const { name, ext } = path.parse(faPath);
         const fileType = getFileType(ext);
@@ -19,6 +20,8 @@ const createEmbeddings = async (faPath: string) => {
                 doc.metadata = { file_name: name, file_type: fileType };
             });
         }
+
+        createEmbeddings(splitDocuments);
 
         return splitDocuments;
     } catch (error) {
@@ -35,9 +38,8 @@ export const fileUpload = async (req: NextRequest): Promise<APIRet> => {
     // formData.append("file", file);
 
     const filePath = path.resolve('public/upload/', 'Milvus.md');
-    console.log('join here is: ', filePath);
 
-    const ret = await createEmbeddings(filePath);
+    const ret = await saveEmbeddings(filePath);
 
     return { code: 0, data: ret, message: 'success' };
 };

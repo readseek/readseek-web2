@@ -1,4 +1,14 @@
 import { DocumentType } from '@/types';
+import os from 'node:os';
+import path from 'node:path';
+
+export const absolutePath = (ps: string): string => {
+    if (ps.startsWith('~/')) {
+        // Replace '~' with the home directory
+        return path.resolve(os.homedir(), ps.slice(2));
+    }
+    return path.resolve(ps, '');
+};
 
 export const validFileSize = (size: number): string => {
     const units = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
