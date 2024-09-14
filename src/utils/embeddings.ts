@@ -1,37 +1,36 @@
 import path from 'node:path';
-import * as ort from 'onnxruntime-node';
+// @ts-ignore
+import { InferenceSession, Tensor } from 'onnxruntime-node';
 import { Tokenizer } from 'tokenizers';
 import { absolutePath } from './index';
-// @ts-ignore
-import { Tensor } from 'onnxruntime-node';
 
-const MODEL_LOCAL_ROOT_PATH = '~/.onnx_models';
-const enum ModelType {
-    BGE_M3 = 'bge-m3/model.onnx',
-    ALL_MiniLM_L6_V2 = 'all-MiniLM-L6-v2/model.onnx',
-}
+const LOCAL_MODEL_ROOT_PATH = '~/.onnx_models';
 
-export const loadOnnxModel = async (type: ModelType) => {
-    const modelPath = absolutePath(path.join(MODEL_LOCAL_ROOT_PATH, type));
-    // @ts-ignore
-    const session = await ort.InferenceSession.create(modelPath);
-    return session;
+const loadOnnxModel = async (modelPath: string) => {
+    return InferenceSession.create(modelPath);
 };
 
-export const createEmbeddings = async (text: any) => {
-    const session: any = loadOnnxModel(ModelType.BGE_M3);
+export const enum ModelType {
+    BGE_M3 = 'bge-m3',
+    ALL_MiniLM_L6_V2 = 'all-MiniLM-L6-v2',
+}
 
-    // Use Hugging Face tokenizer to tokenize the input text
-    const tokenizer = new Tokenizer({ model: 'sentence-transformers/all-mpnet-base-v2' });
-    const inputs = tokenizer.encode(text);
+export const createEmbeddings = async (text: any, type?: ModelType) => {
+    const modelPath = absolutePath(path.join(LOCAL_MODEL_ROOT_PATH, type ? `${type}/model.onnx` : `${ModelType.BGE_M3}/model.onnx`));
+    const tokenizerPath = absolutePath(path.join(LOCAL_MODEL_ROOT_PATH, type ? `${type}/tokenizer.json` : `${ModelType.BGE_M3}/tokenizer.json`));
 
-    const inputIds = new Tensor('int64', inputs.input_ids, [1, inputs.input_ids.length]);
-    const attentionMask = new Tensor('int64', inputs.attention_mask, [1, inputs.attention_mask.length]);
+    const session: any = await loadOnnxModel(modelPath);
+
+    const tokenizer = await Tokenizer.fromFile(tokenizerPath);
+    const inputs = await tokenizer.encode(text);
+
+    const Ids = inputs.getIds();
+    const attentionMask = inputs.getAttentionMask();
 
     // Create the feeds for the model
     const feeds = {
-        input_ids: inputIds,
-        attention_mask: attentionMask,
+        input_ids: new Tensor(Ids, [1, Ids.length]),
+        attention_mask: new Tensor(attentionMask, [1, attentionMask.length]),
     };
 
     // Run inference

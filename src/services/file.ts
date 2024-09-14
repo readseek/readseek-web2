@@ -21,9 +21,9 @@ const saveEmbeddings = async (faPath: string) => {
             });
         }
 
-        createEmbeddings(splitDocuments);
+        const docEmbeddings = await createEmbeddings(splitDocuments);
 
-        return splitDocuments;
+        return docEmbeddings;
     } catch (error) {
         console.warn('createEmbeddings', error);
         return null;
