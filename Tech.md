@@ -78,7 +78,7 @@ PS：<u>目前有个[@huggingface/transformers](https://www.npmjs.com/package/@h
 3. 官仓构建后**缺失native modules**，这就会导致`Cannot find module 'tokenizers-darwin-arm64'`类似的错误，详见：[issues](https://github.com/huggingface/tokenizers/issues/1403), [PR-1459](https://github.com/huggingface/tokenizers/pull/1459) 和 [PR-6](https://github.com/turingscript/tokenizers/pull/6)
 4. 官方示例（走投无路时可以参考）：<https://github.com/huggingface/tokenizers/blob/main/bindings/node/examples/documentation/pipeline.test.ts>
 
-如果能忍受这些坑点，那就接着起航吧...
+如果能忍受这些坑点，那就接着奏乐接着舞吧...
 
 ```bash
 # 前文提过，通过这个方式安装的依赖，运行时会出现：Cannot find module
@@ -98,4 +98,6 @@ const nextConfig = {
 };
 ```
 
-<u>种种迹象说明，想通过Nodejs愉快的玩，往往会让人血压一路飙升...</u>
+## 其他
+
+<u>种种迹象说明，想通过Nodejs本地化愉快的玩，往往会让人血压一路飙升...</u>
