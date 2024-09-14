@@ -1,7 +1,7 @@
+import { Tokenizer } from '@turingscript/tokenizers';
 import path from 'node:path';
 // @ts-ignore
 import { InferenceSession, Tensor } from 'onnxruntime-node';
-import { Tokenizer } from 'tokenizers';
 import { absolutePath } from './index';
 
 const LOCAL_MODEL_ROOT_PATH = '~/.onnx_models';

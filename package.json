@@ -49,6 +49,7 @@
     "@radix-ui/react-tooltip": "^1.1.2",
     "@tabler/icons-react": "^3.14.0",
     "@tanstack/react-table": "^8.20.5",
+    "@turingscript/tokenizers": "0.15.2-alpha.4",
     "@zilliz/milvus2-sdk-node": "^2.4.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -88,7 +89,6 @@
     "srt-parser-2": "^1.2.3",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
-    "tokenizers": "^0.13.3",
     "uuid": "^10.0.0",
     "vaul": "^0.9.1",
     "zod": "^3.23.8"

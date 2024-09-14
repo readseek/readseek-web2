@@ -29,7 +29,7 @@
 1. 官方：`@huggingface/inference`以及`tokenizers@latest`
 2. xenova出品：<https://www.npmjs.com/package/@xenova/transformers>
 
-PS：<u>xenova貌似为Hugging Face的员工，目前有个[@huggingface/transformers](https://www.npmjs.com/package/@huggingface/transformers)的库，不过目前处于`3.0.0-alpha.xx`版本，如果直接调用`transformers`，可能还是需要直接使用：`@xenova/transformers`，这个目前版本是`2.7.12`</u>
+PS：<u>目前有个[@huggingface/transformers](https://www.npmjs.com/package/@huggingface/transformers)的库，不过目前处于`3.0.0-alpha.xx`版本，如果直接调用`transformers`，可能还是需要直接使用：`@xenova/transformers`，这个目前版本是`2.7.12`</u>
 
 ### 本地模型
 
@@ -53,10 +53,22 @@ PS：<u>xenova貌似为Hugging Face的员工，目前有个[@huggingface/transfo
 如果能忍受这些坑点，那就接着起航吧...
 
 ```bash
+# 前文提过，通过这个方式安装的依赖，运行时会出现：Cannot find module
 pnpm add tokenizers@latest
+
+# 因此需要换成这个
+pnpm add @turingscript/tokenizers
 ```
 
-#### 解决原生模块的错误问题
+基于Nextjs的项目，还需要额外配置：
+
+```javascript
+const nextConfig = {
+    experimental: {
+        serverComponentsExternalPackages: ['sharp', 'onnxruntime-node', '@turingscript/tokenizers'],
+    },
+};
+```
 
 <u>种种迹象说明，想通过Nodejs愉快的玩，往往会让人血压一路飙升...</u>
 

@@ -6,7 +6,7 @@ const nextConfig = {
     reactStrictMode: true,
 
     experimental: {
-        serverComponentsExternalPackages: ['sharp', 'onnxruntime-node'],
+        serverComponentsExternalPackages: ['sharp', 'onnxruntime-node', '@turingscript/tokenizers'],
     },
 };
 
