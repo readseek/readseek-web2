@@ -16,27 +16,31 @@ export const enum ModelType {
 }
 
 export const createEmbeddings = async (text: any, type?: ModelType) => {
-    const modelPath = absolutePath(path.join(LOCAL_MODEL_ROOT_PATH, type ? `${type}/model.onnx` : `${ModelType.BGE_M3}/model.onnx`));
-    const tokenizerPath = absolutePath(path.join(LOCAL_MODEL_ROOT_PATH, type ? `${type}/tokenizer.json` : `${ModelType.BGE_M3}/tokenizer.json`));
+    let embeddings = null;
+    try {
+        // Create the feeds for the model
+        const tokenizerPath = absolutePath(path.join(LOCAL_MODEL_ROOT_PATH, type ? `${type}/tokenizer.json` : `${ModelType.BGE_M3}/tokenizer.json`));
+        console.log('tokenizer local path ==>', tokenizerPath);
 
-    const session: any = await loadOnnxModel(modelPath);
+        const tokenizer = await Tokenizer.fromFile(tokenizerPath);
+        const inputs = await tokenizer.encode('Hello World.');
+        const Ids = inputs.getIds();
+        const attentionMask = inputs.getAttentionMask();
+        const feeds = {
+            input_ids: new Tensor(Ids, [1, Ids.length]),
+            attention_mask: new Tensor(attentionMask, [1, attentionMask.length]),
+        };
 
-    const tokenizer = await Tokenizer.fromFile(tokenizerPath);
-    const inputs = await tokenizer.encode(text);
+        // Run inference
+        const modelPath = absolutePath(path.join(LOCAL_MODEL_ROOT_PATH, type ? `${type}/model.onnx` : `${ModelType.BGE_M3}/model.onnx`));
+        console.log('onnx local model path ==>', modelPath);
+        const session: any = await loadOnnxModel(modelPath);
+        const output = await session.run(feeds);
 
-    const Ids = inputs.getIds();
-    const attentionMask = inputs.getAttentionMask();
-
-    // Create the feeds for the model
-    const feeds = {
-        input_ids: new Tensor(Ids, [1, Ids.length]),
-        attention_mask: new Tensor(attentionMask, [1, attentionMask.length]),
-    };
-
-    // Run inference
-    const output = await session.run(feeds);
-
-    // Extract and return the embeddings (usually the output is the 'pooler_output' or 'last_hidden_state')
-    const embeddings = output['last_hidden_state'].data;
+        // Extract and return the embeddings (usually the output is the 'pooler_output' or 'last_hidden_state')
+        embeddings = output['last_hidden_state'].data;
+    } catch (error) {
+        console.error(error);
+    }
     return embeddings;
 };
