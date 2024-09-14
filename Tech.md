@@ -1,5 +1,10 @@
 # 搜读技术架构及说明
 
+> 声明：
+
+1. 基于Nodejs
+2. 能在本地跑的，都在本地
+
 ## 技术栈
 
 - nextjs: <https://nextjs.org/learn/dashboard-app/getting-started>
@@ -13,17 +18,21 @@
 
 > 本章节主要以搜读所用到的技术点来说明，不表示所述套件的全部功能和用途。
 
-### Langchian
-
-1. 加载本地文档，并分割其内容
-
 ### Milvus
 
 提供向量数据库应有的能力，不过一切都是本地化服务。搜读使用本地Docker化环境开发...
 
+### Langchian
+
+**加载本地文档，并分割其内容**
+
+由于`langchain.js`本地库对于非结构化数据处理不太理想，所以用到了[unstructured](https://unstructured.io)
+
 ### ONNX Runtime
 
-> 主包`onnxruntime-node`，其官方文档稀烂，特别是没有`typings`定义。在引用依赖时需要自己定义`.d.ts`文件
+> 使用转换为 ONNX 的HG模型创建嵌入模型(createEmbeddings)
+
+主包`onnxruntime-node`，其官方文档稀烂，特别是没有`typings`定义。在引用依赖时需要自己定义`.d.ts`文件
 
 1. 通过`InferenceSession`加载本地模型
 2. 通过`Tensor`构建特征数据
@@ -41,16 +50,21 @@
 
 ### Hugging Face LLMs
 
-> 分为`@huggingface/inference`和`@turingscript/tokenizers`两个包，其中后者为基于官方的升级包（主要解决原生模块引用的问题）
+分为`@huggingface/inference`和`@turingscript/tokenizers`两个包，其中后者为基于官方的升级包（主要解决原生模块引用的问题）
 
-1. inference：加载本地onnx格式的模型，通过模型创建Embeddings并调用模型的推理能力。
-2. tokenizer：负责将`langchian split`的结果转化为大模型能直接处理的数据。
+1. inference：通过APIKey加载远程模型，通过模型创建Embeddings并调用模型的推理能力。**若不直接使用HG Hub的模型，这个包可以不用**
+
+- <https://huggingface.co/docs/huggingface.js/index>
+
+2. tokenizer：负责将`langchian split`的结果转化为大模型能直接处理的数据。**若本地化运行，一定需要这个**
+
+- <https://huggingface.co/docs/tokenizers/pipeline>
 
 #### Transformer
 
-> 有两种方式调用来自Hugging Face的模型：
+有两种方式调用来自Hugging Face的模型：
 
-1. 官方：`@huggingface/inference`以及`tokenizers@latest`
+1. 官方：`@huggingface/inference`，直接通过API Key调用；
 2. xenova出品：<https://www.npmjs.com/package/@xenova/transformers>
 
 PS：<u>目前有个[@huggingface/transformers](https://www.npmjs.com/package/@huggingface/transformers)的库，不过目前处于`3.0.0-alpha.xx`版本，如果直接调用`transformers`，可能还是需要直接使用：`@xenova/transformers`，这个目前版本是`2.7.12`</u>
@@ -59,9 +73,10 @@ PS：<u>目前有个[@huggingface/transformers](https://www.npmjs.com/package/@h
 
 如果不用xenova开发的`transformers.js`，则需要自己找`tokenizer`的库！需要注意：
 
-1. HG官方包`@huggingface/inference`里没有`tokenizer`方法，而且Node文档写的也比较勉强；
+1. HG官方包`@huggingface/inference`里没有`tokenizer`方法；
 2. 虽然提供[Tokenizer](https://github.com/huggingface/tokenizers/tree/main/bindings/node)的Nodejs解决方案，但是不太容易找到入口、而且有一年没有更新了，并且官方的示例代码都比较旧；
 3. 官方的node工程里没有native modules，这就以为着`Cannot find module 'tokenizers-darwin-arm64'`类似的错都会遇到，详见：[issues](https://github.com/huggingface/tokenizers/issues/1403), [PR-1459](https://github.com/huggingface/tokenizers/pull/1459) 和 [PR-6](https://github.com/turingscript/tokenizers/pull/6)
+4. 官方示例（走投无路时可以参考）：<https://github.com/huggingface/tokenizers/blob/main/bindings/node/examples/documentation/pipeline.test.ts>
 
 如果能忍受这些坑点，那就接着起航吧...
 
