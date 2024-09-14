@@ -71,9 +71,9 @@ PS：<u>目前有个[@huggingface/transformers](https://www.npmjs.com/package/@h
 
 #### Tokenizer
 
-如果不用xenova开发的`transformers.js`，则需要自己找`tokenizer`的库！需要注意：
+> 如果不用官方的API调用，也不使用xenova开发的`transformers.js`，则需要自己处理`tokenizer`。注意事项：
 
-1. HG官方包`@huggingface/inference`里没有`tokenizer`方法；
+1. HG官包`@huggingface/xxx`系列并不包括`tokenizers`，它是一个看似独立的包`tokenizers@latest`；
 2. 虽然提供[Tokenizer](https://github.com/huggingface/tokenizers/tree/main/bindings/node)的Nodejs解决方案，但是不太容易找到入口、而且有一年没有更新了，并且官方的示例代码都比较旧；
 3. 官方的node工程里没有native modules，这就以为着`Cannot find module 'tokenizers-darwin-arm64'`类似的错都会遇到，详见：[issues](https://github.com/huggingface/tokenizers/issues/1403), [PR-1459](https://github.com/huggingface/tokenizers/pull/1459) 和 [PR-6](https://github.com/turingscript/tokenizers/pull/6)
 4. 官方示例（走投无路时可以参考）：<https://github.com/huggingface/tokenizers/blob/main/bindings/node/examples/documentation/pipeline.test.ts>
