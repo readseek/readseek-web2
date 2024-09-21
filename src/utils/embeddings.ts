@@ -6,20 +6,51 @@ import { InferenceSession, Tensor } from 'onnxruntime-node';
 let session: any;
 let tokenizer: Tokenizer;
 
-export const createEmbeddings = async (text: any) => {
-    let embeddings = null;
-    try {
-        if (!session) {
+const initialize = async () => {
+    if (!session) {
+        try {
             const { localPath, localTokenizerPath, type } = getOnnxModel();
-            session = await InferenceSession.create(localPath);
+            session = await InferenceSession.create(localPath, {
+                enableCpuMemArena: true,
+                enableMemPattern: true,
+                executionMode: 'parallel',
+                graphOptimizationLevel: 'all',
+                logLevel: 'warning',
+                // 0: Verbose, 1: Info, 2: Warning, 3: Error, 4: Fatal
+                logSeverityLevel: 2,
+                // 0 means use all available threads
+                interOpNumThreads: 0,
+                intraOpNumThreads: 0,
+            });
+
+            console.log('Inputs:');
+            session.inputNames.forEach(name => {
+                console.log(`  ${name}:`);
+            });
+
+            console.log('Outputs:');
+            session.outputNames.forEach(name => {
+                console.log(`  ${name}:`);
+            });
+
             if (!tokenizer && localTokenizerPath) {
                 tokenizer = Tokenizer.fromFile(localTokenizerPath);
                 console.log('preTokenizer and its type', tokenizer.getPreTokenizer(), type);
             }
+        } catch (error) {
+            console.error('initialize onnx model error: ', error);
         }
+    }
+};
+
+export const createEmbeddings = async (text: any) => {
+    let embeddings = null;
+    try {
+        await initialize();
+        // console.log('text', text);
 
         // Create the feeds for the model
-        const inputs = await tokenizer.encode('Hello World.');
+        const inputs = await tokenizer.encode('Hello World.', null, { isPretokenized: true, addSpecialTokens: true });
         const Ids = inputs.getIds();
         const attentionMask = inputs.getAttentionMask();
 
