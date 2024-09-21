@@ -149,6 +149,9 @@ importers:
       langchain:
         specifier: ^0.2.18
         version: 0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0)
+      lru-cache:
+        specifier: ^11.0.1
+        version: 11.0.1
       lucide-react:
         specifier: ^0.417.0
         version: 0.417.0(react@18.3.1)
@@ -3540,6 +3543,10 @@ packages:
 
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
+
+  lru-cache@11.0.1:
+    resolution: {integrity: sha512-CgeuL5uom6j/ZVrg7G/+1IXqRY8JXX4Hghfy5YE0EhoYQWvndP1kufu58cmZLNIDKnRhZrXfdS9urVWx98AipQ==}
+    engines: {node: 20 || >=22}
 
   lru-cache@9.1.2:
     resolution: {integrity: sha512-ERJq3FOzJTxBbFjZ7iDs+NiK4VI9Wz+RdrrAB8dio1oV+YvdPzUEE4QNiT2VD51DkIbCYRUUzCRkssXCHqSnKQ==}
@@ -8073,6 +8080,8 @@ snapshots:
       highlight.js: 10.7.3
 
   lru-cache@10.4.3: {}
+
+  lru-cache@11.0.1: {}
 
   lru-cache@9.1.2: {}
 

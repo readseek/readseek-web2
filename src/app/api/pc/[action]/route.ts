@@ -1,8 +1,8 @@
 /**
  * 负责service分发，处理标准网络协议请求、Cookie验证等逻辑
  */
-import { fileUpload } from '@/service/file';
-import { home, list, userUpdate } from '@/service/system';
+import { fileUpload } from '@/services/file';
+import { home, list, userUpdate } from '@/services/system';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**

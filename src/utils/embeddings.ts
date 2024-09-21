@@ -1,44 +1,37 @@
+import { getOnnxModel } from '@/constants/OnnxModel';
 import { Tokenizer } from '@turingscript/tokenizers';
-import path from 'node:path';
 // @ts-ignore
 import { InferenceSession, Tensor } from 'onnxruntime-node';
-import { absolutePath } from './index';
 
-const LOCAL_MODEL_ROOT_PATH = '~/.onnx_models';
+let session: any;
+let tokenizer: Tokenizer;
 
-const loadOnnxModel = async (modelPath: string) => {
-    return InferenceSession.create(modelPath);
-};
-
-export const enum ModelType {
-    BGE_M3 = 'bge-m3',
-    ALL_MiniLM_L6_V2 = 'all-MiniLM-L6-v2',
-}
-
-export const createEmbeddings = async (text: any, type?: ModelType) => {
+export const createEmbeddings = async (text: any) => {
     let embeddings = null;
     try {
-        // Create the feeds for the model
-        const tokenizerPath = absolutePath(path.join(LOCAL_MODEL_ROOT_PATH, type ? `${type}/tokenizer.json` : `${ModelType.BGE_M3}/tokenizer.json`));
-        console.log('tokenizer local path ==>', tokenizerPath);
+        if (!session) {
+            const { localPath, localTokenizerPath, type } = getOnnxModel();
+            session = await InferenceSession.create(localPath);
+            if (!tokenizer && localTokenizerPath) {
+                tokenizer = Tokenizer.fromFile(localTokenizerPath);
+                console.log('preTokenizer and its type', tokenizer.getPreTokenizer(), type);
+            }
+        }
 
-        const tokenizer = await Tokenizer.fromFile(tokenizerPath);
+        // Create the feeds for the model
         const inputs = await tokenizer.encode('Hello World.');
         const Ids = inputs.getIds();
         const attentionMask = inputs.getAttentionMask();
-        const feeds = {
-            input_ids: new Tensor(Ids, [1, Ids.length]),
-            attention_mask: new Tensor(attentionMask, [1, attentionMask.length]),
-        };
 
-        // Run inference
-        const modelPath = absolutePath(path.join(LOCAL_MODEL_ROOT_PATH, type ? `${type}/model.onnx` : `${ModelType.BGE_M3}/model.onnx`));
-        console.log('onnx local model path ==>', modelPath);
-        const session: any = await loadOnnxModel(modelPath);
-        const output = await session.run(feeds);
+        // Run local inference
+        const output = await session.run({
+            input_ids: new Tensor('int64', Ids, [1, Ids.length]),
+            attention_mask: new Tensor('int64', attentionMask, [1, attentionMask.length]),
+        });
 
-        // Extract and return the embeddings (usually the output is the 'pooler_output' or 'last_hidden_state')
-        embeddings = output['last_hidden_state'].data;
+        // embeddings = output['last_hidden_state'].data;
+
+        embeddings = output;
     } catch (error) {
         console.error(error);
     }

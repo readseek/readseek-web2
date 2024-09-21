@@ -12,7 +12,7 @@
 - 预训练模型：
   - BGE-M3：<https://huggingface.co/BAAI/bge-m3>
   - all-MiniLM-L6-v2：<https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2>
-  - text-embedding-ada-002：<https://huggingface.co/Xenova/text-embedding-ada-002>
+  - gte-multilingual-base：<https://huggingface.co/Alibaba-NLP/gte-multilingual-base>
 
 ## 各AI套件作用和依赖关系
 
@@ -101,3 +101,7 @@ const nextConfig = {
 ## 其他
 
 <u>种种迹象说明，想通过Nodejs本地化愉快的玩，往往会让人血压一路飙升...</u>
+
+### 参考
+
+- [Hugging Face Nextjs Inference](https://huggingface.co/docs/transformers.js/tutorials/next#server-side-inference)

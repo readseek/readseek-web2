@@ -1,5 +1,5 @@
 import { UploadBox } from '@/components/Chat/UploadBox';
-import { throttle, validFileSize } from '@/utils/';
+import { throttle, validFileSize } from '@/utils/common';
 import { IconClearAll } from '@tabler/icons-react';
 import { FC, memo, MutableRefObject, useEffect, useRef, useState } from 'react';
 import { ChatInput } from './ChatInput';

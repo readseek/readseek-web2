@@ -1,7 +1,7 @@
 'use client';
 
 import { useToast } from '@/components/ui/use-toast';
-import { validFileSize } from '@/utils';
+import { validFileSize } from '@/utils/common';
 import { useState } from 'react';
 
 interface Props {

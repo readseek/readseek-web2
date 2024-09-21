@@ -1,4 +1,4 @@
-import { getFileType } from '@/utils';
+import { getFileType } from '@/utils/common';
 import { createEmbeddings } from '@/utils/embeddings';
 import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
 import { getSplitterDocument } from '@/utils/langchain/splitter';
