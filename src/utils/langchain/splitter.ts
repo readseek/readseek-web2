@@ -1,5 +1,6 @@
 import { Document } from 'langchain/document';
 import { TokenTextSplitter } from 'langchain/text_splitter';
+import { systemLog } from '../common';
 
 export const getSplitterDocument = (docs: Document[]): Promise<Document[]> | null => {
     try {
@@ -8,7 +9,7 @@ export const getSplitterDocument = (docs: Document[]): Promise<Document[]> | nul
             chunkOverlap: 100,
         }).splitDocuments(docs);
     } catch (error) {
-        console.warn('getSplitterDocument error', error);
+        systemLog(1, 'getSplitterDocument error', error);
         return null;
     }
 };

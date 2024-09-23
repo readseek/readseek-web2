@@ -39,7 +39,7 @@ const initialize = async () => {
                 systemLog(0, 'preTokenizer and its type are: ', tokenizer.getPreTokenizer(), type);
             }
         } catch (error) {
-            console.error('initialize onnx model error: ', error);
+            systemLog(-1, 'initialize onnx model error: ', error);
         }
     }
 };
@@ -64,7 +64,7 @@ export const createEmbeddings = async (text: any) => {
 
         embeddings = output;
     } catch (error) {
-        console.error(error);
+        systemLog(-1, error);
     }
     return embeddings;
 };

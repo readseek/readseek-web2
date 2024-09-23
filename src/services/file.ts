@@ -1,4 +1,4 @@
-import { getFileType } from '@/utils/common';
+import { getFileType, systemLog } from '@/utils/common';
 import { createEmbeddings } from '@/utils/embeddings';
 import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
 import { getSplitterDocument } from '@/utils/langchain/splitter';
@@ -25,7 +25,7 @@ const saveEmbeddings = async (faPath: string) => {
 
         return docEmbeddings;
     } catch (error) {
-        console.warn('createEmbeddings', error);
+        systemLog(1, 'createEmbeddings', error);
         return null;
     }
 };
