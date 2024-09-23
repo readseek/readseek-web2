@@ -7,8 +7,8 @@ import { UnstructuredLoader } from '@langchain/community/document_loaders/fs/uns
 import type { DocumentLoader } from 'langchain/document_loaders/base';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 
-const UNSTRUCTURED_API_KEY = 'omU8j7FG370hhl1oUDR61ZHAXFaURn';
-const UNSTRUCTURED_API_URL = 'https://api.unstructured.io/general/v0/general';
+const UNSTRUCTURED_API_KEY = process.env.__RSN_UNSTRUCTURED_API_KEY as string;
+const UNSTRUCTURED_API_URL = process.env.__RSN_UNSTRUCTURED_API_URL as string;
 
 export const getDocumentLoader = (fileType: DocumentType, filePath: string): DocumentLoader => {
     let loader;

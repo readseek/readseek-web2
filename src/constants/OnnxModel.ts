@@ -17,7 +17,7 @@ export type OnnxModel = {
     localTokenizerPath?: string;
 };
 
-const LOCAL_MODEL_ROOT_PATH = '~/.onnx_models';
+const LOCAL_MODEL_ROOT_PATH = process.env.__RSN_LOCAL_MODEL_ROOT_PATH as string;
 
 const ModelConfig: Record<ModelName, OnnxModel> = {
     [ModelName.ALL_MiniLM_L6_V2]: {
