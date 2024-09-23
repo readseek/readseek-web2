@@ -2,6 +2,7 @@ import { getOnnxModel } from '@/constants/OnnxModel';
 import { Tokenizer } from '@turingscript/tokenizers';
 // @ts-ignore
 import { InferenceSession, Tensor } from 'onnxruntime-node';
+import { systemLog } from './common';
 
 let session: any;
 let tokenizer: Tokenizer;
@@ -23,19 +24,19 @@ const initialize = async () => {
                 intraOpNumThreads: 0,
             });
 
-            console.log('Inputs:');
+            systemLog(1, 'Inputs:');
             session.inputNames.forEach(name => {
-                console.log(`  ${name}:`);
+                systemLog(0, `  ${name}:`);
             });
 
-            console.log('Outputs:');
+            systemLog(1, 'Outputs:');
             session.outputNames.forEach(name => {
-                console.log(`  ${name}:`);
+                systemLog(0, `  ${name}:`);
             });
 
             if (!tokenizer && localTokenizerPath) {
                 tokenizer = Tokenizer.fromFile(localTokenizerPath);
-                console.log('preTokenizer and its type', tokenizer.getPreTokenizer(), type);
+                systemLog(0, 'preTokenizer and its type are: ', tokenizer.getPreTokenizer(), type);
             }
         } catch (error) {
             console.error('initialize onnx model error: ', error);
@@ -47,7 +48,6 @@ export const createEmbeddings = async (text: any) => {
     let embeddings = null;
     try {
         await initialize();
-        // console.log('text', text);
 
         // Create the feeds for the model
         const inputs = await tokenizer.encode('Hello World.', null, { isPretokenized: true, addSpecialTokens: true });

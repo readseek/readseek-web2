@@ -4,6 +4,7 @@ import { UploadBox } from '@/components/Chat/UploadBox';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { systemLog } from '@/utils/common';
 import { UploadCloud } from 'lucide-react';
 import { useEffect } from 'react';
 
@@ -17,7 +18,7 @@ export default function PostContentPage() {
     }, []);
 
     const onFileSelected = (file: File) => {
-        console.log(file);
+        systemLog(0, file);
     };
 
     return (

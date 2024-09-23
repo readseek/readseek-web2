@@ -1,6 +1,41 @@
 import { DocumentType } from '@/types';
+import chalk from 'chalk';
 import os from 'node:os';
 import path from 'node:path';
+
+export const getFullTime = () => {
+    const formattedDate = new Date().toLocaleString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZone: 'Asia/Hong_Kong',
+        hour12: false,
+        fractionalSecondDigits: 3,
+    });
+    return formattedDate.replace(/\//g, '-');
+};
+
+export const systemLog = (level: 0 | 1 | -1, ...args: any[]) => {
+    if (!process.env.__RSN_ENV || process.env.__RSN_ENV === 'dev') {
+        const _log = (...logs: any[]) => {
+            switch (level) {
+                case 1:
+                    console.log(chalk.yellow.underline(`[${getFullTime()}]`), ...logs);
+                    break;
+                case -1:
+                    console.log(chalk.red.bold.underline(`[${getFullTime()}]`), ...logs);
+                    break;
+                default:
+                    console.log(chalk.green(`[${getFullTime()}]`), ...logs);
+                    break;
+            }
+        };
+        _log(...args);
+    }
+};
 
 export const absolutePath = (ps: string): string => {
     if (ps.startsWith('~/')) {
