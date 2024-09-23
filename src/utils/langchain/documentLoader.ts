@@ -7,10 +7,8 @@ import { UnstructuredLoader } from '@langchain/community/document_loaders/fs/uns
 import type { DocumentLoader } from 'langchain/document_loaders/base';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 
-// Unstructured Serverless API: https://app.unstructured.io/keys
-// The free edition: https://docs.unstructured.io/api-reference/api-services/free-api
-const UNSTRUCTURED_API_KEY = 'XGoZgbsGEESJPZ9TpLp0nP0sSihlf5';
-const UNSTRUCTURED_API_URL = 'https://api.unstructuredapp.io/general/v0/general';
+const UNSTRUCTURED_API_KEY = 'omU8j7FG370hhl1oUDR61ZHAXFaURn';
+const UNSTRUCTURED_API_URL = 'https://api.unstructured.io/general/v0/general';
 
 export const getDocumentLoader = (fileType: DocumentType, filePath: string): DocumentLoader => {
     let loader;
