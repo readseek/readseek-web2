@@ -44,29 +44,31 @@ const initialize = async () => {
     }
 };
 
-export const createEmbeddings = async (text: any) => {
-    let embeddings: any[] = [];
+export const createEmbeddings = async (texts: string[]) => {
     try {
         await initialize();
 
+        // Tokenize the texts
+        const tokenizers: TokenizeResult[] = await tokenizer.batchTokenizeWithoutCache(texts);
+
         // Create the feeds for the model
-        const rets: TokenizeResult[] = await tokenizer.batchTokenize(['Hello World.']);
+        const inputFeeds = {
+            input_ids: new Tensor(
+                'int64',
+                tokenizers.flatMap(t => t.inputIds),
+                [tokenizers.length, tokenizers[0].inputIds.length],
+            ),
+            attention_mask: new Tensor(
+                'int64',
+                tokenizers.flatMap(t => t.attentionMask),
+                [tokenizers.length, tokenizers[0].attentionMask.length],
+            ),
+        };
 
-        const outputs: any[] = [];
-        for (const ret of rets) {
-            const Ids = ret.inputIds;
-            const attentionMask = ret.attentionMask;
-            // Run local inference
-            const output = await session.run({
-                input_ids: new Tensor('int64', Ids, [1, Ids.length]),
-                attention_mask: new Tensor('int64', attentionMask, [1, attentionMask.length]),
-            });
-            outputs.push(output);
-        }
-
-        embeddings = outputs;
+        // Run local inference
+        return session.run(inputFeeds);
     } catch (error) {
         systemLog(-1, error);
     }
-    return embeddings;
+    return null;
 };

@@ -15,15 +15,15 @@ const saveEmbeddings = async (faPath: string) => {
         const documents: Document[] = await loader.load();
         const splitDocuments = await getSplitterDocument(documents);
 
+        let outputs: any = null;
         if (Array.isArray(splitDocuments)) {
             splitDocuments.map((doc: any) => {
                 doc.metadata = { file_name: name, file_type: fileType };
             });
+            outputs = await createEmbeddings(splitDocuments.map(doc => doc.pageContent));
         }
 
-        const docEmbeddings = await createEmbeddings(splitDocuments);
-
-        return docEmbeddings;
+        return Object.keys(outputs);
     } catch (error) {
         systemLog(1, 'createEmbeddings', error);
         return null;

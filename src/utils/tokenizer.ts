@@ -1,7 +1,7 @@
-import { Tokenizer } from '@turingscript/tokenizers';
+import { JsEncoding, Tokenizer } from '@turingscript/tokenizers';
 import { LRUCache } from 'lru-cache';
 
-export type TokenizeResult = { inputIds: number[]; attentionMask: number[] };
+export type TokenizeResult = { inputIds: number[]; attentionMask: number[]; tokenTypeIds?: number[] };
 
 export default class OptimizedTokenizer {
     tokenizer: Tokenizer;
@@ -31,6 +31,7 @@ export default class OptimizedTokenizer {
                 const result = {
                     inputIds: encoded.getIds(),
                     attentionMask: encoded.getAttentionMask(),
+                    tokenTypeIds: encoded.getTypeIds(),
                 };
 
                 this.cache.set(text, result);
@@ -46,5 +47,14 @@ export default class OptimizedTokenizer {
         }
         const tokenizedBatches = await Promise.all(batches.map(batch => this.tokenize(batch)));
         return tokenizedBatches.flat();
+    }
+
+    async batchTokenizeWithoutCache(texts: string[]): Promise<TokenizeResult[]> {
+        const rets: JsEncoding[] = await this.tokenizer.encodeBatch(texts, { isPretokenized: true, addSpecialTokens: true });
+        return rets.map(ret => ({
+            inputIds: ret.getIds(),
+            attentionMask: ret.getAttentionMask(),
+            tokenTypeIds: ret.getTypeIds(),
+        }));
     }
 }
