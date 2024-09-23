@@ -1,42 +1,49 @@
-// import { BertWordPieceTokenizer } from '@turingscript/tokenizers';
-// import LRU from 'lru-cache';
+import { Tokenizer } from '@turingscript/tokenizers';
+import { LRUCache } from 'lru-cache';
 
-// export default class OptimizedTokenizer {
-//     constructor(tokenizerPath, maxCacheSize = 1000) {
-//         this.tokenizer = BertWordPieceTokenizer.fromJSON(tokenizerPath);
-//         this.cache = new LRU({ max: maxCacheSize });
-//     }
+export type TokenizeResult = { inputIds: number[]; attentionMask: number[] };
 
-//     tokenize(texts: string | string[]) {
-//         if (!Array.isArray(texts)) {
-//             texts = [texts];
-//         }
+export default class OptimizedTokenizer {
+    tokenizer: Tokenizer;
+    cache: LRUCache<string, any>;
 
-//         const results = texts.map(text => {
-//             const cached = this.cache.get(text);
-//             if (cached) {
-//                 return cached;
-//             }
+    constructor(tokenizerPath: string, maxCacheSize = 1000) {
+        this.tokenizer = Tokenizer.fromFile(tokenizerPath);
+        this.cache = new LRUCache({ max: maxCacheSize });
+    }
 
-//             const encoded = this.tokenizer.encode(text);
-//             const result = {
-//                 inputIds: encoded.ids,
-//                 attentionMask: encoded.attentionMask,
-//             };
+    getPreTokenizer() {
+        return this.tokenizer.getPreTokenizer();
+    }
 
-//             this.cache.set(text, result);
-//             return result;
-//         });
+    async tokenize(texts: string | string[]): Promise<TokenizeResult[]> {
+        if (!Array.isArray(texts)) {
+            texts = [texts];
+        }
+        return Promise.all(
+            texts.map(async text => {
+                const cached = this.cache.get(text);
+                if (cached) {
+                    return cached;
+                }
 
-//         return results.length === 1 ? results[0] : results;
-//     }
+                const encoded = await this.tokenizer.encode(text, null, { isPretokenized: true, addSpecialTokens: true });
+                const result = {
+                    inputIds: encoded.getIds(),
+                    attentionMask: encoded.getAttentionMask(),
+                };
 
-//     batchTokenize(texts, batchSize = 32) {
-//         const batches = [];
-//         for (let i = 0; i < texts.length; i += batchSize) {
-//             batches.push(texts.slice(i, i + batchSize));
-//         }
+                this.cache.set(text, result);
+                return result;
+            }),
+        );
+    }
 
-//         return batches.flatMap(batch => this.tokenize(batch));
-//     }
-// }
+    batchTokenize(texts: string[], batchSize = 32) {
+        const batches: string[][] = [];
+        for (let i = 0; i < texts.length; i += batchSize) {
+            batches.push(texts.slice(i, i + batchSize));
+        }
+        return batches.flatMap(batch => this.tokenize(batch));
+    }
+}
