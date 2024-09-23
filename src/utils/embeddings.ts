@@ -50,7 +50,7 @@ export const createEmbeddings = async (text: any) => {
         await initialize();
 
         // Create the feeds for the model
-        const rets: TokenizeResult[] = await tokenizer.tokenize('Hello World.');
+        const rets: TokenizeResult[] = await tokenizer.batchTokenize(['Hello World.']);
 
         const outputs: any[] = [];
         for (const ret of rets) {

@@ -39,11 +39,12 @@ export default class OptimizedTokenizer {
         );
     }
 
-    batchTokenize(texts: string[], batchSize = 32) {
+    async batchTokenize(texts: string[], batchSize = 32): Promise<TokenizeResult[]> {
         const batches: string[][] = [];
         for (let i = 0; i < texts.length; i += batchSize) {
             batches.push(texts.slice(i, i + batchSize));
         }
-        return batches.flatMap(batch => this.tokenize(batch));
+        const tokenizedBatches = await Promise.all(batches.map(batch => this.tokenize(batch)));
+        return tokenizedBatches.flat();
     }
 }
