@@ -1,17 +1,23 @@
-import { getOnnxModel } from '@/constants/OnnxModel';
+import { getOnnxModel, OnnxModel } from '@/constants/OnnxModel';
 import { systemLog } from '@/utils/common';
-import type { Document } from 'langchain/document';
 // @ts-ignore
 import { InferenceSession, Tensor } from 'onnxruntime-node';
+import MilvusDB from './milvus';
 import OptimizedTokenizer, { TokenizeResult } from './tokenizer';
 
+let model: OnnxModel;
 let session: any;
 let tokenizer: OptimizedTokenizer;
 
 async function initialize() {
     if (!session) {
         try {
-            const { localPath, localTokenizerPath, type } = getOnnxModel();
+            model = getOnnxModel();
+            if (!model) {
+                systemLog(-1, 'model is not found, check your local path or config');
+                return;
+            }
+            const { localPath, localTokenizerPath, type } = model;
             session = await InferenceSession.create(localPath, {
                 enableCpuMemArena: true,
                 enableMemPattern: true,
@@ -45,7 +51,7 @@ async function initialize() {
     }
 }
 
-async function createEmbeddings(texts: string[]) {
+async function createEmbeddings(texts: string[]): Promise<Array<number>> {
     try {
         await initialize();
 
@@ -67,23 +73,23 @@ async function createEmbeddings(texts: string[]) {
         };
 
         // Run local inference
-        return session.run(inputFeeds);
-    } catch (error) {
-        systemLog(-1, error);
-    }
-    return null;
-}
-
-export async function saveEmbeddings(splitDocuments: Document[]) {
-    try {
-        const texts = splitDocuments.map(doc => doc.pageContent);
-        if (texts.length > 0) {
-            const outputs: any = await createEmbeddings(texts);
-            systemLog(0, 'outputs keys: ', Object.keys(outputs));
-            return true;
+        const outputs = await session.run(inputFeeds);
+        systemLog(0, 'createEmbeddings outputs: ', Object.keys(outputs), 'sentence size: ', outputs?.sentence_embedding?.size);
+        if (outputs && outputs.sentence_embedding?.cpuData) {
+            return Array.from(outputs.sentence_embedding.cpuData);
         }
     } catch (error) {
-        systemLog(1, 'createEmbeddings', error);
+        systemLog(-1, 'createEmbeddings', error);
+    }
+    return [];
+}
+
+export async function saveEmbeddings({ metadata, sentences }: { metadata: any; sentences: string[] }) {
+    try {
+        const embeddings = await createEmbeddings(sentences);
+        return await MilvusDB.saveDocument(embeddings, { metadata, dim: model.outputDimension });
+    } catch (error) {
+        systemLog(-1, 'saveEmbeddings', error);
     }
     return false;
 }

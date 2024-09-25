@@ -16,12 +16,16 @@ async function parseFileContent(faPath: string) {
         const splitDocuments = await getSplitterDocument(documents);
 
         if (Array.isArray(splitDocuments) && splitDocuments.length > 0) {
-            splitDocuments.map((doc: any) => {
-                doc.metadata = { file_name: name, file_type: fileType };
-            });
-            return await saveEmbeddings(splitDocuments);
+            const content = {
+                metadata: {
+                    title: splitDocuments[0].pageContent,
+                    fileName: splitDocuments[0].metadata.filename || name,
+                    fileType: splitDocuments[0].metadata.filetype || fileType,
+                },
+                sentences: splitDocuments.map(doc => doc.pageContent),
+            };
+            return await saveEmbeddings(content);
         }
-        systemLog(1, 'null splitted document content: ', splitDocuments);
     } catch (error) {
         systemLog(-1, 'parseFileContent error: ', error);
     }
