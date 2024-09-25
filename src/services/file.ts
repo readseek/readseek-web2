@@ -1,12 +1,12 @@
 import { getFileType, systemLog } from '@/utils/common';
-import { createEmbeddings } from '@/utils/embeddings';
+import { saveEmbeddings } from '@/utils/embeddings';
 import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
 import { getSplitterDocument } from '@/utils/langchain/splitter';
 import type { Document } from 'langchain/document';
 import type { NextRequest } from 'next/server';
 import path from 'node:path';
 
-const saveEmbeddings = async (faPath: string) => {
+async function parseFileContent(faPath: string) {
     try {
         const { name, ext } = path.parse(faPath);
         const fileType = getFileType(ext);
@@ -15,22 +15,20 @@ const saveEmbeddings = async (faPath: string) => {
         const documents: Document[] = await loader.load();
         const splitDocuments = await getSplitterDocument(documents);
 
-        let outputs: any = null;
-        if (Array.isArray(splitDocuments)) {
+        if (Array.isArray(splitDocuments) && splitDocuments.length > 0) {
             splitDocuments.map((doc: any) => {
                 doc.metadata = { file_name: name, file_type: fileType };
             });
-            outputs = await createEmbeddings(splitDocuments.map(doc => doc.pageContent));
+            return await saveEmbeddings(splitDocuments);
         }
-
-        return Object.keys(outputs);
+        systemLog(1, 'null splitted document content: ', splitDocuments);
     } catch (error) {
-        systemLog(1, 'createEmbeddings', error);
-        return null;
+        systemLog(-1, 'parseFileContent error: ', error);
     }
-};
+    return false;
+}
 
-export const fileUpload = async (req: NextRequest): Promise<APIRet> => {
+export async function fileUpload(req: NextRequest): Promise<APIRet> {
     // const fileName = uuidv4();
     // const fileType = file.name.split(".").pop()!;
 
@@ -39,7 +37,7 @@ export const fileUpload = async (req: NextRequest): Promise<APIRet> => {
 
     const filePath = path.resolve('public/upload/', 'Milvus.md');
 
-    const ret = await saveEmbeddings(filePath);
+    const ret = await parseFileContent(filePath);
 
     return { code: 0, data: ret, message: 'success' };
-};
+}

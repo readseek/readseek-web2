@@ -1,13 +1,14 @@
 import { getOnnxModel } from '@/constants/OnnxModel';
+import { systemLog } from '@/utils/common';
+import type { Document } from 'langchain/document';
 // @ts-ignore
 import { InferenceSession, Tensor } from 'onnxruntime-node';
-import { systemLog } from './common';
 import OptimizedTokenizer, { TokenizeResult } from './tokenizer';
 
 let session: any;
 let tokenizer: OptimizedTokenizer;
 
-const initialize = async () => {
+async function initialize() {
     if (!session) {
         try {
             const { localPath, localTokenizerPath, type } = getOnnxModel();
@@ -42,9 +43,9 @@ const initialize = async () => {
             systemLog(-1, 'initialize onnx model error: ', error);
         }
     }
-};
+}
 
-export const createEmbeddings = async (texts: string[]) => {
+async function createEmbeddings(texts: string[]) {
     try {
         await initialize();
 
@@ -71,4 +72,18 @@ export const createEmbeddings = async (texts: string[]) => {
         systemLog(-1, error);
     }
     return null;
-};
+}
+
+export async function saveEmbeddings(splitDocuments: Document[]) {
+    try {
+        const texts = splitDocuments.map(doc => doc.pageContent);
+        if (texts.length > 0) {
+            const outputs: any = await createEmbeddings(texts);
+            systemLog(0, 'outputs keys: ', Object.keys(outputs));
+            return true;
+        }
+    } catch (error) {
+        systemLog(1, 'createEmbeddings', error);
+    }
+    return false;
+}

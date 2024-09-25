@@ -46,7 +46,7 @@ const ModelConfig: Record<ModelName, OnnxModel> = {
     },
 };
 
-export const getOnnxModel = (name: ModelName = ModelName.ALL_MiniLM_L6_V2): OnnxModel => {
+export function getOnnxModel(name: ModelName = ModelName.ALL_MiniLM_L6_V2): OnnxModel {
     const model = ModelConfig[name];
 
     if (!model) {
@@ -54,4 +54,4 @@ export const getOnnxModel = (name: ModelName = ModelName.ALL_MiniLM_L6_V2): Onnx
     }
 
     return model;
-};
+}

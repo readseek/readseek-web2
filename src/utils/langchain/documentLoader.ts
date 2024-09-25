@@ -10,7 +10,7 @@ import { TextLoader } from 'langchain/document_loaders/fs/text';
 const UNSTRUCTURED_API_KEY = process.env.__RSN_UNSTRUCTURED_API_KEY as string;
 const UNSTRUCTURED_API_URL = process.env.__RSN_UNSTRUCTURED_API_URL as string;
 
-export const getDocumentLoader = (fileType: DocumentType, filePath: string): DocumentLoader => {
+export function getDocumentLoader(fileType: DocumentType, filePath: string): DocumentLoader {
     let loader;
     switch (fileType) {
         case DocumentType.PDF:
@@ -45,9 +45,9 @@ export const getDocumentLoader = (fileType: DocumentType, filePath: string): Doc
             break;
     }
     return loader;
-};
+}
 
-export const getUnstructuredLoader = (filePath: string): DocumentLoader => {
+export function getUnstructuredLoader(filePath: string): DocumentLoader {
     const loader = new UnstructuredLoader(filePath, {
         apiKey: UNSTRUCTURED_API_KEY,
         apiUrl: UNSTRUCTURED_API_URL,
@@ -56,4 +56,4 @@ export const getUnstructuredLoader = (filePath: string): DocumentLoader => {
         ocrLanguages: ['en', 'zh-Hans'],
     });
     return loader;
-};
+}
