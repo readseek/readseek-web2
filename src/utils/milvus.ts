@@ -2,6 +2,9 @@ import { DataType, MilvusClient } from '@zilliz/milvus2-sdk-node';
 import { systemLog } from './common';
 
 export default class MilvusDB {
+    private static readonly MILVUS_ADDRESS = process.env.__RSN_MILVUS_ADDRESS || '127.0.0.1:19530';
+    private static readonly MILVUS_USERNAME = process.env.__RSN_MILVUS_USERNAME || 'root';
+
     private static _milvusClient: MilvusClient;
 
     public static get milvusClient(): MilvusClient | null {
@@ -9,25 +12,32 @@ export default class MilvusDB {
             systemLog(0, 'MilvusClient sdkInfo: ', MilvusClient.sdkInfo);
             try {
                 this._milvusClient = new MilvusClient({
-                    address: '0.0.0.0:19530',
+                    address: this.MILVUS_ADDRESS,
+                    username: this.MILVUS_USERNAME,
                     timeout: 180,
                     logLevel: 'debug',
                     pool: {
-                        max: 10,
+                        max: 5,
                         min: 1,
                         autostart: true,
                         idleTimeoutMillis: 1000 * 60 * 5,
                     },
                 });
             } catch (error) {
-                systemLog(-1, 'Failed to connect to Milvus, using default localhost:19530');
+                systemLog(-1, `Failed to connect to Milvus with address ${this.MILVUS_ADDRESS} and username ${this.MILVUS_USERNAME}`);
                 return null;
             }
         }
         return this._milvusClient;
     }
 
-    static async createCollection(collectionName: string, dim: number) {
+    public static async checkHealth() {
+        const res = await this.milvusClient?.checkHealth();
+        systemLog(res ? 0 : 1, 'Checking MilvusDB Health: ', res || 'failed');
+        return res?.isHealthy;
+    }
+
+    private static async createCollection(collectionName: string, dim: number) {
         const hasCollection = await this.milvusClient?.hasCollection({
             collection_name: collectionName,
         });
@@ -67,7 +77,11 @@ export default class MilvusDB {
         }
     }
 
-    static async saveDocument(embeddings: Array<number>, { metadata, dim }: { metadata: any; dim: number }) {
+    public static async saveDocument(embeddings: Array<number>, { metadata, dim }: { metadata: any; dim: number }) {
+        if (!(await this.checkHealth())) {
+            return false;
+        }
+
         const collectionName = `${metadata.fileName}_embeddings`;
         await this.createCollection(collectionName, dim);
 
