@@ -2,6 +2,7 @@
 import i18next from './next-i18next.config.mjs';
 
 const nextConfig = {
+    swcMinify: true, // Use SWC for minification, faster and optimized
     i18n: i18next.i18n,
     reactStrictMode: true,
 
