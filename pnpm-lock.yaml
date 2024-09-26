@@ -13,7 +13,7 @@ importers:
         version: 3.9.0(react-hook-form@7.52.1(react@18.3.1))
       '@langchain/community':
         specifier: ^0.2.32
-        version: 0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0)
+        version: 0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0)
       '@radix-ui/react-accordion':
         specifier: ^1.2.0
         version: 1.2.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -105,8 +105,8 @@ importers:
         specifier: 0.15.2-alpha.4
         version: 0.15.2-alpha.4
       '@zilliz/milvus2-sdk-node':
-        specifier: ^2.4.8
-        version: 2.4.8
+        specifier: ^2.4.9
+        version: 2.4.9
       chalk:
         specifier: ^5.3.0
         version: 5.3.0
@@ -151,7 +151,7 @@ importers:
         version: 1.2.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       langchain:
         specifier: ^0.2.18
-        version: 0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0)
+        version: 0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0)
       lru-cache:
         specifier: ^11.0.1
         version: 11.0.1
@@ -1931,8 +1931,8 @@ packages:
     resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
     engines: {node: '>=10.0.0'}
 
-  '@zilliz/milvus2-sdk-node@2.4.8':
-    resolution: {integrity: sha512-mLwe1Q8YX/gNHT2tK9v3GB9hPlcpdQwnabdsu/txSp+KI/wv5ZCP098NX0dGcR62TGuhx6htA4AVj6Y9OuMIoA==}
+  '@zilliz/milvus2-sdk-node@2.4.9':
+    resolution: {integrity: sha512-EuCwEE5jENkxk7JVCNxLjtw4BgxcucquzIOalqxhOBQ10P28wU+jFU1ETJpAen4g5FbNwlMCO9rwDaORKjlwSA==}
 
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
@@ -5118,23 +5118,23 @@ snapshots:
 
   '@js-sdsl/ordered-map@4.4.2': {}
 
-  '@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0)':
+  '@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0)':
     dependencies:
-      '@langchain/core': 0.2.31(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))
-      '@langchain/openai': 0.2.8(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))
+      '@langchain/core': 0.2.31(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))
+      '@langchain/openai': 0.2.8(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))
       binary-extensions: 2.3.0
       expr-eval: 2.0.2
       flat: 5.0.2
       js-yaml: 4.1.0
-      langchain: 0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0)
-      langsmith: 0.1.48(ngv77q4k3l4zhodxioon2vjury)
+      langchain: 0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0)
+      langsmith: 0.1.48(ya7wsgeiuv5rx4zmsfwgskmajq)
       uuid: 10.0.0
       zod: 3.23.8
       zod-to-json-schema: 3.23.2(zod@3.23.8)
     optionalDependencies:
       '@huggingface/inference': 2.8.0
       '@supabase/supabase-js': 2.45.2
-      '@zilliz/milvus2-sdk-node': 2.4.8
+      '@zilliz/milvus2-sdk-node': 2.4.9
       d3-dsv: 3.0.1
       epub2: 3.0.2(ts-toolbelt@9.6.0)
       html-to-text: 9.0.5
@@ -5163,13 +5163,13 @@ snapshots:
       - peggy
       - pyodide
 
-  '@langchain/core@0.2.31(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))':
+  '@langchain/core@0.2.31(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))':
     dependencies:
       ansi-styles: 5.2.0
       camelcase: 6.3.0
       decamelize: 1.2.0
       js-tiktoken: 1.0.14
-      langsmith: 0.1.48(ngv77q4k3l4zhodxioon2vjury)
+      langsmith: 0.1.48(ya7wsgeiuv5rx4zmsfwgskmajq)
       mustache: 4.2.0
       p-queue: 6.6.2
       p-retry: 4.6.2
@@ -5180,9 +5180,9 @@ snapshots:
       - langchain
       - openai
 
-  '@langchain/openai@0.2.8(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))':
+  '@langchain/openai@0.2.8(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))':
     dependencies:
-      '@langchain/core': 0.2.31(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))
+      '@langchain/core': 0.2.31(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))
       js-tiktoken: 1.0.14
       openai: 4.56.1(zod@3.23.8)
       zod: 3.23.8
@@ -5191,9 +5191,9 @@ snapshots:
       - encoding
       - langchain
 
-  '@langchain/textsplitters@0.0.3(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))':
+  '@langchain/textsplitters@0.0.3(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))':
     dependencies:
-      '@langchain/core': 0.2.31(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))
+      '@langchain/core': 0.2.31(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))
       js-tiktoken: 1.0.14
     transitivePeerDependencies:
       - langchain
@@ -6378,7 +6378,7 @@ snapshots:
 
   '@xmldom/xmldom@0.8.10': {}
 
-  '@zilliz/milvus2-sdk-node@2.4.8':
+  '@zilliz/milvus2-sdk-node@2.4.9':
     dependencies:
       '@grpc/grpc-js': 1.11.1
       '@grpc/proto-loader': 0.7.13
@@ -7978,16 +7978,16 @@ snapshots:
 
   kuler@2.0.0: {}
 
-  langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0):
+  langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0):
     dependencies:
-      '@langchain/core': 0.2.31(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))
-      '@langchain/openai': 0.2.8(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))
-      '@langchain/textsplitters': 0.0.3(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))
+      '@langchain/core': 0.2.31(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))
+      '@langchain/openai': 0.2.8(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))
+      '@langchain/textsplitters': 0.0.3(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))
       binary-extensions: 2.3.0
       js-tiktoken: 1.0.14
       js-yaml: 4.1.0
       jsonpointer: 5.0.1
-      langsmith: 0.1.48(ngv77q4k3l4zhodxioon2vjury)
+      langsmith: 0.1.48(ya7wsgeiuv5rx4zmsfwgskmajq)
       openapi-types: 12.1.3
       p-retry: 4.6.2
       uuid: 10.0.0
@@ -7995,7 +7995,7 @@ snapshots:
       zod: 3.23.8
       zod-to-json-schema: 3.23.2(zod@3.23.8)
     optionalDependencies:
-      '@langchain/community': 0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0)
+      '@langchain/community': 0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0)
       '@supabase/supabase-js': 2.45.2
       d3-dsv: 3.0.1
       epub2: 3.0.2(ts-toolbelt@9.6.0)
@@ -8010,7 +8010,7 @@ snapshots:
       - encoding
       - openai
 
-  langsmith@0.1.48(ngv77q4k3l4zhodxioon2vjury):
+  langsmith@0.1.48(ya7wsgeiuv5rx4zmsfwgskmajq):
     dependencies:
       '@types/uuid': 10.0.0
       commander: 10.0.1
@@ -8019,8 +8019,8 @@ snapshots:
       semver: 7.6.3
       uuid: 10.0.0
     optionalDependencies:
-      '@langchain/core': 0.2.31(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))
-      langchain: 0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.8)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0)
+      '@langchain/core': 0.2.31(langchain@0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(openai@4.56.1(zod@3.23.8))
+      langchain: 0.2.18(@langchain/community@0.2.32(@huggingface/inference@2.8.0)(@supabase/supabase-js@2.45.2)(@zilliz/milvus2-sdk-node@2.4.9)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0))(@supabase/supabase-js@2.45.2)(d3-dsv@3.0.1)(epub2@3.0.2(ts-toolbelt@9.6.0))(html-to-text@9.0.5)(ignore@5.3.1)(jsdom@23.2.0)(mammoth@1.8.0)(openai@4.56.1(zod@3.23.8))(pdf-parse@1.1.1)(srt-parser-2@1.2.3)(ws@8.18.0)
       openai: 4.56.1(zod@3.23.8)
 
   language-subtag-registry@0.3.23: {}

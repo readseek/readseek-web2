@@ -24,7 +24,7 @@ export default class MilvusDB {
                     },
                 });
             } catch (error) {
-                systemLog(-1, `Failed to connect to Milvus with address ${this.MILVUS_ADDRESS} and username ${this.MILVUS_USERNAME}`);
+                systemLog(-1, `Failed to connect to Milvus with address ${this.MILVUS_ADDRESS} and username ${this.MILVUS_USERNAME}`, error);
                 return null;
             }
         }
@@ -82,7 +82,10 @@ export default class MilvusDB {
             return false;
         }
 
-        const collectionName = `${metadata.fileName}_embeddings`;
+        // 一类文件，一个collection
+        const collectionName = `${metadata.fileType}_embeddings`;
+        systemLog(0, 'useing collection: ', collectionName);
+
         await this.createCollection(collectionName, dim);
 
         // Insert the embedding
