@@ -18,9 +18,9 @@ async function parseFileContent(faPath: string) {
         if (Array.isArray(splitDocuments) && splitDocuments.length > 0) {
             const content = {
                 metadata: {
-                    title: splitDocuments[0].pageContent,
-                    fileName: splitDocuments[0].metadata.filename || name,
-                    fileType: splitDocuments[0].metadata.filetype || fileType,
+                    fileName: name,
+                    fileType: fileType,
+                    title: splitDocuments[0].pageContent || splitDocuments[0].metadata.filename,
                 },
                 sentences: splitDocuments.map(doc => doc.pageContent),
             };

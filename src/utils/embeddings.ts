@@ -79,7 +79,7 @@ async function createEmbeddings(texts: string[]): Promise<Array<number>> {
             return Array.from(outputs.sentence_embedding.cpuData);
         }
     } catch (error) {
-        systemLog(-1, 'createEmbeddings', error);
+        systemLog(-1, 'createEmbeddings error: ', error);
     }
     return [];
 }
@@ -89,7 +89,7 @@ export async function saveEmbeddings({ metadata, sentences }: { metadata: any; s
         const embeddings = await createEmbeddings(sentences);
         return await MilvusDB.saveDocument(embeddings, { metadata, dim: model.outputDimension });
     } catch (error) {
-        systemLog(-1, 'saveEmbeddings', error);
+        systemLog(-1, 'saveEmbeddings error: ', error);
     }
     return false;
 }

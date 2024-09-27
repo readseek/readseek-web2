@@ -10,3 +10,8 @@ export enum DocumentType {
     HTML = 'html',
     UNKNOWN = 'UnKnown',
 }
+
+export interface EmbeddingCreateRequest {
+    fileName: string;
+    fileType: string;
+}

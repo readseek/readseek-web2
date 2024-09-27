@@ -1,5 +1,10 @@
 import { DataType, MilvusClient } from '@zilliz/milvus2-sdk-node';
+import { DocumentType } from '../types';
 import { systemLog } from './common';
+
+const CollectionNameWithFileType = (type: DocumentType) => {
+    return `RS_DOC_${type.toLocaleUpperCase()}_Embeddings`;
+};
 
 export default class MilvusDB {
     private static readonly MILVUS_ADDRESS = process.env.__RSN_MILVUS_ADDRESS || '127.0.0.1:19530';
@@ -15,7 +20,7 @@ export default class MilvusDB {
                     address: this.MILVUS_ADDRESS,
                     username: this.MILVUS_USERNAME,
                     timeout: 180,
-                    logLevel: 'debug',
+                    logLevel: 'warn',
                     pool: {
                         max: 5,
                         min: 1,
@@ -24,7 +29,7 @@ export default class MilvusDB {
                     },
                 });
             } catch (error) {
-                systemLog(-1, `Failed to connect to Milvus with address ${this.MILVUS_ADDRESS} and username ${this.MILVUS_USERNAME}`, error);
+                systemLog(-1, `Failed to connect Milvus with address ${this.MILVUS_ADDRESS} and username ${this.MILVUS_USERNAME}`, error);
                 return null;
             }
         }
@@ -37,11 +42,11 @@ export default class MilvusDB {
         return res?.isHealthy;
     }
 
-    private static async createCollection(collectionName: string, dim: number) {
-        const hasCollection = await this.milvusClient?.hasCollection({
+    private static async checkCollection(collectionName: string, dim: number) {
+        const ret = await this.milvusClient?.hasCollection({
             collection_name: collectionName,
         });
-        if (!hasCollection) {
+        if (!ret?.value) {
             const params = {
                 collection_name: collectionName,
                 fields: [
@@ -68,13 +73,12 @@ export default class MilvusDB {
             };
 
             const res = await this.milvusClient?.createCollection(params);
-            systemLog(0, 'createCollection res: ', res);
-            if (res?.code == 0) {
-                systemLog(-1, 'Failed to create collection', res);
+            if (res?.code !== 0) {
+                systemLog(-1, 'Failed to create collection', res?.reason);
                 return false;
             }
-            return true;
         }
+        return true;
     }
 
     public static async saveDocument(embeddings: Array<number>, { metadata, dim }: { metadata: any; dim: number }) {
@@ -83,10 +87,12 @@ export default class MilvusDB {
         }
 
         // 一类文件，一个collection
-        const collectionName = `${metadata.fileType}_embeddings`;
-        systemLog(0, 'useing collection: ', collectionName);
+        const collectionName = CollectionNameWithFileType(metadata.fileType);
+        systemLog(0, 'Using collection: ', collectionName);
 
-        await this.createCollection(collectionName, dim);
+        if (!(await this.checkCollection(collectionName, dim))) {
+            return false;
+        }
 
         // Insert the embedding
         const res = await this.milvusClient?.insert({
@@ -99,6 +105,37 @@ export default class MilvusDB {
             ],
         });
         systemLog(0, 'saveDocument res: ', res);
+        if (res?.status?.code === 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static async searchDocument(embeddings: Array<number>, metadata: any) {
+        if (!(await this.checkHealth())) {
+            return false;
+        }
+
+        const collectionName = CollectionNameWithFileType(metadata.fileType);
+        systemLog(0, `searchingDocument ${collectionName}, metadata is: `, metadata);
+
         return true;
+    }
+
+    public static async deleteDocument(embeddings: Array<number>, metadata: any) {
+        if (!(await this.checkHealth())) {
+            return false;
+        }
+
+        const collectionName = CollectionNameWithFileType(metadata.fileType);
+        systemLog(0, `deletingDocument ${collectionName}, metadata is: `, metadata);
+
+        return true;
+    }
+
+    public static async closeConnection() {
+        const res = await this.milvusClient?.closeConnection();
+        systemLog(1, 'milvusClient closed: ', res);
     }
 }
