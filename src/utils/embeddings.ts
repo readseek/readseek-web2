@@ -9,6 +9,12 @@ let model: OnnxModel;
 let session: any;
 let tokenizer: OptimizedTokenizer;
 
+export type EmbeddingTextItem = {
+    number: number;
+    text: string;
+    embedding: Array<number>;
+};
+
 async function initialize() {
     if (!session) {
         try {
@@ -51,33 +57,35 @@ async function initialize() {
     }
 }
 
-async function createEmbeddings(texts: string[]): Promise<Array<number>> {
+async function createEmbeddings(texts: string[]): Promise<Array<EmbeddingTextItem>> {
     try {
         await initialize();
 
         // Tokenize the texts
         const tokenizers: TokenizeResult[] = await tokenizer.batchTokenizeWithoutCache(texts);
 
-        // Create the feeds for the model
-        const inputFeeds = {
-            input_ids: new Tensor(
-                'int64',
-                tokenizers.flatMap(t => t.inputIds),
-                [tokenizers.length, tokenizers[0].inputIds.length],
-            ),
-            attention_mask: new Tensor(
-                'int64',
-                tokenizers.flatMap(t => t.attentionMask),
-                [tokenizers.length, tokenizers[0].attentionMask.length],
-            ),
-        };
-
         // Run local inference
-        const outputs = await session.run(inputFeeds);
-        systemLog(0, 'createEmbeddings outputs: ', Object.keys(outputs), 'sentence size: ', outputs?.sentence_embedding?.size);
-        if (outputs && outputs.sentence_embedding?.cpuData) {
-            return Array.from(outputs.sentence_embedding.cpuData);
-        }
+        const embeddings = await Promise.all(
+            tokenizers.map(async (cV: TokenizeResult, index: number) => {
+                const inputFeeds = {
+                    input_ids: new Tensor('int64', cV.inputIds, [1, cV.inputIds.length]),
+                    attention_mask: new Tensor('int64', cV.attentionMask, [1, cV.attentionMask.length]),
+                };
+                const outputs = await session.run(inputFeeds);
+                systemLog(0, index + 1, ': embedding sentence size: ', outputs?.sentence_embedding?.size);
+                if (outputs && outputs.sentence_embedding?.cpuData) {
+                    return {
+                        number: index + 1,
+                        text: texts[index],
+                        embedding: Array.from(outputs.sentence_embedding.cpuData) as Array<number>,
+                    };
+                }
+                return null;
+            }),
+        );
+
+        // Filter out any null results
+        return embeddings.filter(embedding => embedding !== null);
     } catch (error) {
         systemLog(-1, 'createEmbeddings error: ', error);
     }
@@ -87,7 +95,9 @@ async function createEmbeddings(texts: string[]): Promise<Array<number>> {
 export async function saveEmbeddings({ metadata, sentences }: { metadata: any; sentences: string[] }) {
     try {
         const embeddings = await createEmbeddings(sentences);
-        return await MilvusDB.saveDocument(embeddings, { metadata, dim: model.outputDimension });
+        if (Array.isArray(embeddings) && embeddings.length > 0) {
+            return await MilvusDB.saveDocument(embeddings, { metadata, dim: model.outputDimension });
+        }
     } catch (error) {
         systemLog(-1, 'saveEmbeddings error: ', error);
     }

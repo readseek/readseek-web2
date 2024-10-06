@@ -1,6 +1,7 @@
 import { DataType, MilvusClient } from '@zilliz/milvus2-sdk-node';
 import { DocumentType } from '../types';
 import { systemLog } from './common';
+import type { EmbeddingTextItem } from './embeddings';
 
 const CollectionNameWithFileType = (type: DocumentType) => {
     return `RS_DOC_${type.toLocaleUpperCase()}_Embeddings`;
@@ -43,50 +44,66 @@ export default class MilvusDB {
     }
 
     private static async checkCollection(collectionName: string, dim: number) {
-        const ret = await this.milvusClient?.hasCollection({
-            collection_name: collectionName,
-        });
-        if (!ret?.value) {
-            const params = {
+        try {
+            const ret = await this.milvusClient?.hasCollection({
                 collection_name: collectionName,
-                fields: [
-                    {
-                        name: 'id',
-                        description: 'primary key',
-                        data_type: DataType.Int64,
-                        is_primary_key: true,
-                        autoID: true,
-                    },
-                    {
-                        name: 'metadata',
-                        data_type: DataType.JSON,
-                    },
-                    {
-                        name: 'embedding',
-                        description: 'sentence embedding vector',
-                        data_type: DataType.FloatVector,
-                        type_params: {
-                            dim,
+            });
+            if (!ret?.value) {
+                const params = {
+                    collection_name: collectionName,
+                    fields: [
+                        {
+                            name: 'id',
+                            description: 'primary key',
+                            data_type: DataType.Int64,
+                            is_primary_key: true,
+                            autoID: true,
                         },
-                    },
-                ],
-            };
+                        {
+                            name: 'number',
+                            description: 'tokenizer number in full document',
+                            data_type: DataType.Int32,
+                        },
+                        {
+                            name: 'text',
+                            description: 'original text',
+                            data_type: DataType.VarChar,
+                            max_length: 8192,
+                        },
+                        {
+                            name: 'embedding',
+                            description: 'sentence embedding vector',
+                            data_type: DataType.FloatVector,
+                            type_params: {
+                                dim,
+                            },
+                        },
+                        {
+                            name: 'metadata',
+                            data_type: DataType.JSON,
+                        },
+                    ],
+                };
 
-            const res = await this.milvusClient?.createCollection(params);
-            if (res?.code !== 0) {
-                systemLog(-1, 'Failed to create collection', res?.reason);
-                return false;
+                const res = await this.milvusClient?.createCollection(params);
+                if (res?.code !== 0) {
+                    systemLog(-1, 'Failed to create collection', res?.reason);
+                    return false;
+                }
             }
+            return true;
+        } catch (error) {
+            systemLog(-1, 'checkCollection error', error);
         }
-        return true;
+        return false;
     }
 
-    public static async saveDocument(embeddings: Array<number>, { metadata, dim }: { metadata: any; dim: number }) {
+    public static async saveDocument(textItems: Array<EmbeddingTextItem>, { metadata, dim }: { metadata: any; dim: number }) {
         if (!(await this.checkHealth())) {
             return false;
         }
 
-        // 一类文件，一个collection
+        // one type doc one collection
         const collectionName = CollectionNameWithFileType(metadata.fileType);
         systemLog(0, 'Using collection: ', collectionName);
 
@@ -97,12 +114,14 @@ export default class MilvusDB {
         // Insert the embedding
         const res = await this.milvusClient?.insert({
             collection_name: collectionName,
-            fields_data: [
-                {
-                    embedding: embeddings,
-                    metadata: JSON.stringify(metadata),
-                },
-            ],
+            fields_data: textItems.map((item: EmbeddingTextItem) => {
+                return {
+                    number: item.number,
+                    text: item.text,
+                    embedding: item.embedding,
+                    metadata,
+                };
+            }),
         });
         systemLog(0, 'saveDocument res: ', res);
         if (res?.status?.code === 0) {
@@ -129,7 +148,15 @@ export default class MilvusDB {
         }
 
         const collectionName = CollectionNameWithFileType(metadata.fileType);
-        systemLog(0, `deletingDocument ${collectionName}, metadata is: `, metadata);
+
+        // Drop collection on prod was not permitted
+        if (process.env.__RSN_ENV === 'dev') {
+            const ret = await this.milvusClient?.dropCollection({
+                collection_name: collectionName,
+                timeout: 15,
+            });
+            systemLog(1, `previous collection ${collectionName} was dropped`, ret);
+        }
 
         return true;
     }
