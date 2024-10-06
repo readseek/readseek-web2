@@ -49,6 +49,7 @@ export default class MilvusDB {
                 collection_name: collectionName,
             });
             if (!ret?.value) {
+                systemLog(0, `No collection found, ${collectionName} will be created soon...`);
                 const params = {
                     collection_name: collectionName,
                     fields: [
@@ -142,7 +143,7 @@ export default class MilvusDB {
         return true;
     }
 
-    public static async deleteDocument(embeddings: Array<number>, metadata: any) {
+    public static async deleteDocument(metadata: any) {
         if (!(await this.checkHealth())) {
             return false;
         }

@@ -1,5 +1,5 @@
 import { getFileType, systemLog } from '@/utils/common';
-import { saveEmbeddings } from '@/utils/embeddings';
+import { deleteEmbeddings, saveEmbeddings } from '@/utils/embeddings';
 import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
 import { getSplitterDocument } from '@/utils/langchain/splitter';
 import type { Document } from 'langchain/document';
@@ -43,5 +43,10 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
 
     const ret = await parseFileContent(filePath);
 
+    return { code: 0, data: ret, message: 'success' };
+}
+
+export async function fileDelete(req: NextRequest): Promise<APIRet> {
+    const ret = await deleteEmbeddings('Milvus.md');
     return { code: 0, data: ret, message: 'success' };
 }

@@ -103,3 +103,11 @@ export async function saveEmbeddings({ metadata, sentences }: { metadata: any; s
     }
     return false;
 }
+
+export async function deleteEmbeddings(name: string) {
+    // TODO: hard code for test...
+    return MilvusDB.deleteDocument({
+        fileName: name,
+        fileType: 'md',
+    });
+}
