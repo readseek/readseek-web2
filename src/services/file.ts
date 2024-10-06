@@ -50,3 +50,11 @@ export async function fileDelete(req: NextRequest): Promise<APIRet> {
     const ret = await deleteEmbeddings('Milvus.md');
     return { code: 0, data: ret, message: 'success' };
 }
+
+export async function fileList(req: NextRequest): Promise<APIRet> {
+    return { code: 0, data: [], message: 'success' };
+}
+
+export async function fileQuery(req: NextRequest): Promise<APIRet> {
+    return { code: 0, data: {}, message: 'success' };
+}

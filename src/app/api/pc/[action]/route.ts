@@ -1,7 +1,7 @@
 /**
  * 负责service分发，处理标准网络协议请求、Cookie验证等逻辑
  */
-import { fileDelete, fileUpload } from '@/services/file';
+import { fileDelete, fileList, fileQuery, fileUpload } from '@/services/file';
 import { home, list, systemConf, userUpdate } from '@/services/system';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -30,9 +30,11 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
 export async function POST(req: NextRequest, { params }: RouteContext) {
     const { action } = params;
     const routes: any = {
+        userUpdate,
         fileUpload,
         fileDelete,
-        userUpdate,
+        fileList,
+        fileQuery,
     };
 
     if (routes[action]) {
