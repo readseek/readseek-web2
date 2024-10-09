@@ -10,42 +10,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum DocumentState {
-  success
-  failed
-  pending
-  processing
-}
-
-model User {
+model Recipe {
   id String @id @default(cuid())
   name String
-  age Int
-  email String @unique
-  bio String?
-  avatarUrl String?
-  posts Int @default(0)
-  shareEnable Boolean @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Category {
-  id    Int    @id @default(autoincrement())
-  name  String
-  docs Document[]
-}
-
-model Document {
-  id Int @id @default(autoincrement())
-  name String
-  keywords String[]
-  categories Category[]
-  authorOriginal String
-  authorUploader User
-  coverUrl String?
-  viewCount Int @default(0)
-  state DocumentState @default(pending)
+  servings Int?
+  prepTime Int?
+  ingredients String?
+  instructions String?
+  imageUrl String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

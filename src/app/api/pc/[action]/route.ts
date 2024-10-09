@@ -1,6 +1,7 @@
 /**
  * 负责service分发，处理标准网络协议请求、Cookie验证等逻辑
  */
+import { sqliteTest } from '@/services/db';
 import { fileDelete, fileList, fileQuery, fileUpload } from '@/services/file';
 import { home, list, systemConf, userUpdate } from '@/services/system';
 import { NextRequest, NextResponse } from 'next/server';
@@ -18,6 +19,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         home,
         list,
         systemConf,
+        sqliteTest,
     };
 
     if (routes[action]) {

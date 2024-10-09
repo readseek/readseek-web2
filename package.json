@@ -16,9 +16,13 @@
     "type-check": "tsc --noEmit",
     "format:write": "prettier --write \"src/**/*.{ts,tsx,css,json}\" --cache"
   },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} src/utils/database/seed.ts"
+  },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
     "@langchain/community": "^0.2.32",
+    "@prisma/client": "5.20.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-aspect-ratio": "^1.1.0",
@@ -115,6 +119,7 @@
     "prettier-plugin-tailwindcss": "^0.6.5",
     "prisma": "^5.20.0",
     "tailwindcss": "^3.4.4",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   },
   "engines": {
