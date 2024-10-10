@@ -38,7 +38,7 @@ export default function PostContentPage() {
                     <SelectContent>
                         <SelectGroup>
                             <SelectItem value="auto">自动推断</SelectItem>
-                            <SelectItem value="news">事实新闻</SelectItem>
+                            <SelectItem value="news">时事新闻</SelectItem>
                             <SelectItem value="technology">科学技术</SelectItem>
                             <SelectItem value="history">历史人文</SelectItem>
                             <SelectItem value="finance">金融理财</SelectItem>
