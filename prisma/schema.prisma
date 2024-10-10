@@ -37,10 +37,16 @@ model Document {
   title       String        @db.VarChar(128)
   description String        @db.VarChar(255)
   keywords    String[]      @db.VarChar(128)
+  /// original authors
   authors     String[]      @db.VarChar(128)
-  categoryId  Int           @db.SmallInt
+  /// one-to-one: a doc to a category
+  categoryId  Int           @unique @db.SmallInt
   category    Category      @relation(fields: [categoryId], references: [id])
+  /// one-to-many: a doc to several tags
   tags        Tag[]
+  /// one-to-one: a doc to a user
+  userId      Int           @unique
+  user        User          @relation(fields: [userId], references: [id])
   visiable    Boolean       @default(true)
   coverUrl    String?       @db.VarChar(255)
   viewCount   Int           @default(0)
@@ -51,17 +57,17 @@ model Document {
 
 model User {
   /// unique userId for the system
-  id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(64)
+  id        Int        @id @default(autoincrement())
+  name      String     @db.VarChar(64)
   /// use age to show the right content
-  age       Int      @db.SmallInt
+  age       Int        @db.SmallInt
   /// unique public userId for the system
-  email     String   @unique @db.VarChar(128)
-  avatarUrl String?  @db.VarChar(255)
+  email     String     @unique @db.VarChar(128)
+  avatarUrl String?    @db.VarChar(255)
   /// description for user
-  bio       String?  @db.VarChar(255)
-  /// document Ids that a user posted
-  posts     String[] @db.VarChar(128)
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  bio       String?    @db.VarChar(255)
+  /// documents that a user posted
+  posts     Document[]
+  createdAt DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime   @updatedAt @db.Timestamptz(6)
 }
