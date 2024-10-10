@@ -2,6 +2,8 @@
 
 > <https://www.prisma.io/docs/getting-started/quickstart>
 
+## Init DB
+
 When finished schema writing, two thing needed to do next:
 
 1. for a new project(no tables on server yet)
@@ -28,4 +30,18 @@ pull from server
 
 ```bash
 nlx prisma db pull
+```
+
+## Generate data
+
+insert mock data to remote DB
+
+```bash
+nlx prisma db seed
+```
+
+## Checking data
+
+```bash
+nlx prisma studio
 ```

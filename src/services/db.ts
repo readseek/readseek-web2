@@ -1,18 +1,25 @@
 import { systemLog } from '@/utils/common';
-import prisma from '@/utils/database/sqlite';
+import prisma from '@/utils/database/db';
 
 /**
- * test prisma for sqlite db
+ * test for mock api
  * @returns mock data
  */
-export async function sqliteTest(): Promise<APIRet> {
-    const recipes = await prisma.recipe.findMany();
+export async function getTest(all: true): Promise<APIRet> {
+    let rets;
+    if (all) {
+        rets = await prisma.user.findMany();
+    } else {
+        rets = await prisma.user.findMany({
+            // Add other fields you need
+            select: {
+                id: true,
+                name: true,
+            },
+        });
+    }
 
-    recipes.forEach((item: any) => {
-        item['ingredients'] = JSON.parse(item.ingredients);
-    });
+    systemLog(0, rets);
 
-    systemLog(0, recipes.length);
-
-    return { code: 0, data: recipes, message: 'list recipes success' };
+    return { code: 0, data: rets, message: 'getTest success' };
 }
