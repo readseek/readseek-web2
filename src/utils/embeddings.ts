@@ -2,7 +2,7 @@ import { getOnnxModel, OnnxModel } from '@/constants/OnnxModel';
 import { systemLog } from '@/utils/common';
 // @ts-ignore
 import { InferenceSession, Tensor } from 'onnxruntime-node';
-import MilvusDB from './milvus';
+import MilvusDB from './database/milvus';
 import OptimizedTokenizer, { TokenizeResult } from './tokenizer';
 
 let model: OnnxModel;

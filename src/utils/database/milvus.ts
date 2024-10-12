@@ -1,7 +1,7 @@
 import { DataType, MilvusClient } from '@zilliz/milvus2-sdk-node';
-import { DocumentType } from '../types';
-import { systemLog } from './common';
-import type { EmbeddingTextItem } from './embeddings';
+import { DocumentType } from '../../types';
+import { systemLog } from '../common';
+import type { EmbeddingTextItem } from '../embeddings';
 
 const CollectionNameWithFileType = (type: DocumentType) => {
     return `RS_DOC_${type.toLocaleUpperCase()}_Embeddings`;

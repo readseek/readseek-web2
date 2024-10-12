@@ -17,7 +17,7 @@
     "format:write": "prettier --write \"src/**/*.{ts,tsx,css,json}\" --cache"
   },
   "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} src/utils/database/seed.ts"
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

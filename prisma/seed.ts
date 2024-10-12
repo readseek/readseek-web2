@@ -1,4 +1,4 @@
-import prisma from './db';
+import prisma from '@/utils/database/prisma';
 
 const Tags = [
     { key: '大前端', value: 0 },

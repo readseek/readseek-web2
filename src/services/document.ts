@@ -32,6 +32,11 @@ async function parseFileContent(faPath: string) {
     return false;
 }
 
+/**
+ * File upload entry
+ * @param req NextRequest
+ * @returns APIRet
+ */
 export async function fileUpload(req: NextRequest): Promise<APIRet> {
     // const fileName = uuidv4();
     // const fileType = file.name.split(".").pop()!;
@@ -46,15 +51,30 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
     return { code: 0, data: ret, message: 'success' };
 }
 
+/**
+ * File Embedding delete
+ * @param req NextRequest
+ * @returns APIRet
+ */
 export async function fileDelete(req: NextRequest): Promise<APIRet> {
     const ret = await deleteEmbeddings('Milvus.md');
     return { code: 0, data: ret, message: 'success' };
 }
 
+/**
+ * Uploaded files for a login user
+ * @param req NextRequest
+ * @returns APIRet
+ */
 export async function fileList(req: NextRequest): Promise<APIRet> {
     return { code: 0, data: [], message: 'success' };
 }
 
+/**
+ * Query file with keywords
+ * @param req NextRequest
+ * @returns APIRet
+ */
 export async function fileQuery(req: NextRequest): Promise<APIRet> {
     return { code: 0, data: {}, message: 'success' };
 }

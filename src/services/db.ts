@@ -1,5 +1,5 @@
 import { systemLog } from '@/utils/common';
-import prisma from '@/utils/database/db';
+import prisma from '@/utils/database/prisma';
 
 /**
  * test for mock api
