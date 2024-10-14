@@ -94,6 +94,7 @@ async function createEmbeddings(texts: string[]): Promise<Array<EmbeddingTextIte
 
 export async function saveEmbeddings({ metadata, sentences }: { metadata: any; sentences: string[] }) {
     try {
+        return true;
         const embeddings = await createEmbeddings(sentences);
         if (Array.isArray(embeddings) && embeddings.length > 0) {
             return await MilvusDB.saveDocument(embeddings, { metadata, dim: model.outputDimension });

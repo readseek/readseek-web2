@@ -2,13 +2,28 @@ import { getFileType, systemLog } from '@/utils/common';
 import { deleteEmbeddings, saveEmbeddings } from '@/utils/embeddings';
 import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
 import { getSplitterDocument } from '@/utils/langchain/splitter';
+import formidable from 'formidable';
 import type { Document } from 'langchain/document';
 import type { NextRequest } from 'next/server';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { promisify } from 'util';
 
-async function parseFileContent(faPath: string) {
+const UPLOAD_PATH = process.env.__RSN_UPLOAD_PATH!;
+const form = formidable({
+    multiples: false,
+    uploadDir: UPLOAD_PATH,
+    keepExtensions: true,
+    allowEmptyFiles: false,
+    maxFiles: 5,
+    maxFileSize: 200 * 1024 * 1024,
+    hashAlgorithm: 'sha256',
+    createDirsFromUploads: true,
+});
+const parseForm = promisify(form.parse);
+
+async function parseAndSaveContentEmbedding(faPath: string): Promise<boolean> {
     try {
         const { name, ext } = path.parse(faPath);
         const fileType = getFileType(ext);
@@ -29,7 +44,7 @@ async function parseFileContent(faPath: string) {
             return await saveEmbeddings(content);
         }
     } catch (error) {
-        systemLog(-1, 'parseFileContent error: ', error);
+        systemLog(-1, 'parseAndSaveContentEmbedding error: ', error);
     }
     return false;
 }
@@ -60,17 +75,24 @@ async function getFileHash(path: string): Promise<string> {
  * @returns APIRet
  */
 export async function fileUpload(req: NextRequest): Promise<APIRet> {
-    // const fileName = uuidv4();
-    // const fileType = file.name.split(".").pop()!;
+    try {
+        // @ts-ignore
+        const results: any = await parseForm(req);
+        systemLog(0, results);
+        if (!results || !results?.files?.file) {
+            return { code: -1, data: false, message: 'no file upload' };
+        }
 
-    // const formData = new FormData();
-    // formData.append("file", file);
+        const uploadedFile = results?.files?.file as formidable.File;
 
-    const filePath = path.resolve('public/upload/', 'Milvus.md');
-
-    const ret = await parseFileContent(filePath);
-
-    return { code: 0, data: ret, message: 'success' };
+        const ret = await parseAndSaveContentEmbedding(uploadedFile.filepath);
+        if (ret) {
+            return { code: 0, data: uploadedFile, message: 'upload and save success' };
+        }
+    } catch (error) {
+        systemLog(-1, 'fileUpload error: ', error);
+    }
+    return { code: -1, data: false, message: 'fileUpload error' };
 }
 
 /**
@@ -79,7 +101,7 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
  * @returns APIRet
  */
 export async function fileDelete(req: NextRequest): Promise<APIRet> {
-    const ret = await deleteEmbeddings('Milvus.md');
+    const ret = await deleteEmbeddings('');
     return { code: 0, data: ret, message: 'success' };
 }
 

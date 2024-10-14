@@ -18,11 +18,16 @@
 
 
 # upload files
-/public/upload/*.pdf
-/public/upload/*.epub
-/public/upload/*.csv
-/public/upload/*.tsv
-/public/upload/*.mp3
+/public/uploads/*.md
+/public/uploads/*.txt
+/public/uploads/*.pdf
+/public/uploads/*.csv
+/public/uploads/*.tsv
+/public/uploads/*.doc
+/public/uploads/*.docx
+/public/uploads/*.epub
+/public/uploads/*.html
+/public/uploads/*.mp3
 
 
 # misc
