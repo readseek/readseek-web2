@@ -1,7 +1,5 @@
 import { DocumentType } from '@/types';
 import chalk from 'chalk';
-import crypto from 'node:crypto';
-import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -84,24 +82,4 @@ export function throttle<T extends (...args: any[]) => any>(func: T, limit: numb
             );
         }
     }) as T;
-}
-
-export function getFileHash(path: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const hash = crypto.createHash('sha256'); // 64
-        const stream = fs.createReadStream(path);
-
-        stream.on('data', data => {
-            hash.update(data);
-        });
-
-        stream.on('end', () => {
-            resolve(hash.digest('hex'));
-        });
-
-        stream.on('error', err => {
-            systemLog(-1, err);
-            reject(err);
-        });
-    });
 }

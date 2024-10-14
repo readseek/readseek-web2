@@ -4,6 +4,8 @@ import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
 import { getSplitterDocument } from '@/utils/langchain/splitter';
 import type { Document } from 'langchain/document';
 import type { NextRequest } from 'next/server';
+import crypto from 'node:crypto';
+import fs from 'node:fs';
 import path from 'node:path';
 
 async function parseFileContent(faPath: string) {
@@ -30,6 +32,26 @@ async function parseFileContent(faPath: string) {
         systemLog(-1, 'parseFileContent error: ', error);
     }
     return false;
+}
+
+async function getFileHash(path: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const hash = crypto.createHash('sha256'); // 64
+        const stream = fs.createReadStream(path);
+
+        stream.on('data', data => {
+            hash.update(data);
+        });
+
+        stream.on('end', () => {
+            resolve(hash.digest('hex'));
+        });
+
+        stream.on('error', err => {
+            systemLog(-1, err);
+            reject(err);
+        });
+    });
 }
 
 /**
