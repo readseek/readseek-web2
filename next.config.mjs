@@ -6,7 +6,10 @@ const nextConfig = {
     i18n: i18next.i18n,
     reactStrictMode: true,
 
+    productionBrowserSourceMaps: true,
+
     experimental: {
+        serverSourceMaps: true,
         serverComponentsExternalPackages: ['sharp', 'onnxruntime-node', '@turingscript/tokenizers', '@zilliz/milvus2-sdk-node'],
     },
 

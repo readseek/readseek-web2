@@ -8,7 +8,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,

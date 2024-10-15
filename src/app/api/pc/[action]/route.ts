@@ -6,6 +6,10 @@ import { home, list, systemConf } from '@/services/system';
 import { userCancellation, userLogin, userUpdate } from '@/services/user';
 import { NextRequest, NextResponse } from 'next/server';
 
+export const preferredRegion = 'auto';
+export const runtime = 'nodejs';
+export const maxDuration = 10;
+
 /**
  * 处理错误请求
  */

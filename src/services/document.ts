@@ -3,6 +3,7 @@ import { deleteEmbeddings, saveEmbeddings } from '@/utils/embeddings';
 import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
 import { getSplitterDocument } from '@/utils/langchain/splitter';
 import formidable from 'formidable';
+import { IncomingMessage } from 'http';
 import type { Document } from 'langchain/document';
 import type { NextRequest } from 'next/server';
 import crypto from 'node:crypto';
@@ -10,18 +11,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { promisify } from 'util';
 
-const UPLOAD_PATH = process.env.__RSN_UPLOAD_PATH!;
-const form = formidable({
-    multiples: false,
-    uploadDir: UPLOAD_PATH,
-    keepExtensions: true,
-    allowEmptyFiles: false,
-    maxFiles: 5,
-    maxFileSize: 200 * 1024 * 1024,
-    hashAlgorithm: 'sha256',
-    createDirsFromUploads: true,
-});
-const parseForm = promisify(form.parse);
+const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH!);
 
 async function parseAndSaveContentEmbedding(faPath: string): Promise<boolean> {
     try {
@@ -76,19 +66,32 @@ async function getFileHash(path: string): Promise<string> {
  */
 export async function fileUpload(req: NextRequest): Promise<APIRet> {
     try {
+        const IncomingForm = formidable({
+            multiples: false,
+            uploadDir: UPLOAD_PATH,
+            keepExtensions: true,
+            allowEmptyFiles: false,
+            maxFiles: 5,
+            maxFileSize: 200 * 1024 * 1024,
+            hashAlgorithm: 'sha256',
+            createDirsFromUploads: true,
+        });
+        const parseForm = promisify((req: IncomingMessage) => {
+            IncomingForm.parse(req);
+        });
         // @ts-ignore
-        const results: any = await parseForm(req);
-        systemLog(0, results);
-        if (!results || !results?.files?.file) {
+        const [fields, files] = await parseForm(req.body);
+        systemLog(0, { fields, files });
+        if (!files || !files.file) {
             return { code: -1, data: false, message: 'no file upload' };
         }
 
-        const uploadedFile = results?.files?.file as formidable.File;
+        // const uploadedFile = results?.files?.file as formidable.File;
 
-        const ret = await parseAndSaveContentEmbedding(uploadedFile.filepath);
-        if (ret) {
-            return { code: 0, data: uploadedFile, message: 'upload and save success' };
-        }
+        // const ret = await parseAndSaveContentEmbedding(uploadedFile.filepath);
+        // if (ret) {
+        //     return { code: 0, data: uploadedFile, message: 'upload and save success' };
+        // }
     } catch (error) {
         systemLog(-1, 'fileUpload error: ', error);
     }
