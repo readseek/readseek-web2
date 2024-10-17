@@ -62,7 +62,6 @@
     "epub2": "^3.0.2",
     "eventsource-parser": "^2.0.1",
     "flowbite": "^2.5.1",
-    "formidable": "^3.5.1",
     "html-to-text": "^9.0.5",
     "i18next": "^23.14.0",
     "input-otp": "^1.2.4",
@@ -96,7 +95,6 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.15",
-    "@types/formidable": "^3.4.5",
     "@types/node": "^18",
     "@types/react": "^18",
     "@types/react-dom": "^18",

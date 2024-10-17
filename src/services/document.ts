@@ -2,15 +2,15 @@ import { getFileType, systemLog } from '@/utils/common';
 import { deleteEmbeddings, saveEmbeddings } from '@/utils/embeddings';
 import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
 import { getSplitterDocument } from '@/utils/langchain/splitter';
-import formidable from 'formidable';
-import { IncomingMessage } from 'http';
 import type { Document } from 'langchain/document';
 import type { NextRequest } from 'next/server';
-import crypto from 'node:crypto';
-import fs from 'node:fs';
+import crypto, { randomUUID } from 'node:crypto';
+import fs, { createWriteStream } from 'node:fs';
 import path from 'node:path';
+import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
+const pipelineAsync = promisify(pipeline);
 const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH!);
 
 async function parseAndSaveContentEmbedding(faPath: string): Promise<boolean> {
@@ -66,31 +66,37 @@ async function getFileHash(path: string): Promise<string> {
  */
 export async function fileUpload(req: NextRequest): Promise<APIRet> {
     try {
-        const IncomingForm = formidable({
-            multiples: false,
-            uploadDir: UPLOAD_PATH,
-            keepExtensions: true,
-            allowEmptyFiles: false,
-            maxFiles: 5,
-            maxFileSize: 200 * 1024 * 1024,
-            hashAlgorithm: 'sha256',
-            createDirsFromUploads: true,
-        });
-        const parseForm = promisify((req: IncomingMessage) => {
-            IncomingForm.parse(req);
-        });
-        // @ts-ignore
-        const [fields, files] = await parseForm(req.body);
-        systemLog(0, { fields, files });
-        if (!files || !files.file) {
+        const contentType = req.headers.get('content-type') || '';
+        if (!contentType.includes('multipart/form-data')) {
+            return { code: -1, data: false, message: 'Invalid content type' };
+        }
+
+        const formData = await req.formData();
+        const file = formData.get('file') as File | null;
+        if (!file) {
             return { code: -1, data: false, message: 'no file upload' };
         }
 
-        // const uploadedFile = results?.files?.file as formidable.File;
+        const fileName = `${randomUUID()}-${file.name}`;
+        const filePath = path.join(UPLOAD_PATH, fileName);
 
-        // const ret = await parseAndSaveContentEmbedding(uploadedFile.filepath);
+        // @ts-ignore
+        const fileStream = Readable.fromWeb(file.stream());
+        const writeStream = createWriteStream(filePath);
+        await pipelineAsync(fileStream, writeStream);
+
+        // const ret = await parseAndSaveContentEmbedding(filePath);
         // if (ret) {
-        //     return { code: 0, data: uploadedFile, message: 'upload and save success' };
+        return {
+            code: 0,
+            data: {
+                filepath: filePath,
+                originalFilename: file.name,
+                mimetype: file.type,
+                size: file.size,
+            },
+            message: 'upload and save success',
+        };
         // }
     } catch (error) {
         systemLog(-1, 'fileUpload error: ', error);
