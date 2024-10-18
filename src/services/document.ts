@@ -4,14 +4,14 @@ import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
 import { getSplitterDocument } from '@/utils/langchain/splitter';
 import type { Document } from 'langchain/document';
 import type { NextRequest } from 'next/server';
-import crypto, { randomUUID } from 'node:crypto';
-import fs, { createWriteStream } from 'node:fs';
+import crypto from 'node:crypto';
+import { createWriteStream } from 'node:fs';
 import path from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
 const pipelineAsync = promisify(pipeline);
-const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH!);
+const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH ?? 'public/uploads');
 
 async function parseAndSaveContentEmbedding(faPath: string): Promise<boolean> {
     try {
@@ -39,22 +39,18 @@ async function parseAndSaveContentEmbedding(faPath: string): Promise<boolean> {
     return false;
 }
 
-async function getFileHash(path: string): Promise<string> {
+async function getFileHash(fileStream: Readable): Promise<string> {
     return new Promise((resolve, reject) => {
         const hash = crypto.createHash('sha256'); // 64
-        const stream = fs.createReadStream(path);
-
-        stream.on('data', data => {
+        fileStream.on('data', data => {
             hash.update(data);
         });
-
-        stream.on('end', () => {
+        fileStream.on('end', () => {
             resolve(hash.digest('hex'));
         });
-
-        stream.on('error', err => {
+        fileStream.on('error', err => {
             systemLog(-1, err);
-            reject(err);
+            reject(err?.message);
         });
     });
 }
@@ -71,17 +67,19 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
             return { code: -1, data: false, message: 'Invalid content type' };
         }
 
+        let file: File;
         const formData = await req.formData();
-        const file = formData.get('file') as File | null;
-        if (!file) {
-            return { code: -1, data: false, message: 'no file upload' };
+        if (!formData || !formData.has('file')) {
+            return { code: -1, data: false, message: 'no parameter file upload' };
         }
 
-        const fileName = `${randomUUID()}-${file.name}`;
+        file = formData.get('file') as File;
+        // @ts-ignore
+        const fileStream = Readable.fromWeb(file.stream(), { encoding: 'utf-8' });
+        const fileHash = await getFileHash(fileStream);
+        const fileName = `${fileHash}.${file.name.split('.')[1]}`;
         const filePath = path.join(UPLOAD_PATH, fileName);
 
-        // @ts-ignore
-        const fileStream = Readable.fromWeb(file.stream());
         const writeStream = createWriteStream(filePath);
         await pipelineAsync(fileStream, writeStream);
 
@@ -98,10 +96,10 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
             message: 'upload and save success',
         };
         // }
-    } catch (error) {
-        systemLog(-1, 'fileUpload error: ', error);
+    } catch (error: any) {
+        systemLog(-1, 'fileUpload service: ', error);
+        return { code: -1, data: false, message: error?.message || 'fileUpload error' };
     }
-    return { code: -1, data: false, message: 'fileUpload error' };
 }
 
 /**
