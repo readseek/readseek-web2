@@ -1,11 +1,14 @@
-import { Message } from '@/types';
 import { IconEdit } from '@tabler/icons-react';
 import { FC, memo, useEffect, useRef, useState } from 'react';
 import rehypeMathjax from 'rehype-mathjax';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
+
+import { Message } from '@/types';
+
 import { CodeBlock } from '../Markdown/CodeBlock';
 import { MemoizedReactMarkdown } from '../Markdown/MemoizedReactMarkdown';
+
 import { CopyButton } from './CopyButton';
 
 interface Props {

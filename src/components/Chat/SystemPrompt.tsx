@@ -1,6 +1,8 @@
-import { Conversation } from '@/types';
-import { DEFAULT_SYSTEM_PROMPT } from '@/utils/app/const';
 import { FC, useEffect, useRef, useState } from 'react';
+
+import { Conversation } from '@/types';
+
+import { DEFAULT_SYSTEM_PROMPT } from '@/utils/app/const';
 
 interface Props {
     conversation: Conversation;

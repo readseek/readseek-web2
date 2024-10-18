@@ -1,9 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+
 import '@/styles/globals.css';
 import { BookPlus, FileSearchIcon, LibrarySquare, PackageSearch, User } from 'lucide-react';
+
 import type { Metadata } from 'next';
+
 import Link from 'next/link';
 
 export const metadata: Metadata = {

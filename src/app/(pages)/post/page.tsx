@@ -1,12 +1,13 @@
 'use client';
 
+import { UploadCloud } from 'lucide-react';
+import { useEffect } from 'react';
+
 import { UploadBox } from '@/components/Chat/UploadBox';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { systemLog } from '@/utils/common';
-import { UploadCloud } from 'lucide-react';
-import { useEffect } from 'react';
 
 const metadata = {
     title: '内容发布 - 搜读',

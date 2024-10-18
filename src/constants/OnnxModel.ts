@@ -1,5 +1,6 @@
-import { absolutePath } from '@/utils/common';
 import path from 'node:path';
+
+import { absolutePath } from '@/utils/common';
 
 export const enum ModelName {
     ALL_MiniLM_L6_V2 = 'all-MiniLM-L6-v2', // English Prefer

@@ -1,9 +1,11 @@
-import { DocumentType } from '@/types';
-import chalk from 'chalk';
 import crypto from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
+
+import chalk from 'chalk';
+
+import { DocumentType } from '@/types';
 
 export function isDevModel(): boolean {
     return Boolean(process.env.__RSN_ENV && process.env.__RSN_ENV === 'dev');

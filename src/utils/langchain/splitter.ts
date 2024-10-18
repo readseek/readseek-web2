@@ -1,5 +1,6 @@
 import { Document } from 'langchain/document';
 import { TokenTextSplitter } from 'langchain/text_splitter';
+
 import { systemLog } from '../common';
 
 export function getSplitterDocument(docs: Document[]): Promise<Document[]> | null {

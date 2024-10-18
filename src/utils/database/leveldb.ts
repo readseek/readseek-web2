@@ -1,5 +1,7 @@
-import { Level } from 'level';
 import path from 'node:path';
+
+import { Level } from 'level';
+
 import { isJSONObject, systemLog } from '../common';
 
 const LevelDB_PATH = path.join(process.cwd(), process.env.__RSN_LevelDB_PATH ?? 'levelDB_v8');

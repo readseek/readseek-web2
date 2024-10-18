@@ -1,8 +1,9 @@
-import { generateRandomString, programmingLanguages } from '@/utils/app/codeblock';
 import { IconCheck, IconClipboard, IconDownload } from '@tabler/icons-react';
 import { FC, memo, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+
+import { generateRandomString, programmingLanguages } from '@/utils/app/codeblock';
 
 interface Props {
     language: string;

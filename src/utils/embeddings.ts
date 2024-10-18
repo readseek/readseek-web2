@@ -1,11 +1,16 @@
+import type { Document } from 'langchain/document';
+
+import path from 'node:path';
+
+import { InferenceSession, Tensor } from 'onnxruntime-node';
+
 import { getOnnxModel, OnnxModel } from '@/constants/OnnxModel';
 import { getFileType, systemLog } from '@/utils/common';
 import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
 import { getSplitterDocument } from '@/utils/langchain/splitter';
-import type { Document } from 'langchain/document';
-import path from 'node:path';
+
 // @ts-ignore
-import { InferenceSession, Tensor } from 'onnxruntime-node';
+
 import MilvusDB from './database/milvus';
 import OptimizedTokenizer, { TokenizeResult } from './tokenizer';
 

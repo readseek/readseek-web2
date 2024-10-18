@@ -1,11 +1,13 @@
-import { DocumentType } from '@/types';
+import type { DocumentLoader } from 'langchain/document_loaders/base';
+
 import { CSVLoader } from '@langchain/community/document_loaders/fs/csv';
 import { DocxLoader } from '@langchain/community/document_loaders/fs/docx';
 import { EPubLoader } from '@langchain/community/document_loaders/fs/epub';
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { UnstructuredLoader } from '@langchain/community/document_loaders/fs/unstructured';
-import type { DocumentLoader } from 'langchain/document_loaders/base';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
+
+import { DocumentType } from '@/types';
 
 const UNSTRUCTURED_API_KEY = process.env.__RSN_UNSTRUCTURED_API_KEY as string;
 const UNSTRUCTURED_API_URL = process.env.__RSN_UNSTRUCTURED_API_URL as string;

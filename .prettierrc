@@ -7,8 +7,5 @@
     "arrowParens": "avoid",
     "endOfLine": "auto",
     "tailwindFunctions": ["clsx"],
-    "plugins": [
-        "prettier-plugin-organize-imports",
-        "prettier-plugin-tailwindcss"
-    ]
+    "plugins": ["prettier-plugin-tailwindcss"]
 }

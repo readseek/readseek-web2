@@ -1,10 +1,11 @@
 /**
  * 负责service分发，处理标准网络协议请求、Cookie验证等逻辑
  */
+import { NextRequest, NextResponse } from 'next/server';
+
 import { fileDelete, fileList, fileQuery, fileUpload } from '@/services/document';
 import { home, list, systemConf } from '@/services/system';
 import { userCancellation, userLogin, userUpdate } from '@/services/user';
-import { NextRequest, NextResponse } from 'next/server';
 
 export const preferredRegion = 'auto';
 export const runtime = 'nodejs';

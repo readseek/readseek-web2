@@ -2,7 +2,9 @@
   "$schema": "https://json.schemastore.org/eslintrc",
   "root": true,
   "extends": [
+    "eslint:recommended",
     "next/core-web-vitals",
+    "plugin:import/recommended",
     "plugin:prettier/recommended",
     "plugin:tailwindcss/recommended"
   ],
@@ -13,7 +15,22 @@
   "rules": {
     "prettier/prettier": "warn",
     "tailwindcss/no-custom-classname": "off",
-    "tailwindcss/enforces-shorthand": "off"
+    "tailwindcss/enforces-shorthand": "off",
+    "tailwindcss/classnames-order": "off",
+    "tailwindcss/no-unnecessary-arbitrary-value": "off",
+    "import/named": "warn",
+    "import/no-unresolved": "off",
+    "no-unused-vars": "warn",
+    "no-undef": "warn",
+    "no-duplicate-imports": ["error", { "includeExports": true }],
+    "import/order": [
+      "error",
+      {
+        "groups": ["type", "builtin", "external", "internal", "parent", "sibling", "index", "object"],
+        "newlines-between": "always",
+        "alphabetize": { "order": "asc", "caseInsensitive": true }
+      }
+    ]
   },
   "settings": {
     "tailwindcss": {
