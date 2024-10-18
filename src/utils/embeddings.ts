@@ -1,5 +1,9 @@
 import { getOnnxModel, OnnxModel } from '@/constants/OnnxModel';
-import { systemLog } from '@/utils/common';
+import { getFileType, systemLog } from '@/utils/common';
+import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
+import { getSplitterDocument } from '@/utils/langchain/splitter';
+import type { Document } from 'langchain/document';
+import path from 'node:path';
 // @ts-ignore
 import { InferenceSession, Tensor } from 'onnxruntime-node';
 import MilvusDB from './database/milvus';
@@ -94,13 +98,38 @@ async function createEmbeddings(texts: string[]): Promise<Array<EmbeddingTextIte
 
 export async function saveEmbeddings({ metadata, sentences }: { metadata: any; sentences: string[] }) {
     try {
-        return true;
         const embeddings = await createEmbeddings(sentences);
         if (Array.isArray(embeddings) && embeddings.length > 0) {
             return await MilvusDB.saveDocument(embeddings, { metadata, dim: model.outputDimension });
         }
     } catch (error) {
         systemLog(-1, 'saveEmbeddings error: ', error);
+    }
+    return false;
+}
+
+export async function parseAndSaveContentEmbedding(faPath: string): Promise<boolean> {
+    try {
+        const { name, ext } = path.parse(faPath);
+        const fileType = getFileType(ext);
+
+        const loader = getUnstructuredLoader(faPath);
+        const documents: Document[] = await loader.load();
+        const splitDocuments = await getSplitterDocument(documents);
+
+        if (Array.isArray(splitDocuments) && splitDocuments.length > 0) {
+            const content = {
+                metadata: {
+                    fileName: name,
+                    fileType: fileType,
+                    title: splitDocuments[0].pageContent || splitDocuments[0].metadata.filename,
+                },
+                sentences: splitDocuments.map(doc => doc.pageContent),
+            };
+            return await saveEmbeddings(content);
+        }
+    } catch (error) {
+        systemLog(-1, 'parseAndSaveContentEmbedding error: ', error);
     }
     return false;
 }

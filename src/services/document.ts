@@ -1,60 +1,14 @@
-import { getFileType, systemLog } from '@/utils/common';
+import { getFileHash, systemLog } from '@/utils/common';
 import LevelDB from '@/utils/database/leveldb';
-import { deleteEmbeddings, saveEmbeddings } from '@/utils/embeddings';
-import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
-import { getSplitterDocument } from '@/utils/langchain/splitter';
-import type { Document } from 'langchain/document';
+import { deleteEmbeddings, parseAndSaveContentEmbedding } from '@/utils/embeddings';
 import type { NextRequest } from 'next/server';
-import crypto from 'node:crypto';
-import { createWriteStream } from 'node:fs';
+import fs, { createWriteStream } from 'node:fs';
 import path from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
 const pipelineAsync = promisify(pipeline);
 const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH ?? 'public/uploads');
-
-async function parseAndSaveContentEmbedding(faPath: string): Promise<boolean> {
-    try {
-        const { name, ext } = path.parse(faPath);
-        const fileType = getFileType(ext);
-
-        const loader = getUnstructuredLoader(faPath);
-        const documents: Document[] = await loader.load();
-        const splitDocuments = await getSplitterDocument(documents);
-
-        if (Array.isArray(splitDocuments) && splitDocuments.length > 0) {
-            const content = {
-                metadata: {
-                    fileName: name,
-                    fileType: fileType,
-                    title: splitDocuments[0].pageContent || splitDocuments[0].metadata.filename,
-                },
-                sentences: splitDocuments.map(doc => doc.pageContent),
-            };
-            return await saveEmbeddings(content);
-        }
-    } catch (error) {
-        systemLog(-1, 'parseAndSaveContentEmbedding error: ', error);
-    }
-    return false;
-}
-
-async function getFileHash(fileStream: Readable): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const hash = crypto.createHash('sha256'); // 64
-        fileStream.on('data', data => {
-            hash.update(data);
-        });
-        fileStream.on('end', () => {
-            resolve(hash.digest('hex'));
-        });
-        fileStream.on('error', err => {
-            systemLog(-1, err);
-            reject(err?.message);
-        });
-    });
-}
 
 /**
  * File upload entry
@@ -81,7 +35,8 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
         const fileName = `${fileHash}.${file.name.split('.')[1]}`;
         const filePath = path.join(UPLOAD_PATH, fileName);
 
-        if (await LevelDB.getSharedDB.has(fileHash)) {
+        // avoid duplicate uploads
+        if (fs.existsSync(filePath)) {
             return {
                 code: 1,
                 data: {
@@ -96,11 +51,17 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
 
         const writeStream = createWriteStream(filePath);
         await pipelineAsync(fileStream, writeStream);
-        // save to local
-        await LevelDB.getSharedDB.put(fileHash, filePath);
 
-        // const ret = await parseAndSaveContentEmbedding(filePath);
-        // if (ret) {
+        // save local mappings
+        await LevelDB.getSharedDB.put(fileHash, filePath);
+        // save content embeddings
+        const ret = await parseAndSaveContentEmbedding(filePath);
+        // save supsbase postgresql
+
+        if (ret) {
+            console.log(ret);
+        }
+
         return {
             code: 0,
             data: {
@@ -111,7 +72,6 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
             },
             message: 'upload and save success',
         };
-        // }
     } catch (error: any) {
         systemLog(-1, 'fileUpload service: ', error);
         return { code: -1, data: false, message: error?.message || 'fileUpload error' };

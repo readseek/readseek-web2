@@ -1,7 +1,9 @@
 import { DocumentType } from '@/types';
 import chalk from 'chalk';
+import crypto from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
+import { Readable } from 'node:stream';
 
 export function getFullTime() {
     const formattedDate = new Date().toLocaleString('en-US', {
@@ -97,4 +99,20 @@ export function isJSONObject(val: any): boolean {
         systemLog(1, 'JSON.parse input: ', val);
     }
     return false;
+}
+
+export async function getFileHash(fileStream: Readable): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const hash = crypto.createHash('sha256'); // 64
+        fileStream.on('data', data => {
+            hash.update(data);
+        });
+        fileStream.on('end', () => {
+            resolve(hash.digest('hex'));
+        });
+        fileStream.on('error', err => {
+            systemLog(-1, err);
+            reject(err?.message);
+        });
+    });
 }
