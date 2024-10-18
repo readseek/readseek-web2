@@ -1,4 +1,4 @@
-import { getFileHash, systemLog } from '@/utils/common';
+import { getFileHash, isDevModel, systemLog } from '@/utils/common';
 import LevelDB from '@/utils/database/leveldb';
 import { deleteEmbeddings, parseAndSaveContentEmbedding } from '@/utils/embeddings';
 import type { NextRequest } from 'next/server';
@@ -6,6 +6,7 @@ import fs, { createWriteStream } from 'node:fs';
 import path from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
+import { saveOrUpdate } from './db';
 
 const pipelineAsync = promisify(pipeline);
 const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH ?? 'public/uploads');
@@ -29,14 +30,13 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
         }
 
         file = formData.get('file') as File;
-        // @ts-ignore
-        const fileStream = Readable.fromWeb(file.stream(), { encoding: 'utf-8' });
-        const fileHash = await getFileHash(fileStream);
+
+        const fileHash = await getFileHash(file);
         const fileName = `${fileHash}.${file.name.split('.')[1]}`;
         const filePath = path.join(UPLOAD_PATH, fileName);
 
-        // avoid duplicate uploads
-        if (fs.existsSync(filePath)) {
+        // avoid production duplicate uploads
+        if (!isDevModel() && fs.existsSync(filePath)) {
             return {
                 code: 1,
                 data: {
@@ -49,33 +49,42 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
             };
         }
 
-        const writeStream = createWriteStream(filePath);
-        await pipelineAsync(fileStream, writeStream);
+        // @ts-ignore
+        await pipelineAsync(Readable.fromWeb(file.stream()), createWriteStream(filePath));
 
-        // save local mappings
-        await LevelDB.getSharedDB.put(fileHash, filePath);
-        // save content embeddings
-        const ret = await parseAndSaveContentEmbedding(filePath);
-        // save supsbase postgresql
-
-        if (ret) {
-            console.log(ret);
+        const parsedResult = await parseAndSaveContentEmbedding(filePath);
+        if (parsedResult.state) {
+            const [ret1, ret2] = await Promise.all([
+                // save local mappings
+                LevelDB.getSharedDB.put(fileHash, filePath),
+                // save supsbase postgresql
+                saveOrUpdate({
+                    model: 'Document',
+                    data: {
+                        id: fileHash,
+                        tags: [1, 5],
+                        categoryId: 1,
+                        userId: 1,
+                        ...parsedResult.meta,
+                    },
+                }),
+            ]);
+            systemLog(0, ret1, ret2);
+            return {
+                code: 0,
+                data: {
+                    fileName,
+                    originalFilename: file.name,
+                    mimetype: file.type,
+                    size: file.size,
+                },
+                message: 'upload and save success',
+            };
         }
-
-        return {
-            code: 0,
-            data: {
-                filepath: filePath,
-                originalFilename: file.name,
-                mimetype: file.type,
-                size: file.size,
-            },
-            message: 'upload and save success',
-        };
     } catch (error: any) {
         systemLog(-1, 'fileUpload service: ', error);
-        return { code: -1, data: false, message: error?.message || 'fileUpload error' };
     }
+    return { code: -1, data: false, message: 'fileUpload failed' };
 }
 
 /**

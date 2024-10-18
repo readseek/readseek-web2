@@ -19,6 +19,19 @@ export type EmbeddingTextItem = {
     embedding: Array<number>;
 };
 
+export type DocumentMeta = {
+    title?: string;
+    description?: string;
+    keywords?: string[];
+    authors?: string[]; //original authors
+    coverUrl?: string;
+};
+
+export type ParsedResult = {
+    meta?: DocumentMeta;
+    state: boolean; // parsed success or not
+};
+
 async function initialize() {
     if (!session) {
         try {
@@ -76,7 +89,6 @@ async function createEmbeddings(texts: string[]): Promise<Array<EmbeddingTextIte
                     attention_mask: new Tensor('int64', cV.attentionMask, [1, cV.attentionMask.length]),
                 };
                 const outputs = await session.run(inputFeeds);
-                systemLog(0, index + 1, ': embedding sentence size: ', outputs?.sentence_embedding?.size);
                 if (outputs && outputs.sentence_embedding?.cpuData) {
                     return {
                         number: index + 1,
@@ -108,12 +120,12 @@ export async function saveEmbeddings({ metadata, sentences }: { metadata: any; s
     return false;
 }
 
-export async function parseAndSaveContentEmbedding(faPath: string): Promise<boolean> {
+export async function parseAndSaveContentEmbedding(filepath: string): Promise<ParsedResult> {
     try {
-        const { name, ext } = path.parse(faPath);
+        const { name, ext } = path.parse(filepath);
         const fileType = getFileType(ext);
 
-        const loader = getUnstructuredLoader(faPath);
+        const loader = getUnstructuredLoader(filepath);
         const documents: Document[] = await loader.load();
         const splitDocuments = await getSplitterDocument(documents);
 
@@ -126,12 +138,22 @@ export async function parseAndSaveContentEmbedding(faPath: string): Promise<bool
                 },
                 sentences: splitDocuments.map(doc => doc.pageContent),
             };
-            return await saveEmbeddings(content);
+            const ret = await saveEmbeddings(content);
+            return {
+                state: ret,
+                meta: {
+                    title: content.metadata.title,
+                    description: content.sentences.slice(0, 3).join(',').substring(0, 255),
+                    keywords: content.metadata.title.split(' '),
+                    authors: ['tom', 'jack'],
+                    coverUrl: process.env.__RSN_DEFAULT_COVER,
+                },
+            };
         }
     } catch (error) {
-        systemLog(-1, 'parseAndSaveContentEmbedding error: ', error);
+        systemLog(-1, 'error on parseAndSaveContentEmbedding: ', error);
     }
-    return false;
+    return { state: false };
 }
 
 export async function deleteEmbeddings(name: string) {

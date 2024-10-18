@@ -5,8 +5,8 @@ import { systemLog } from '../common';
 export function getSplitterDocument(docs: Document[]): Promise<Document[]> | null {
     try {
         return new TokenTextSplitter({
-            chunkSize: 512,
-            chunkOverlap: 100,
+            chunkSize: 2048,
+            chunkOverlap: 200,
         }).splitDocuments(docs);
     } catch (error) {
         systemLog(1, 'getSplitterDocument error', error);

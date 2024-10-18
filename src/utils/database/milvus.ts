@@ -1,6 +1,6 @@
 import { DataType, MilvusClient } from '@zilliz/milvus2-sdk-node';
 import { DocumentType } from '../../types';
-import { systemLog } from '../common';
+import { isDevModel, systemLog } from '../common';
 import type { EmbeddingTextItem } from '../embeddings';
 
 const CollectionNameWithFileType = (type: DocumentType) => {
@@ -112,23 +112,26 @@ export default class MilvusDB {
             return false;
         }
 
-        // Insert the embedding
-        const res = await this.milvusClient?.insert({
-            collection_name: collectionName,
-            fields_data: textItems.map((item: EmbeddingTextItem) => {
-                return {
-                    number: item.number,
-                    text: item.text,
-                    embedding: item.embedding,
-                    metadata,
-                };
-            }),
-        });
-        systemLog(0, 'saveDocument res: ', res);
-        if (res?.status?.code === 0) {
-            return true;
+        let res: any;
+        try {
+            // Insert the embedding
+            res = await this.milvusClient?.insert({
+                collection_name: collectionName,
+                fields_data: textItems.map((item: EmbeddingTextItem) => {
+                    return {
+                        number: item.number,
+                        text: item.text,
+                        embedding: item.embedding,
+                        metadata,
+                    };
+                }),
+            });
+            if (res?.status?.code === 0) {
+                return true;
+            }
+        } catch (error) {
+            systemLog(-1, 'error on saveDocument: ', res, error);
         }
-
         return false;
     }
 
@@ -151,7 +154,7 @@ export default class MilvusDB {
         const collectionName = CollectionNameWithFileType(metadata.fileType);
 
         // Drop collection on prod was not permitted
-        if (process.env.__RSN_ENV === 'dev') {
+        if (isDevModel()) {
             const ret = await this.milvusClient?.dropCollection({
                 collection_name: collectionName,
                 timeout: 15,

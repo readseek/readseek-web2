@@ -5,6 +5,10 @@ import os from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 
+export function isDevModel(): boolean {
+    return Boolean(process.env.__RSN_ENV && process.env.__RSN_ENV === 'dev');
+}
+
 export function getFullTime() {
     const formattedDate = new Date().toLocaleString('en-US', {
         year: 'numeric',
@@ -21,7 +25,7 @@ export function getFullTime() {
 }
 
 export function systemLog(level: 0 | 1 | -1, ...args: any[]) {
-    if (!process.env.__RSN_ENV || process.env.__RSN_ENV === 'dev') {
+    if (isDevModel()) {
         const _log = (...logs: any[]) => {
             switch (level) {
                 case 1:
@@ -101,8 +105,10 @@ export function isJSONObject(val: any): boolean {
     return false;
 }
 
-export async function getFileHash(fileStream: Readable): Promise<string> {
+export async function getFileHash(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
+        // @ts-ignore
+        const fileStream = Readable.fromWeb(file.stream());
         const hash = crypto.createHash('sha256'); // 64
         fileStream.on('data', data => {
             hash.update(data);
