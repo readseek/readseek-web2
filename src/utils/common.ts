@@ -83,3 +83,18 @@ export function throttle<T extends (...args: any[]) => any>(func: T, limit: numb
         }
     }) as T;
 }
+
+export function isJSONObject(val: any): boolean {
+    if (val && typeof val === 'object') {
+        return true;
+    }
+    try {
+        if (typeof val === 'string') {
+            const result = JSON.parse(val);
+            return typeof result === 'object' && result !== null;
+        }
+    } catch (e) {
+        systemLog(1, 'JSON.parse input: ', val);
+    }
+    return false;
+}

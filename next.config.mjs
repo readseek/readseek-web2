@@ -10,7 +10,7 @@ const nextConfig = {
 
     experimental: {
         serverSourceMaps: true,
-        serverComponentsExternalPackages: ['sharp', 'onnxruntime-node', '@turingscript/tokenizers', '@zilliz/milvus2-sdk-node'],
+        serverComponentsExternalPackages: ['level', 'onnxruntime-node', '@turingscript/tokenizers', '@zilliz/milvus2-sdk-node'],
     },
 
     // 这项配置还有点问题：https://github.com/payloadcms/payload/issues/7501

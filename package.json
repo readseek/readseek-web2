@@ -66,6 +66,7 @@
     "i18next": "^23.14.0",
     "input-otp": "^1.2.4",
     "langchain": "^0.2.18",
+    "level": "^8.0.1",
     "lru-cache": "^11.0.1",
     "lucide-react": "^0.417.0",
     "mammoth": "^1.8.0",

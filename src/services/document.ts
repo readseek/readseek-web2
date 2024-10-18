@@ -1,4 +1,5 @@
 import { getFileType, systemLog } from '@/utils/common';
+import LevelDB from '@/utils/database/leveldb';
 import { deleteEmbeddings, saveEmbeddings } from '@/utils/embeddings';
 import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
 import { getSplitterDocument } from '@/utils/langchain/splitter';
@@ -80,8 +81,23 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
         const fileName = `${fileHash}.${file.name.split('.')[1]}`;
         const filePath = path.join(UPLOAD_PATH, fileName);
 
+        if (await LevelDB.getSharedDB.has(fileHash)) {
+            return {
+                code: 1,
+                data: {
+                    fileName,
+                    originalFilename: file.name,
+                    mimetype: file.type,
+                    size: file.size,
+                },
+                message: 'file already uploaded',
+            };
+        }
+
         const writeStream = createWriteStream(filePath);
         await pipelineAsync(fileStream, writeStream);
+        // save to local
+        await LevelDB.getSharedDB.put(fileHash, filePath);
 
         // const ret = await parseAndSaveContentEmbedding(filePath);
         // if (ret) {

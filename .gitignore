@@ -29,6 +29,9 @@
 /public/uploads/*.html
 /public/uploads/*.mp3
 
+# google levelDB files
+levelDB/*
+levelDB_v8/*
 
 # misc
 .DS_Store
