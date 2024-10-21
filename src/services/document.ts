@@ -14,6 +14,10 @@ import { saveOrUpdate } from './db';
 const pipelineAsync = promisify(pipeline);
 const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH ?? 'public/uploads');
 
+const ErrorRet = (msg: string) => {
+    return { code: -1, data: false, message: msg };
+};
+
 /**
  * File upload entry
  * @param req NextRequest
@@ -23,20 +27,26 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
     try {
         const contentType = req.headers.get('content-type') || '';
         if (!contentType.includes('multipart/form-data')) {
-            return { code: -1, data: false, message: 'Invalid content type' };
+            return ErrorRet('Invalid content type');
         }
 
-        let file: File;
-        const formData = await req.formData();
-        if (!formData || !formData.has('file')) {
-            return { code: -1, data: false, message: 'no parameter file upload' };
+        let file,
+            fileHash = '',
+            fileName = '',
+            filePath = '';
+        try {
+            const formData = await req.formData();
+            if (!formData || !formData.has('file')) {
+                return ErrorRet('no parameter file upload');
+            }
+            file = formData.get('file') as File;
+            fileHash = await getFileHash(file);
+            fileName = `${fileHash}.${file.name.split('.')[1]}`;
+            filePath = path.join(UPLOAD_PATH, fileName);
+        } catch (error) {
+            systemLog(-1, 'error on get formData or getFileHash: ', error);
+            return ErrorRet('error on parsing uploaded data');
         }
-
-        file = formData.get('file') as File;
-
-        const fileHash = await getFileHash(file);
-        const fileName = `${fileHash}.${file.name.split('.')[1]}`;
-        const filePath = path.join(UPLOAD_PATH, fileName);
 
         // avoid production duplicate uploads
         if (!isDevModel() && fs.existsSync(filePath)) {
@@ -52,7 +62,7 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
             };
         }
 
-        // @ts-expect-error
+        // save file to server
         await pipelineAsync(Readable.fromWeb(file.stream()), createWriteStream(filePath));
 
         const parsedResult = await parseAndSaveContentEmbedding(filePath);
@@ -77,7 +87,7 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
                 code: 0,
                 data: {
                     fileName,
-                    originalFilename: file.name,
+                    originalFilename: file?.name,
                     mimetype: file.type,
                     size: file.size,
                 },
@@ -87,7 +97,7 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
     } catch (error: any) {
         systemLog(-1, 'fileUpload service: ', error);
     }
-    return { code: -1, data: false, message: 'fileUpload failed' };
+    return ErrorRet('fileUpload failed');
 }
 
 /**
