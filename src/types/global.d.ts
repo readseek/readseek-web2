@@ -1,10 +1,10 @@
-export declare global {
-    declare type Callback = (...args: any[]) => any | undefined;
+declare global {
+    type Callback = (...args: any[]) => any | undefined;
 
     /**
      * The next Router Handler second parameter type
      */
-    declare type RouteContext = {
+    type RouteContext = {
         params: {
             [key: string]: any;
         };
@@ -13,9 +13,11 @@ export declare global {
     /**
      * Service returned
      */
-    declare type APIRet = {
+    type APIRet = {
         code: number;
         message: string;
-        data: any?;
+        data?: any;
     };
 }
+
+export {};

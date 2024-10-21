@@ -6,10 +6,6 @@ export default {
         defaultLocale: 'zh',
         locales: ['en', 'zh'],
     },
-    localePath:
-        typeof window === 'undefined'
-            ? path.resolve('./public/locales')
-            : '/public/locales',
+    localePath: typeof window === 'undefined' ? path.resolve('./public/locales') : '/public/locales',
     ns: ['common'],
-}
-
+};
