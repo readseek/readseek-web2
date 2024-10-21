@@ -82,7 +82,9 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
                     },
                 }),
             ]);
-            systemLog(0, ret1, ret2);
+            if (!ret1 || !ret2) {
+                return ErrorRet(`error on saving to db: [${ret1} -- ${ret2}]`);
+            }
             return {
                 code: 0,
                 data: {

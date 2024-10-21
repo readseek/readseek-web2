@@ -46,7 +46,7 @@ class LevelDBWrapper {
         return null;
     }
 
-    public async put(key: string, value: any): Promise<void> {
+    public async put(key: string, value: any): Promise<boolean> {
         try {
             if (await this.checkStatus()) {
                 if (isJSONObject(value)) {
@@ -54,12 +54,14 @@ class LevelDBWrapper {
                 } else {
                     await this.db.put(key, `${value}`);
                 }
+                return true;
             }
         } catch (err: any) {
             systemLog(-1, `LevelDB put [key: ${key}] error`, err?.code);
         } finally {
             this.close();
         }
+        return false;
     }
 
     public async delete(key: string, all?: boolean): Promise<boolean> {

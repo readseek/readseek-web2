@@ -2,14 +2,13 @@ import type { Document } from 'langchain/document';
 
 import path from 'node:path';
 
+// @ts-ignore
 import { InferenceSession, Tensor } from 'onnxruntime-node';
 
 import { getOnnxModel, OnnxModel } from '@/constants/OnnxModel';
 import { getFileType, systemLog } from '@/utils/common';
 import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
 import { getSplitterDocument } from '@/utils/langchain/splitter';
-
-// @ts-ignore
 
 import MilvusDB from './database/milvus';
 import OptimizedTokenizer, { TokenizeResult } from './tokenizer';
@@ -150,7 +149,7 @@ export async function parseAndSaveContentEmbedding(filepath: string): Promise<Pa
                     title: content.metadata.title,
                     description: content.sentences.slice(0, 3).join(',').substring(0, 255),
                     keywords: content.metadata.title.split(' '),
-                    authors: ['tom', 'jack'],
+                    authors: ['tomas', 'jack'],
                     coverUrl: process.env.__RSN_DEFAULT_COVER,
                 },
             };
