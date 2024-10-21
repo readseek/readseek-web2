@@ -52,7 +52,7 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
             };
         }
 
-        // @ts-ignore
+        // @ts-expect-error
         await pipelineAsync(Readable.fromWeb(file.stream()), createWriteStream(filePath));
 
         const parsedResult = await parseAndSaveContentEmbedding(filePath);

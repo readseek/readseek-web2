@@ -1,13 +1,13 @@
+import type { Metadata } from 'next';
+
+import { BookPlus, FileSearchIcon, LibrarySquare, PackageSearch, User } from 'lucide-react';
+import Link from 'next/link';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 import '@/styles/globals.css';
-import { BookPlus, FileSearchIcon, LibrarySquare, PackageSearch, User } from 'lucide-react';
-
-import type { Metadata } from 'next';
-
-import Link from 'next/link';
 
 export const metadata: Metadata = {
     title: '搜读 - 用对话的方式精读一本书 - 交互式阅读先驱',
