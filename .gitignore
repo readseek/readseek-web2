@@ -31,7 +31,7 @@
 
 # google levelDB files
 levelDB/*
-levelDB_v8/*
+levelDB_data/*
 
 # misc
 .DS_Store
