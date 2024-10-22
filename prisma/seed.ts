@@ -52,8 +52,8 @@ async function seedMetaData() {
 const AnyModel = {
     model: 'Document',
     data: {
-        id: 'ec20069fa25bd07537eae8559fde792dff9d944288bc3c2ecbc8785ea98bc5c8',
-        title: 'Milvus Guildline',
+        id: 'fc20069fa25bd07537eae8559fde792dff9d944288bc3c2ecbc8785ea98bc5c8',
+        title: 'What is Milvus',
         description: 'Milvus Guildline,What is Milvus?,Everything you need to know about Milvus in less than 10 minutes.',
         keywords: ['Milvus', 'Guildline'],
         categoryId: 1,
@@ -61,11 +61,15 @@ const AnyModel = {
         authors: ['tom', 'jack'],
         coverUrl: 'https://mn.tangkunyin.com/assets/ideal-img/hero.cae8a08.1080.png',
         tags: {
-            create: [
+            // 创建时，自动校验关联关系，如果有责绑定，否则创建并绑定
+            connectOrCreate: [
                 {
-                    id: 5,
-                    key: '人工只能',
-                    value: 4,
+                    where: { id: 0 },
+                    create: { key: '', value: 0 },
+                },
+                {
+                    where: { id: 5 },
+                    create: { key: '', value: 0 },
                 },
             ],
         },
@@ -78,10 +82,6 @@ async function seedData() {
     // const ret: any = await prisma[tableName].create({
     const ret: any = await prisma.document.create({
         data: AnyModel.data,
-        // select: {
-        //     id: true,
-        //     userId: true,
-        // },
     });
     console.log(`Created ${tableName} with id: ${ret.id}`, ret);
     console.timeEnd('seedingData costs:');

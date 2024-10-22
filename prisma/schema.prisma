@@ -41,12 +41,12 @@ model Document {
   /// original authors
   authors     String[]      @db.VarChar(128)
   /// one-to-one: a doc to a category
-  categoryId  Int           @unique @db.SmallInt
+  categoryId  Int           @db.SmallInt
   category    Category      @relation(fields: [categoryId], references: [id])
   /// one-to-many: a doc to several tags
   tags        Tag[]
   /// one-to-one: a doc to a user
-  userId      Int           @unique
+  userId      Int
   user        User          @relation(fields: [userId], references: [id])
   visiable    Boolean       @default(true)
   coverUrl    String?       @db.VarChar(255)
