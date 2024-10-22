@@ -1,4 +1,12 @@
 {
+    "ts-node": {
+        "transpileOnly": true,
+        "files": true,
+        "compilerOptions": {
+            "module": "Node16",
+            "moduleResolution": "node16",
+        }
+    },
     "compilerOptions": {
         "lib": ["dom", "dom.iterable", "esnext"],
         "module": "esnext",
@@ -26,9 +34,6 @@
         }
     },
     "typeRoots": ["./node_modules/@types", "./src/types/*.d.ts"],
-    "ts-node": {
-        "files": true
-    },
     "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/types/global.d.ts", "src/types/onnxruntime-node.d.ts"],
-    "exclude": ["node_modules"]
+    "exclude": ["node_modules"]   
 }

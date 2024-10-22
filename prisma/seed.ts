@@ -1,4 +1,4 @@
-import prisma from '@/utils/database/prisma';
+import prisma from '../src/utils/database/prisma';
 
 const Tags = [
     { key: '大前端', value: 0 },
@@ -25,30 +25,65 @@ const Users = [
     },
 ];
 
+async function seedMetaData() {
+    const metaData = { tag: Tags, category: Categories, user: Users };
+    console.time('seedingMetaData costs:');
+    Object.keys(metaData).forEach(async (key: string) => {
+        for (const data of metaData[key]) {
+            const ret: any = await prisma[key].create({
+                data,
+            });
+            console.log(`Created ${key} with id: ${ret.id}`);
+        }
+    });
+    console.timeEnd('seedingMetaData costs:');
+}
+
+// seedMetaData()
+//     .then(async () => {
+//         await prisma.$disconnect();
+//     })
+//     .catch(async e => {
+//         console.error(e);
+//         await prisma.$disconnect();
+//         process.exit(1);
+//     });
+
+const AnyModel = {
+    model: 'Document',
+    data: {
+        id: 'ec20069fa25bd07537eae8559fde792dff9d944288bc3c2ecbc8785ea98bc5c8',
+        title: 'Milvus Guildline',
+        description: 'Milvus Guildline,What is Milvus?,Everything you need to know about Milvus in less than 10 minutes.',
+        keywords: ['Milvus', 'Guildline'],
+        categoryId: 1,
+        userId: 1,
+        authors: ['tom', 'jack'],
+        coverUrl: 'https://mn.tangkunyin.com/assets/ideal-img/hero.cae8a08.1080.png',
+        tags: {
+            create: [
+                {
+                    id: 5,
+                    key: '人工只能',
+                    value: 4,
+                },
+            ],
+        },
+    },
+};
+
 async function seedData() {
     console.time('seedingData costs:');
-
-    for (const data of Tags) {
-        const result = await prisma.tag.create({
-            data,
-        });
-        console.log(`Created tag with id: ${result.id}`);
-    }
-
-    for (const data of Categories) {
-        const result = await prisma.category.create({
-            data,
-        });
-        console.log(`Created category with id: ${result.id}`);
-    }
-
-    for (const data of Users) {
-        const result = await prisma.user.create({
-            data,
-        });
-        console.log(`Created user with id: ${result.id}`);
-    }
-
+    const tableName = AnyModel.model.toLowerCase();
+    // const ret: any = await prisma[tableName].create({
+    const ret: any = await prisma.document.create({
+        data: AnyModel.data,
+        // select: {
+        //     id: true,
+        //     userId: true,
+        // },
+    });
+    console.log(`Created ${tableName} with id: ${ret.id}`, ret);
     console.timeEnd('seedingData costs:');
 }
 
