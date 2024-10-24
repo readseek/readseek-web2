@@ -27,7 +27,10 @@ export async function saveOrUpdateDocument(data: any): Promise<boolean> {
         ]);
         if (!ret1 || !ret2.data) {
             systemLog(-1, `error on saving to db: [${ret1} -- ${ret2.message || ret2}]`);
+            return false;
         }
+        return true;
     }
+    systemLog(-1, `error on parseAndSaveContentEmbedding result: ${parsedResult}`);
     return false;
 }

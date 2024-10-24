@@ -46,23 +46,9 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
             return ErrorRet('error on parsing uploaded data');
         }
 
-        // avoid production duplicate uploads
-        if (!isDevModel() && fs.existsSync(filePath)) {
-            return {
-                code: 1,
-                data: {
-                    fileName,
-                    originalFilename: file.name,
-                    mimetype: file.type,
-                    size: file.size,
-                },
-                message: 'file already uploaded',
-            };
-        }
-
-        // save file to server
+        // save file to fds
         await pipelineAsync(Readable.fromWeb(file.stream()), createWriteStream(filePath));
-        const ret = await saveOrUpdateDocument(null);
+        const ret = await saveOrUpdateDocument({ fileHash, filePath });
         if (ret) {
             return {
                 code: 0,
@@ -82,16 +68,6 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
 }
 
 /**
- * File Embedding delete
- * @param req NextRequest
- * @returns APIRet
- */
-export async function fileDelete(req: NextRequest): Promise<APIRet> {
-    // const ret = await deleteEmbeddings('');
-    return { code: 0, data: null, message: 'success' };
-}
-
-/**
  * Uploaded files for a login user
  * @param req NextRequest
  * @returns APIRet
@@ -107,4 +83,14 @@ export async function fileList(req: NextRequest): Promise<APIRet> {
  */
 export async function fileQuery(req: NextRequest): Promise<APIRet> {
     return { code: 0, data: {}, message: 'success' };
+}
+
+/**
+ * File Embedding delete
+ * @param req NextRequest
+ * @returns APIRet
+ */
+export async function fileDelete(req: NextRequest): Promise<APIRet> {
+    // const ret = await deleteEmbeddings('');
+    return { code: 0, data: null, message: 'success' };
 }
