@@ -6,9 +6,8 @@ import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
 import { getFileHash, isDevModel, systemLog } from '@/utils/common';
-import { PrismaModelOption, saveOrUpdate } from '@/utils/database/db';
-import LevelDB from '@/utils/database/leveldb';
-import { deleteEmbeddings, parseAndSaveContentEmbedding } from '@/utils/embeddings';
+
+import { saveOrUpdateDocument } from './db';
 
 const pipelineAsync = promisify(pipeline);
 const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH ?? 'public/uploads');
@@ -63,30 +62,8 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
 
         // save file to server
         await pipelineAsync(Readable.fromWeb(file.stream()), createWriteStream(filePath));
-
-        const parsedResult = await parseAndSaveContentEmbedding(filePath);
-        if (parsedResult.state) {
-            const [ret1, ret2] = await Promise.all([
-                // save local mappings
-                LevelDB.getSharedDB.put(fileHash, filePath),
-                // save supsbase postgresql
-                saveOrUpdate({
-                    model: 'Document',
-                    option: PrismaModelOption.upsert,
-                    data: [
-                        {
-                            id: fileHash,
-                            tags: [{ id: 1 }, { id: 5 }],
-                            categoryId: 1,
-                            userId: 1,
-                            ...parsedResult.meta,
-                        } as any,
-                    ],
-                }),
-            ]);
-            if (!ret1 || !ret2.data) {
-                return ErrorRet(`error on saving to db: [${ret1} -- ${ret2.message || ret2}]`);
-            }
+        const ret = await saveOrUpdateDocument(null);
+        if (ret) {
             return {
                 code: 0,
                 data: {
@@ -110,8 +87,8 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
  * @returns APIRet
  */
 export async function fileDelete(req: NextRequest): Promise<APIRet> {
-    const ret = await deleteEmbeddings('');
-    return { code: 0, data: ret, message: 'success' };
+    // const ret = await deleteEmbeddings('');
+    return { code: 0, data: null, message: 'success' };
 }
 
 /**
