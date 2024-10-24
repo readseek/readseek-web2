@@ -7,7 +7,7 @@ import { promisify } from 'util';
 
 import { getFileHash, isDevModel, systemLog } from '@/utils/common';
 
-import { saveOrUpdateDocument } from './db';
+import { getFiles, saveOrUpdateDocument } from './db';
 
 const pipelineAsync = promisify(pipeline);
 const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH ?? 'public/uploads');
@@ -73,7 +73,11 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
  * @returns APIRet
  */
 export async function fileList(req: NextRequest): Promise<APIRet> {
-    return { code: 0, data: [], message: 'success' };
+    const list = await getFiles(null);
+    if (list) {
+        return { code: 0, data: list, message: 'success' };
+    }
+    return { code: 0, data: [], message: 'on data found' };
 }
 
 /**

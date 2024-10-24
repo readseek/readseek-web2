@@ -1,6 +1,8 @@
+import type { Category, Tag, Document, User } from '@/types';
+
 import { isDevModel, systemLog } from '@/utils/common';
 import LevelDB from '@/utils/database/leveldb';
-import { PrismaModelOption, saveOrUpdate } from '@/utils/database/postgresql';
+import { RecordData, PrismaModelOption, saveOrUpdate, find } from '@/utils/database/postgresql';
 import { deleteEmbeddings, parseAndSaveContentEmbedding } from '@/utils/embeddings';
 
 export async function saveOrUpdateDocument(data: any): Promise<boolean> {
@@ -25,12 +27,19 @@ export async function saveOrUpdateDocument(data: any): Promise<boolean> {
                 ],
             }),
         ]);
-        if (!ret1 || !ret2.data) {
-            systemLog(-1, `error on saving to db: [${ret1} -- ${ret2.message || ret2}]`);
+        if (!ret1 || !ret2) {
+            systemLog(-1, `error on saving to db: [${ret1} -- ${ret2}]`);
             return false;
         }
         return true;
     }
     systemLog(-1, `error on parseAndSaveContentEmbedding result: ${parsedResult}`);
     return false;
+}
+
+export async function getFiles(data: any): Promise<RecordData> {
+    return await find({
+        model: 'Document',
+        option: PrismaModelOption.findMany,
+    });
 }

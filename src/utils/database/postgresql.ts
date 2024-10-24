@@ -22,27 +22,23 @@ export type DBOptionParams = {
     data?: (Document | Category | Tag | User)[];
 };
 
-export type RecordData = {
-    code: -1 | 0;
-    message: string;
-    data:
-        | {
-              list: (Category | Tag | Document | User)[];
-              total: number;
-          }
-        | any;
-};
+export type RecordData =
+    | {
+          list: (Category | Tag | Document | User)[];
+          total: number;
+      }
+    | Category
+    | Tag
+    | Document
+    | User
+    | null;
 
 export async function count(param: DBOptionParams): Promise<number> {
-    const { model, option } = param;
+    const { model } = param;
 
     const prismaModel: any = prisma[model.toLowerCase()];
     if (!prismaModel) {
         throw new Error(`Invalid model: ${model}`);
-    }
-
-    if (option !== PrismaModelOption.count) {
-        throw new Error(`Invalid option: ${option}`);
     }
 
     return await prismaModel.count();
@@ -54,7 +50,7 @@ export async function count(param: DBOptionParams): Promise<number> {
  * @param {pageSize: number,  pageNumber: number} 分页参数
  * @returns {RecordData}
  */
-export async function get(param: DBOptionParams, paging = { pageSize: 10, pageNumber: 0 }): Promise<RecordData> {
+export async function find(param: DBOptionParams, paging = { pageSize: 10, pageNumber: 0 }): Promise<RecordData> {
     const { model, option, data } = param;
 
     const prismaModel: any = prisma[model.toLowerCase()];
@@ -80,18 +76,20 @@ export async function get(param: DBOptionParams, paging = { pageSize: 10, pageNu
 
         if (option === PrismaModelOption.findMany) {
             total = await count(param);
-            rets = await prismaModel.findMany({
-                take: paging.pageSize,
-                skip: paging.pageNumber,
-            });
+            if (total > 0) {
+                rets = await prismaModel.findMany({
+                    take: paging.pageSize,
+                    skip: paging.pageNumber,
+                });
+                return { total, list: rets };
+            }
+            systemLog(1, 'no data in :', model);
         }
-
-        return { code: 0, message: 'get data success', data: { total, list: rets } };
     } catch (error) {
-        systemLog(-1, 'error on get: ', error);
+        systemLog(-1, 'error on find: ', error);
     }
 
-    return { code: -1, message: 'error on get data', data: false };
+    return null;
 }
 
 /**
@@ -115,14 +113,13 @@ export async function saveOrUpdate(param: DBOptionParams): Promise<RecordData> {
 
     try {
         if (option === PrismaModelOption.createManyAndReturn) {
-            const ret = await prismaModel.createManyAndReturn({
+            return await prismaModel.createManyAndReturn({
                 data: data,
                 skipDuplicates: false,
                 select: {
                     id: true,
                 },
             });
-            return { code: 0, message: 'createMany success', data: ret };
         }
 
         if (option === PrismaModelOption.upsert) {
@@ -157,14 +154,13 @@ export async function saveOrUpdate(param: DBOptionParams): Promise<RecordData> {
 
             systemLog(0, 'upsert input: ', args);
 
-            const ret = await prismaModel.upsert(args);
-            return { code: 0, message: 'upsert data success', data: ret };
+            return await prismaModel.upsert(args);
         }
     } catch (error) {
         systemLog(-1, 'error on saveOrUpdate: ', error);
     }
 
-    return { code: -1, message: `option failed: ${option}`, data: false };
+    return null;
 }
 
 /**
