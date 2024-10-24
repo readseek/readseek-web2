@@ -137,7 +137,7 @@ export async function saveOrUpdate(param: DBOptionParams): Promise<RecordData> {
             if (model === 'Document') {
                 const document = data[0] as Document;
                 document.tags = document.tags.reduce((p: any, c: Tag) => {
-                    if (!p.hasProperty('connectOrCreate')) {
+                    if (!p.hasOwnProperty('connectOrCreate')) {
                         p['connectOrCreate'] = [];
                     }
                     p['connectOrCreate'].push({
@@ -146,8 +146,9 @@ export async function saveOrUpdate(param: DBOptionParams): Promise<RecordData> {
                     });
                     return p;
                 }, {});
+                args.create = { ...document };
+                args.update = { ...document };
                 args.where = { id: document.id };
-                args[document.id ? 'update' : 'create'] = { ...document };
             } else {
                 const ctu = data[0] as Category | Tag | User;
                 args.where = { id: ctu.id };

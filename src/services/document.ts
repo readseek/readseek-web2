@@ -6,10 +6,9 @@ import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
 import { getFileHash, isDevModel, systemLog } from '@/utils/common';
+import { PrismaModelOption, saveOrUpdate } from '@/utils/database/db';
 import LevelDB from '@/utils/database/leveldb';
 import { deleteEmbeddings, parseAndSaveContentEmbedding } from '@/utils/embeddings';
-
-import { saveOrUpdate } from './db';
 
 const pipelineAsync = promisify(pipeline);
 const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH ?? 'public/uploads');
@@ -73,17 +72,20 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
                 // save supsbase postgresql
                 saveOrUpdate({
                     model: 'Document',
-                    data: {
-                        id: fileHash,
-                        tags: [1, 5],
-                        categoryId: 1,
-                        userId: 1,
-                        ...parsedResult.meta,
-                    },
+                    option: PrismaModelOption.upsert,
+                    data: [
+                        {
+                            id: fileHash,
+                            tags: [{ id: 1 }, { id: 5 }],
+                            categoryId: 1,
+                            userId: 1,
+                            ...parsedResult.meta,
+                        } as any,
+                    ],
                 }),
             ]);
-            if (!ret1 || !ret2) {
-                return ErrorRet(`error on saving to db: [${ret1} -- ${ret2}]`);
+            if (!ret1 || !ret2.data) {
+                return ErrorRet(`error on saving to db: [${ret1} -- ${ret2.message || ret2}]`);
             }
             return {
                 code: 0,

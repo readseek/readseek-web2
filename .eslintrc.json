@@ -11,7 +11,8 @@
         "tailwindcss/classnames-order": "warn",
         "tailwindcss/no-unnecessary-arbitrary-value": "off",
         "no-unused-vars": "off",
-        "no-undef": "warn"
+        "no-undef": "warn",
+        "no-prototype-builtins": "off"
     },
     "settings": {
         "tailwindcss": {
