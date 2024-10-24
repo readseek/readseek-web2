@@ -61,7 +61,7 @@ const AnyModel = {
         authors: ['tom', 'jack'],
         coverUrl: 'https://mn.tangkunyin.com/assets/ideal-img/hero.cae8a08.1080.png',
         tags: {
-            // 创建时，自动校验关联关系，如果有责绑定，否则创建并绑定
+            // 创建时，自动校验关联关系，如果有、则绑定，否则创建并绑定
             connectOrCreate: [
                 {
                     where: { id: 0 },
@@ -79,7 +79,6 @@ const AnyModel = {
 async function seedData() {
     console.time('seedingData costs:');
     const tableName = AnyModel.model.toLowerCase();
-    // const ret: any = await prisma[tableName].create({
     const ret: any = await prisma.document.create({
         data: AnyModel.data,
     });
