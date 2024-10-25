@@ -4,8 +4,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { fileDelete, fileList, fileQuery, fileUpload } from '@/services/document';
-import { home, list, systemConf } from '@/services/system';
-import { userCancellation, userLogin, userUpdate } from '@/services/user';
+import { sys_env, sys_files, sys_users } from '@/services/system';
+import { userCancellation, userLogin, userUpdate, userFiles, userProfile } from '@/services/user';
 
 export const preferredRegion = 'auto';
 export const runtime = 'nodejs';
@@ -21,11 +21,14 @@ async function Notfound(req?: NextRequest, ret?: APIRet) {
 export async function GET(req: NextRequest, { params }: RouteContext) {
     const { action } = params;
     const routes: any = {
-        home,
-        list,
         fileList,
         fileQuery,
-        systemConf,
+        userFiles,
+        userProfile,
+        // only for dev and admin debug
+        sys_env,
+        sys_files,
+        sys_users,
     };
 
     if (routes[action]) {
