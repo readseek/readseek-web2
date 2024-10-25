@@ -68,10 +68,10 @@ export async function find(param: DBOptionParams, paging = { pageSize: 10, pageN
             },
         };
         if (option === PrismaModelOption.findFirst) {
-            rets = await prismaModel.findFirst(args);
+            return await prismaModel.findFirst(args);
         }
         if (option === PrismaModelOption.findUnique) {
-            rets = await prismaModel.findUnique(args);
+            return await prismaModel.findUnique(args);
         }
 
         if (option === PrismaModelOption.findMany) {

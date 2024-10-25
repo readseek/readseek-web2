@@ -49,9 +49,9 @@ export type Document = {
 
 export type User = {
     id?: number;
-    name: string;
-    age: number;
-    email: string;
+    name?: string;
+    age?: number;
+    email?: string;
     avatarUrl?: string;
     bio?: string;
     posts?: Document[];

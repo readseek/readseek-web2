@@ -43,3 +43,18 @@ export async function getFiles(data: any): Promise<RecordData> {
         option: PrismaModelOption.findMany,
     });
 }
+
+export async function getUserFiles(data: User): Promise<RecordData> {
+    return await find({
+        model: 'Document',
+        option: PrismaModelOption.findMany,
+    });
+}
+
+export async function getUserInfo(data: User): Promise<RecordData> {
+    return await find({
+        model: 'User',
+        option: PrismaModelOption.findUnique,
+        data: [data],
+    });
+}

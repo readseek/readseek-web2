@@ -78,7 +78,7 @@ export async function fileList(req: NextRequest): Promise<APIRet> {
     if (list) {
         return { code: 0, data: list, message: 'success' };
     }
-    return { code: 0, data: [], message: 'on data found' };
+    return { code: 0, data: [], message: 'no data found' };
 }
 
 /**
