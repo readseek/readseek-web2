@@ -39,7 +39,7 @@ export type Document = {
     tags: Tag[];
     keywords?: string[];
     authors?: string[];
-    visiable?: boolean;
+    visible?: boolean;
     coverUrl?: string;
     viewCount?: number;
     state?: DocumentState;

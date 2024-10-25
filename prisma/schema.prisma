@@ -48,7 +48,7 @@ model Document {
   /// one-to-one: a doc to a user
   userId      Int
   user        User          @relation(fields: [userId], references: [id])
-  visiable    Boolean       @default(true)
+  visible     Boolean       @default(true)
   coverUrl    String?       @db.VarChar(255)
   viewCount   Int           @default(0)
   state       DocumentState @default(PENDING)

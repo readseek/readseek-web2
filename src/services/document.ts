@@ -68,11 +68,12 @@ export async function fileUpload(req: NextRequest): Promise<APIRet> {
 }
 
 /**
- * Uploaded files for a login user
+ * All Uploaded visible files
  * @param req NextRequest
  * @returns APIRet
  */
 export async function fileList(req: NextRequest): Promise<APIRet> {
+    // https://www.prisma.io/docs/orm/reference/prisma-client-reference#findmany
     const list = await getFiles(null);
     if (list) {
         return { code: 0, data: list, message: 'success' };

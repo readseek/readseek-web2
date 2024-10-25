@@ -28,7 +28,7 @@ CREATE TABLE "Document" (
     "authors" VARCHAR(128)[],
     "categoryId" SMALLINT NOT NULL,
     "userId" INTEGER NOT NULL,
-    "visiable" BOOLEAN NOT NULL DEFAULT true,
+    "visible" BOOLEAN NOT NULL DEFAULT true,
     "coverUrl" VARCHAR(255),
     "viewCount" INTEGER NOT NULL DEFAULT 0,
     "state" "DocumentState" NOT NULL DEFAULT 'PENDING',
