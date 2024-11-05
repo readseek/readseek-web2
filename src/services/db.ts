@@ -2,7 +2,7 @@ import type { Category, Tag, Document, User } from '@/types';
 
 import { isDevModel, systemLog } from '@/utils/common';
 import LevelDB from '@/utils/database/leveldb';
-import { RecordData, PrismaModelOption, saveOrUpdate, find } from '@/utils/database/postgresql';
+import { RecordData, PrismaModelOption, saveOrUpdate, find, QueryPaging } from '@/utils/database/postgresql';
 import { deleteEmbeddings, parseAndSaveContentEmbedding } from '@/utils/embeddings';
 
 export async function saveOrUpdateDocument(data: any): Promise<boolean> {
@@ -37,18 +37,23 @@ export async function saveOrUpdateDocument(data: any): Promise<boolean> {
     return false;
 }
 
-export async function getFiles(data: any): Promise<RecordData> {
+export async function getFiles(data: any, paging: QueryPaging): Promise<RecordData> {
     return await find({
         model: 'Document',
         option: PrismaModelOption.findMany,
+        data: [data],
     });
 }
 
-export async function getUserFiles(data: User): Promise<RecordData> {
-    return await find({
-        model: 'Document',
-        option: PrismaModelOption.findMany,
-    });
+export async function getUserFiles(data: User, paging: QueryPaging): Promise<RecordData> {
+    return await find(
+        {
+            model: 'Document',
+            option: PrismaModelOption.findMany,
+            data: [data],
+        },
+        paging,
+    );
 }
 
 export async function getUserInfo(data: User): Promise<RecordData> {

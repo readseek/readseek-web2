@@ -11,10 +11,6 @@ import { getUserFiles, getUserInfo } from './db';
  * @returns {APIRet}
  */
 export async function userProfile(req: NextRequest): Promise<APIRet> {
-    // const cookies = req.cookies;
-    // const headers = req.headers;
-    // systemLog(0, cookies, headers);
-
     const user = (await getUserInfo({ id: 1 })) as User;
     if (user) {
         return { code: 0, data: user, message: 'userProfile success' };
@@ -28,7 +24,20 @@ export async function userProfile(req: NextRequest): Promise<APIRet> {
  * @returns {APIRet}
  */
 export async function userFiles(req: NextRequest): Promise<APIRet> {
-    const list = await getUserFiles(null);
+    const searchParams = req.nextUrl.searchParams;
+
+    const title = searchParams.get('title');
+    const authors = searchParams.get('authors');
+
+    const pageSize = Number(searchParams.get('pageSize'));
+    const pageNum = Number(searchParams.get('pageNum'));
+
+    const list = await getUserFiles(
+        {
+            id: 1,
+        },
+        { pageSize, pageNum },
+    );
     if (list) {
         return { code: 0, data: list, message: 'success' };
     }

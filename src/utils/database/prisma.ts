@@ -1,5 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
+import { isDevModel } from '@/utils/common';
+
 const prismaClientSingleton = () => {
     const prisma = new PrismaClient({
         errorFormat: 'pretty',
@@ -22,11 +24,14 @@ const prismaClientSingleton = () => {
             },
         ],
     });
-    prisma.$on('query', e => {
-        console.log('Query: ' + e.query);
-        console.log('Params: ' + e.params);
-        console.log('Duration: ' + e.duration + 'ms');
-    });
+    if (isDevModel()) {
+        prisma.$on('query', e => {
+            console.log('Query: ' + e.query);
+            console.log('Params: ' + e.params);
+            console.log('Duration: ' + e.duration + 'ms');
+        });
+    }
+
     return prisma;
 };
 

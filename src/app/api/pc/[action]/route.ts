@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { fileDelete, fileList, fileQuery, fileUpload } from '@/services/document';
 import { sys_env, sys_files, sys_users } from '@/services/system';
 import { userCancellation, userLogin, userUpdate, userFiles, userProfile } from '@/services/user';
+import { needLogin } from '@/utils/decorators';
 
 export const preferredRegion = 'auto';
 export const runtime = 'nodejs';
@@ -23,8 +24,8 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     const routes: any = {
         fileList,
         fileQuery,
-        userFiles,
-        userProfile,
+        userFiles: needLogin(userFiles),
+        userProfile: needLogin(userProfile),
         // only for dev and admin debug
         sys_env,
         sys_files,

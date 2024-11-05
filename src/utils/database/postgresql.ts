@@ -22,6 +22,11 @@ export type DBOptionParams = {
     data?: (Document | Category | Tag | User)[];
 };
 
+export type QueryPaging = {
+    pageSize: number;
+    pageNum: number;
+};
+
 export type RecordData =
     | {
           list: (Category | Tag | Document | User)[];
@@ -50,7 +55,7 @@ export async function count(param: DBOptionParams): Promise<number> {
  * @param {pageSize: number,  pageNumber: number} 分页参数
  * @returns {RecordData}
  */
-export async function find(param: DBOptionParams, paging = { pageSize: 10, pageNumber: 0 }): Promise<RecordData> {
+export async function find(param: DBOptionParams, paging: QueryPaging = { pageSize: 10, pageNum: 0 }): Promise<RecordData> {
     const { model, option, data } = param;
 
     const prismaModel: any = prisma[model.toLowerCase()];
@@ -79,7 +84,7 @@ export async function find(param: DBOptionParams, paging = { pageSize: 10, pageN
             if (total > 0) {
                 rets = await prismaModel.findMany({
                     take: paging.pageSize,
-                    skip: paging.pageNumber,
+                    skip: paging.pageNum,
                 });
                 return { total, list: rets };
             }
