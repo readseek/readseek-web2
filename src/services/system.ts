@@ -1,17 +1,21 @@
-export async function sys_users(): Promise<APIRet> {
-    return { code: 0, data: [], message: 'home success' };
-}
+import type { NextRequest } from 'next/server';
 
-export async function sys_files(): Promise<APIRet> {
-    return { code: 0, data: [], message: 'list success' };
-}
+export default class SystemService {
+    static async allUsers(req: NextRequest): Promise<APIRet> {
+        return { code: 0, data: [], message: 'home success' };
+    }
 
-export async function sys_env(): Promise<APIRet> {
-    const confs: Record<string, string> = {};
-    Object.keys(process.env).forEach(key => {
-        if (key.startsWith('__RSN_')) {
-            confs[key] = process.env[key] || '';
-        }
-    });
-    return { code: 0, data: confs, message: 'systemConf success' };
+    static async allFiles(req: NextRequest): Promise<APIRet> {
+        return { code: 0, data: [], message: 'list success' };
+    }
+
+    static async devEnvs(req: NextRequest): Promise<APIRet> {
+        const confs: Record<string, string> = {};
+        Object.keys(process.env).forEach(key => {
+            if (key.startsWith('__RSN_')) {
+                confs[key] = process.env[key] || '';
+            }
+        });
+        return { code: 0, data: confs, message: 'systemConf success' };
+    }
 }
