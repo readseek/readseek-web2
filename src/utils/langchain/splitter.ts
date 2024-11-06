@@ -1,7 +1,7 @@
 import { Document } from 'langchain/document';
 import { TokenTextSplitter } from 'langchain/text_splitter';
 
-import { systemLog } from '../common';
+import { logError } from '@/utils/logger';
 
 export function getSplitterDocument(docs: Document[]): Promise<Document[]> | null {
     try {
@@ -10,7 +10,7 @@ export function getSplitterDocument(docs: Document[]): Promise<Document[]> | nul
             chunkOverlap: 200,
         }).splitDocuments(docs);
     } catch (error) {
-        systemLog(1, 'getSplitterDocument error', error);
+        logError('getSplitterDocument error', error);
         return null;
     }
 }

@@ -7,7 +7,7 @@ import { UploadBox } from '@/components/Chat/UploadBox';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { systemLog } from '@/utils/common';
+import { logError, logInfo, logWarn } from '@/utils/logger';
 
 const metadata = {
     title: '内容发布 - 搜读',
@@ -19,7 +19,7 @@ export default function PostContentPage() {
     }, []);
 
     const onFileSelected = (file: File) => {
-        systemLog(0, file);
+        logInfo(file);
     };
 
     return (

@@ -3,9 +3,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 
-import chalk from 'chalk';
-
 import { DocumentType } from '@/types';
+import { logError, logInfo, logWarn } from '@/utils/logger';
 
 export function isDevModel(): boolean {
     return Boolean(process.env.__RSN_ENV && process.env.__RSN_ENV === 'dev');
@@ -24,25 +23,6 @@ export function getFullTime() {
         fractionalSecondDigits: 3,
     });
     return formattedDate.replace(/\//g, '-');
-}
-
-export function systemLog(level: 0 | 1 | -1, ...args: any[]) {
-    if (isDevModel()) {
-        const _log = (...logs: any[]) => {
-            switch (level) {
-                case 1:
-                    console.log(chalk.yellow.underline(`[${getFullTime()}]`), ...logs);
-                    break;
-                case -1:
-                    console.log(chalk.red.bold.underline(`[${getFullTime()}]`), ...logs);
-                    break;
-                default:
-                    console.log(chalk.green(`[${getFullTime()}]`), ...logs);
-                    break;
-            }
-        };
-        _log(...args);
-    }
 }
 
 export function absolutePath(ps: string): string {
@@ -102,7 +82,7 @@ export function isJSONObject(val: any): boolean {
             return typeof result === 'object' && result !== null;
         }
     } catch (e) {
-        systemLog(1, 'JSON.parse input: ', val);
+        logWarn('JSON.parse input: ', val);
     }
     return false;
 }
@@ -119,7 +99,7 @@ export async function getFileHash(file: File): Promise<string> {
             resolve(hash.digest('hex'));
         });
         fileStream.on('error', err => {
-            systemLog(-1, err);
+            logError(err);
             reject(err?.message);
         });
     });

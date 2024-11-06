@@ -2,7 +2,9 @@ import path from 'node:path';
 
 import { Level } from 'level';
 
-import { isJSONObject, systemLog } from '../common';
+import { logError, logInfo, logWarn } from '@/utils/logger';
+
+import { isJSONObject } from '../common';
 
 const LevelDB_PATH = path.join(process.cwd(), process.env.__RSN_LevelDB_PATH ?? '.levelDB_data');
 
@@ -10,17 +12,17 @@ class LevelDBWrapper {
     private db: Level;
 
     constructor(dbPath: string) {
-        systemLog(0, 'LevelDB path is: ', dbPath);
+        logInfo('LevelDB path is: ', dbPath);
         this.db = new Level(dbPath, { keyEncoding: 'utf8', valueEncoding: 'utf8' });
     }
 
     private close() {
         try {
             this.db.close(() => {
-                systemLog(1, 'LevelDB has closed.');
+                logWarn('LevelDB has closed.');
             });
         } catch (err) {
-            systemLog(-1, `LevelDB has closed error: `, err);
+            logError(`LevelDB has closed error: `, err);
         }
     }
 
@@ -39,7 +41,7 @@ class LevelDBWrapper {
                 return value;
             }
         } catch (err: any) {
-            systemLog(1, `LevelDB no key '${key}' found, code is:`, err?.code);
+            logWarn(`LevelDB no key '${key}' found, code is:`, err?.code);
         } finally {
             this.close();
         }
@@ -57,7 +59,7 @@ class LevelDBWrapper {
                 return true;
             }
         } catch (err: any) {
-            systemLog(-1, `LevelDB put [key: ${key}] error`, err?.code);
+            logError(`LevelDB put [key: ${key}] error`, err?.code);
         } finally {
             this.close();
         }
@@ -77,7 +79,7 @@ class LevelDBWrapper {
                 return true;
             }
         } catch (err: any) {
-            systemLog(-1, `LevelDB delete error`, err?.code);
+            logError(`LevelDB delete error`, err?.code);
         } finally {
             this.close();
         }
@@ -89,7 +91,7 @@ class LevelDBWrapper {
             try {
                 await this.db.open({ createIfMissing: true, multithreading: true, compression: true });
             } catch (err) {
-                systemLog(-1, `LevelDB opening error`, err);
+                logError(`LevelDB opening error`, err);
                 return false;
             }
         }

@@ -1,7 +1,7 @@
 import type { User } from '@/types';
 import type { NextRequest } from 'next/server';
 
-import { isDevModel, systemLog } from '@/utils/common';
+import { logError, logInfo, logWarn } from '@/utils/logger';
 
 import DBService from './db';
 

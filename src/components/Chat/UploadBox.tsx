@@ -3,7 +3,8 @@
 import { useState } from 'react';
 
 import { useToast } from '@/components/ui/use-toast';
-import { systemLog, validFileSize } from '@/utils/common';
+import { validFileSize } from '@/utils/common';
+import { logError, logInfo, logWarn } from '@/utils/logger';
 
 interface Props {
     onFileSelected: (file: File) => void;
@@ -20,7 +21,7 @@ export const UploadBox = ({ onFileSelected }: Props) => {
         if (e.target.files && e.target.files[0]) {
             const file: File = e.target.files[0];
             const sizeUnits = validFileSize(file.size);
-            systemLog(0, `上传文件大小为: ${sizeUnits}`);
+            logInfo(`上传文件大小为: ${sizeUnits}`);
 
             if (file.size / 1000 / 1024 > 200) {
                 toast({

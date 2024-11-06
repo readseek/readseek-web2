@@ -1,9 +1,9 @@
 import type { Category, Tag, Document, User } from '@/types';
 
-import { isDevModel, systemLog } from '@/utils/common';
 import LevelDB from '@/utils/database/leveldb';
 import { RecordData, PrismaModelOption, saveOrUpdate, find, QueryPaging } from '@/utils/database/postgresql';
 import { deleteEmbeddings, parseAndSaveContentEmbedding } from '@/utils/embeddings';
+import { logError, logInfo, logWarn } from '@/utils/logger';
 
 export default class DBService {
     static async saveOrUpdateDocument(data: any): Promise<boolean> {
@@ -29,12 +29,12 @@ export default class DBService {
                 }),
             ]);
             if (!ret1 || !ret2) {
-                systemLog(-1, `error on saving to db: [${ret1} -- ${ret2}]`);
+                logError(`error on saving to db: [${ret1} -- ${ret2}]`);
                 return false;
             }
             return true;
         }
-        systemLog(-1, `error on parseAndSaveContentEmbedding result: ${parsedResult}`);
+        logError(`error on parseAndSaveContentEmbedding result: ${parsedResult}`);
         return false;
     }
 

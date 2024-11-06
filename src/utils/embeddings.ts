@@ -6,9 +6,10 @@ import path from 'node:path';
 import { InferenceSession, Tensor } from 'onnxruntime-node';
 
 import { getOnnxModel, OnnxModel } from '@/constants/OnnxModel';
-import { getFileType, systemLog } from '@/utils/common';
+import { getFileType } from '@/utils/common';
 import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
 import { getSplitterDocument } from '@/utils/langchain/splitter';
+import { logError, logInfo, logWarn } from '@/utils/logger';
 
 import MilvusDB from './database/milvus';
 import OptimizedTokenizer, { TokenizeResult } from './tokenizer';
@@ -41,7 +42,7 @@ async function initialize() {
         try {
             model = getOnnxModel();
             if (!model) {
-                systemLog(-1, 'model is not found, check your local path or config');
+                logError('model is not found, check your local path or config');
                 return;
             }
             const { localPath, localTokenizerPath, type } = model;
@@ -58,22 +59,22 @@ async function initialize() {
                 intraOpNumThreads: 0,
             });
 
-            systemLog(1, 'Inputs:');
+            logWarn('Inputs:');
             session.inputNames.forEach(name => {
-                systemLog(0, `  ${name}:`);
+                logInfo(`  ${name}:`);
             });
 
-            systemLog(1, 'Outputs:');
+            logWarn('Outputs:');
             session.outputNames.forEach(name => {
-                systemLog(0, `  ${name}:`);
+                logInfo(`  ${name}:`);
             });
 
             if (!tokenizer && localTokenizerPath) {
                 tokenizer = new OptimizedTokenizer(localTokenizerPath);
-                systemLog(0, 'preTokenizer and its type are: ', tokenizer.getPreTokenizer(), type);
+                logInfo('preTokenizer and its type are: ', tokenizer.getPreTokenizer(), type);
             }
         } catch (error) {
-            systemLog(-1, 'initialize onnx model error: ', error);
+            logError('initialize onnx model error: ', error);
         }
     }
 }
@@ -107,7 +108,7 @@ async function createEmbeddings(texts: string[]): Promise<Array<EmbeddingTextIte
         // Filter out any null results
         return embeddings.filter(embedding => embedding !== null);
     } catch (error) {
-        systemLog(-1, 'createEmbeddings error: ', error);
+        logError('createEmbeddings error: ', error);
     }
     return [];
 }
@@ -119,7 +120,7 @@ export async function saveEmbeddings({ metadata, sentences }: { metadata: any; s
             return await MilvusDB.saveDocument(embeddings, { metadata, dim: model.outputDimension });
         }
     } catch (error) {
-        systemLog(-1, 'saveEmbeddings error: ', error);
+        logError('saveEmbeddings error: ', error);
     }
     return false;
 }
@@ -155,7 +156,7 @@ export async function parseAndSaveContentEmbedding(filepath: string): Promise<Pa
             };
         }
     } catch (error) {
-        systemLog(-1, 'error on parseAndSaveContentEmbedding: ', error);
+        logError('error on parseAndSaveContentEmbedding: ', error);
     }
     return { state: false };
 }

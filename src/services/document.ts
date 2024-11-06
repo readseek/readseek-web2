@@ -5,7 +5,8 @@ import path from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
-import { getFileHash, isDevModel, systemLog } from '@/utils/common';
+import { getFileHash, isDevModel } from '@/utils/common';
+import { logError, logInfo, logWarn } from '@/utils/logger';
 
 import DBService from './db';
 
@@ -38,7 +39,7 @@ export default class DocumentService {
                 fileName = `${fileHash}.${file.name.split('.')[1]}`;
                 filePath = path.join(UPLOAD_PATH, fileName);
             } catch (error) {
-                systemLog(-1, 'error on get formData or getFileHash: ', error);
+                logError('error on get formData or getFileHash: ', error);
                 return ErrorRet('error on parsing uploaded data');
             }
 
@@ -58,7 +59,7 @@ export default class DocumentService {
                 };
             }
         } catch (error: any) {
-            systemLog(-1, 'fileUpload service: ', error);
+            logError('fileUpload service: ', error);
         }
         return ErrorRet('fileUpload failed');
     }

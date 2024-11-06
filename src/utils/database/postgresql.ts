@@ -1,7 +1,7 @@
 import type { Category, Tag, Document, User } from '@/types';
 
-import { systemLog } from '@/utils/common';
 import prisma from '@/utils/database/prisma';
+import { logError, logInfo, logWarn } from '@/utils/logger';
 
 // https://www.prisma.io/docs/orm/reference/prisma-client-reference#model-queries
 export const enum PrismaModelOption {
@@ -88,10 +88,10 @@ export async function find(param: DBOptionParams, paging: QueryPaging = { pageSi
                 });
                 return { total, list: rets };
             }
-            systemLog(1, 'no data in :', model);
+            logWarn('no data in :', model);
         }
     } catch (error) {
-        systemLog(-1, 'error on find: ', error);
+        logError('error on find: ', error);
     }
 
     return null;
@@ -157,12 +157,12 @@ export async function saveOrUpdate(param: DBOptionParams): Promise<RecordData> {
                 args[ctu.id ? 'update' : 'create'] = { ...ctu };
             }
 
-            systemLog(0, 'upsert input: ', args);
+            logInfo('upsert input: ', args);
 
             return await prismaModel.upsert(args);
         }
     } catch (error) {
-        systemLog(-1, 'error on saveOrUpdate: ', error);
+        logError('error on saveOrUpdate: ', error);
     }
 
     return null;

@@ -2,8 +2,10 @@ import type { EmbeddingTextItem } from '../embeddings';
 
 import { DataType, MilvusClient } from '@zilliz/milvus2-sdk-node';
 
+import { logError, logInfo, logWarn } from '@/utils/logger';
+
 import { DocumentType } from '../../types';
-import { isDevModel, systemLog } from '../common';
+import { isDevModel } from '../common';
 
 const CollectionNameWithFileType = (type: DocumentType) => {
     return `RS_DOC_${type.toLocaleUpperCase()}_Embeddings`;
@@ -17,7 +19,7 @@ export default class MilvusDB {
 
     public static get milvusClient(): MilvusClient | null {
         if (!this._milvusClient) {
-            systemLog(0, 'MilvusClient sdkInfo: ', MilvusClient.sdkInfo);
+            logInfo('MilvusClient sdkInfo: ', MilvusClient.sdkInfo);
             try {
                 this._milvusClient = new MilvusClient({
                     address: this.MILVUS_ADDRESS,
@@ -32,7 +34,7 @@ export default class MilvusDB {
                     },
                 });
             } catch (error) {
-                systemLog(-1, `Failed to connect Milvus with address ${this.MILVUS_ADDRESS} and username ${this.MILVUS_USERNAME}`, error);
+                logError(`Failed to connect Milvus with address ${this.MILVUS_ADDRESS} and username ${this.MILVUS_USERNAME}`, error);
                 return null;
             }
         }
@@ -41,7 +43,7 @@ export default class MilvusDB {
 
     public static async checkHealth() {
         const res = await this.milvusClient?.checkHealth();
-        systemLog(res ? 0 : 1, 'Checking MilvusDB Health: ', res || 'failed');
+        logWarn('Checking MilvusDB Health: ', res || 'failed');
         return res?.isHealthy;
     }
 
@@ -51,7 +53,7 @@ export default class MilvusDB {
                 collection_name: collectionName,
             });
             if (!ret?.value) {
-                systemLog(0, `No collection found, ${collectionName} will be created soon...`);
+                logInfo(`No collection found, ${collectionName} will be created soon...`);
                 const params = {
                     collection_name: collectionName,
                     fields: [
@@ -90,13 +92,13 @@ export default class MilvusDB {
 
                 const res = await this.milvusClient?.createCollection(params);
                 if (res?.code !== 0) {
-                    systemLog(-1, 'Failed to create collection', res?.reason);
+                    logError('Failed to create collection', res?.reason);
                     return false;
                 }
             }
             return true;
         } catch (error) {
-            systemLog(-1, 'checkCollection error', error);
+            logError('checkCollection error', error);
         }
         return false;
     }
@@ -108,7 +110,7 @@ export default class MilvusDB {
 
         // one type doc one collection
         const collectionName = CollectionNameWithFileType(metadata.fileType);
-        systemLog(0, 'Using collection: ', collectionName);
+        logInfo('Using collection: ', collectionName);
 
         if (!(await this.checkCollection(collectionName, dim))) {
             return false;
@@ -132,7 +134,7 @@ export default class MilvusDB {
                 return true;
             }
         } catch (error) {
-            systemLog(-1, 'error on saveDocument: ', res, error);
+            logError('error on saveDocument: ', res, error);
         }
         return false;
     }
@@ -143,7 +145,7 @@ export default class MilvusDB {
         }
 
         const collectionName = CollectionNameWithFileType(metadata.fileType);
-        systemLog(0, `searchingDocument ${collectionName}, metadata is: `, metadata);
+        logInfo(`searchingDocument ${collectionName}, metadata is: `, metadata);
 
         return true;
     }
@@ -161,7 +163,7 @@ export default class MilvusDB {
                 collection_name: collectionName,
                 timeout: 15,
             });
-            systemLog(1, `previous collection ${collectionName} was dropped`, ret);
+            logWarn(`previous collection ${collectionName} was dropped`, ret);
         }
 
         return true;
@@ -169,6 +171,6 @@ export default class MilvusDB {
 
     public static async closeConnection() {
         const res = await this.milvusClient?.closeConnection();
-        systemLog(1, 'milvusClient closed: ', res);
+        logWarn('milvusClient closed: ', res);
     }
 }
