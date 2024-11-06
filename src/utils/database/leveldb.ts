@@ -4,7 +4,7 @@ import { Level } from 'level';
 
 import { isJSONObject, systemLog } from '../common';
 
-const LevelDB_PATH = path.join(process.cwd(), process.env.__RSN_LevelDB_PATH ?? 'levelDB_data');
+const LevelDB_PATH = path.join(process.cwd(), process.env.__RSN_LevelDB_PATH ?? '.levelDB_data');
 
 class LevelDBWrapper {
     private db: Level;

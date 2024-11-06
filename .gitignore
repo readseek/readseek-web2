@@ -18,20 +18,11 @@
 
 
 # upload files
-/public/uploads/*.md
-/public/uploads/*.txt
-/public/uploads/*.pdf
-/public/uploads/*.csv
-/public/uploads/*.tsv
-/public/uploads/*.doc
-/public/uploads/*.docx
-/public/uploads/*.epub
-/public/uploads/*.html
-/public/uploads/*.mp3
+/public/uploads/*
 
 # google levelDB files
-levelDB/*
-levelDB_data/*
+.levelDB/*
+.levelDB_data/*
 
 # misc
 .DS_Store
@@ -43,7 +34,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*
+# .env*
 
 # vercel
 .vercel
