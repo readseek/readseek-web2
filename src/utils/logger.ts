@@ -3,11 +3,9 @@ import chalk from 'chalk';
 import { isDevModel, getFullTime } from './common';
 
 function logWrapper(...args: any[]) {
-    const level = args[0];
-    const rests = args.slice(1);
-    if (isDevModel() && rests.length > 0) {
-        const _log = (...logs: any[]) => {
-            switch (level) {
+    if (isDevModel() && args.length > 1) {
+        const _log = (logs: any[]) => {
+            switch (args[0] as number) {
                 case 1:
                     console.log(chalk.yellow.underline(`[${getFullTime()}]`), ...logs);
                     break;
@@ -19,7 +17,7 @@ function logWrapper(...args: any[]) {
                     break;
             }
         };
-        _log(rests);
+        _log(args[1]);
     }
 }
 
