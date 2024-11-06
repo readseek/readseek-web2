@@ -12,23 +12,23 @@ export const runtime = 'nodejs';
 export const maxDuration = 10;
 
 const enum GET_URI {
-    fileList,
-    fileChat,
+    fileList = 'fileList',
+    fileChat = 'fileChat',
     // user's info
-    userFiles,
-    userProfile,
+    userFiles = 'userFiles',
+    userProfile = 'userProfile',
     // only for dev and admin debug
-    sys_env,
-    sys_files,
-    sys_users,
+    sys_env = 'sys_env',
+    sys_files = 'sys_files',
+    sys_users = 'sys_users',
 }
 
 const enum POST_URI {
-    fileUpload,
-    fileDelete,
-    userLogin,
-    userUpdate,
-    userCancellation,
+    fileUpload = 'fileUpload',
+    fileDelete = 'fileDelete',
+    userLogin = 'userLogin',
+    userUpdate = 'userUpdate',
+    userCancellation = 'userCancellation',
 }
 
 /**
