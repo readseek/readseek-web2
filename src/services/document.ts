@@ -6,6 +6,7 @@ import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
 import { getFileHash, isDevModel } from '@/utils/common';
+import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
 import DBService from './db';
@@ -18,6 +19,8 @@ const ErrorRet = (msg: string) => {
 };
 
 export default class DocumentService {
+    @LogAPIRoute
+    @CheckLogin
     static async upload(req: NextRequest): Promise<APIRet> {
         try {
             const contentType = req.headers.get('content-type') || '';

@@ -3,10 +3,12 @@ import type { NextRequest } from 'next/server';
 import { LogAPIRoute } from '@/utils/decorators';
 
 export default class SystemService {
+    @LogAPIRoute
     static async allUsers(req: NextRequest): Promise<APIRet> {
         return { code: 0, data: [], message: 'home success' };
     }
 
+    @LogAPIRoute
     static async allFiles(req: NextRequest): Promise<APIRet> {
         return { code: 0, data: [], message: 'list success' };
     }

@@ -1,11 +1,27 @@
 import type { User } from '@/types';
 import type { NextRequest } from 'next/server';
 
+import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
 import DBService from './db';
 
 export default class UserService {
+    @LogAPIRoute
+    @CheckLogin
+    static async login(req: NextRequest): Promise<APIRet> {
+        logInfo('start login...');
+        return { code: 0, data: [], message: 'userLogin success' };
+    }
+
+    static async update(req: NextRequest): Promise<APIRet> {
+        return { code: 0, data: [], message: 'userUpdate success' };
+    }
+
+    static async cancel(req: NextRequest): Promise<APIRet> {
+        return { code: 0, data: [], message: 'userCancellation success' };
+    }
+
     static async profile(req: NextRequest): Promise<APIRet> {
         const user = (await DBService.getUserInfo({ id: 1 })) as User;
         if (user) {
@@ -33,17 +49,5 @@ export default class UserService {
             return { code: 0, data: list, message: 'success' };
         }
         return { code: 0, data: [], message: 'no files found on given userId' };
-    }
-
-    static async login(req: NextRequest): Promise<APIRet> {
-        return { code: 0, data: [], message: 'userLogin success' };
-    }
-
-    static async update(req: NextRequest): Promise<APIRet> {
-        return { code: 0, data: [], message: 'userUpdate success' };
-    }
-
-    static async cancel(req: NextRequest): Promise<APIRet> {
-        return { code: 0, data: [], message: 'userCancellation success' };
     }
 }

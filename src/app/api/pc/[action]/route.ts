@@ -31,12 +31,17 @@ const enum POST_URI {
     userCancellation = 'userCancellation',
 }
 
-/**
- * 处理错误请求
- */
-async function Notfound(req?: NextRequest, ret?: APIRet) {
-    return NextResponse.json(ret || { code: -1, message: 'resource not found' }, { status: 404 });
-}
+const BizHttpCode = (ret: APIRet) => {
+    switch (ret.code) {
+        case -1:
+        case 0:
+            return 200;
+        case 1:
+            return 401;
+        default:
+            return 502;
+    }
+};
 
 export async function GET(req: NextRequest, { params }: RouteContext) {
     const { action } = params;
@@ -65,10 +70,10 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
             ret = await SystemService.allUsers(req);
             break;
         default:
-            return Notfound(req);
+            return NextResponse.json({ code: -1, message: 'Notfound get' }, { status: 404 });
     }
 
-    return NextResponse.json(ret, { status: 200 });
+    return NextResponse.json(ret, { status: BizHttpCode(ret) });
 }
 
 export async function POST(req: NextRequest, { params }: RouteContext) {
@@ -92,8 +97,8 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
             ret = await UserService.cancel(req);
             break;
         default:
-            return Notfound(req);
+            return NextResponse.json({ code: -1, message: 'Notfound post' }, { status: 404 });
     }
 
-    return NextResponse.json(ret, { status: 200 });
+    return NextResponse.json(ret, { status: BizHttpCode(ret) });
 }

@@ -6,7 +6,7 @@ const nextConfig = {
     i18n: i18next.i18n,
     reactStrictMode: true,
 
-    productionBrowserSourceMaps: true,
+    productionBrowserSourceMaps: false,
 
     experimental: {
         serverSourceMaps: true,

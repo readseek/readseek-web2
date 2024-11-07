@@ -14,7 +14,8 @@ declare global {
      * Service returned
      */
     type APIRet = {
-        code: number;
+        // biz error | auth error | biz success
+        code: -1 | 1 | 0;
         message: string;
         data?: any;
     };
