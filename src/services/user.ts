@@ -8,9 +8,9 @@ import DBService from './db';
 
 export default class UserService {
     @LogAPIRoute
-    @CheckLogin
     static async login(req: NextRequest): Promise<APIRet> {
-        logInfo('start login...');
+        const params = await req.json();
+        logInfo('start login...', params);
         return { code: 0, data: [], message: 'userLogin success' };
     }
 

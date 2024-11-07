@@ -1,4 +1,4 @@
-import type { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server';
 
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -12,10 +12,18 @@ export function LogAPIRoute(target: any, propertyKey: string, descriptor: Proper
         try {
             let params: any = req.nextUrl.searchParams;
             if (req.headers.get('content-type') === 'application/json') {
-                params = await req.json();
+                params = JSON.stringify(await req.json());
+                // create a new request in order to use body stream more than once
+                args[0] = new NextRequest(req.url, {
+                    credentials: 'include',
+                    mode: 'same-origin',
+                    method: req.method,
+                    headers: req.headers,
+                    body: params,
+                });
             }
 
-            logInfo(`${propertyKey} is calling with: ${req.url}, params: ${JSON.stringify(params, null, 2)}, geo: ${JSON.stringify(req.geo, null, 2)}`);
+            logInfo(`${propertyKey} is calling with: ${req.url}, params: ${params}, geo-city: ${req.geo?.city}`);
 
             return await originalMethod.apply(this, args);
         } catch (error) {
