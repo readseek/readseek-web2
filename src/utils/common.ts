@@ -50,24 +50,30 @@ export function getFileType(ext: string): DocumentType {
     return ext.split('.').pop()! as DocumentType;
 }
 
-export function throttle<T extends (...args: any[]) => any>(func: T, limit: number): T {
-    let lastFunc: ReturnType<typeof setTimeout>;
-    let lastRan: number;
+export function debounce<T extends (...args: any[]) => any>(func: T, delay: number): T {
+    let timer: any;
     return ((...args) => {
-        if (!lastRan) {
-            func(...args);
-            lastRan = Date.now();
-        } else {
-            clearTimeout(lastFunc);
-            lastFunc = setTimeout(
-                () => {
-                    if (Date.now() - lastRan >= limit) {
-                        func(...args);
-                        lastRan = Date.now();
-                    }
-                },
-                limit - (Date.now() - lastRan),
-            );
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+        timer = setTimeout(() => {
+            // @ts-ignore
+            func.apply(this, args);
+        }, delay);
+    }) as T;
+}
+
+export function throttle<T extends (...args: any[]) => any>(func: T, limit: number): T {
+    let inThrottle = false;
+    return ((...args) => {
+        if (!inThrottle) {
+            inThrottle = true;
+            setTimeout(() => {
+                // @ts-ignore
+                func.apply(this, args);
+                inThrottle = false;
+            }, limit);
         }
     }) as T;
 }
