@@ -5,6 +5,9 @@ import { RecordData, PrismaModelOption, saveOrUpdate, find, QueryPaging } from '
 import { deleteEmbeddings, parseAndSaveContentEmbedding } from '@/utils/embeddings';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
+/**
+ * Not opened for API
+ */
 export default class DBService {
     static async saveOrUpdateDocument(data: any): Promise<boolean> {
         const { fileHash, filePath } = data;

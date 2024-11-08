@@ -8,20 +8,27 @@ import DBService from './db';
 
 export default class UserService {
     @LogAPIRoute
+    @CheckLogin
     static async login(req: NextRequest): Promise<APIRet> {
         const params = await req.json();
         logInfo('start login...', params);
         return { code: 0, data: [], message: 'userLogin success' };
     }
 
+    @LogAPIRoute
+    @CheckLogin
     static async update(req: NextRequest): Promise<APIRet> {
         return { code: 0, data: [], message: 'userUpdate success' };
     }
 
+    @LogAPIRoute
+    @CheckLogin
     static async cancel(req: NextRequest): Promise<APIRet> {
         return { code: 0, data: [], message: 'userCancellation success' };
     }
 
+    @LogAPIRoute
+    @CheckLogin
     static async profile(req: NextRequest): Promise<APIRet> {
         const user = (await DBService.getUserInfo({ id: 1 })) as User;
         if (user) {
@@ -30,6 +37,8 @@ export default class UserService {
         return { code: 0, data: null, message: 'userProfile failed' };
     }
 
+    @LogAPIRoute
+    @CheckLogin
     static async files(req: NextRequest): Promise<APIRet> {
         const searchParams = req.nextUrl.searchParams;
 

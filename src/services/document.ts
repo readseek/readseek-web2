@@ -1,11 +1,11 @@
 import type { NextRequest } from 'next/server';
 
-import fs, { createWriteStream } from 'node:fs';
+import { createWriteStream } from 'node:fs';
 import path from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
-import { getFileHash, isDevModel } from '@/utils/common';
+import { getFileHash } from '@/utils/common';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -15,10 +15,19 @@ const pipelineAsync = promisify(pipeline);
 const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH ?? 'public/uploads');
 
 const ErrorRet = (msg: string) => {
-    return { code: -1, data: false, message: msg };
+    return { code: -1, data: false, message: msg } as APIRet;
 };
 
 export default class DocumentService {
+    @LogAPIRoute
+    static async list(req: NextRequest): Promise<APIRet> {
+        const list = await DBService.getFiles(null);
+        if (list) {
+            return { code: 0, data: list, message: 'success' };
+        }
+        return { code: 0, data: [], message: 'no data found' };
+    }
+
     @LogAPIRoute
     @CheckLogin
     static async upload(req: NextRequest): Promise<APIRet> {
@@ -67,18 +76,14 @@ export default class DocumentService {
         return ErrorRet('fileUpload failed');
     }
 
-    static async list(req: NextRequest): Promise<APIRet> {
-        const list = await DBService.getFiles(null);
-        if (list) {
-            return { code: 0, data: list, message: 'success' };
-        }
-        return { code: 0, data: [], message: 'no data found' };
-    }
-
+    @LogAPIRoute
+    @CheckLogin
     static async chat(req: NextRequest): Promise<APIRet> {
         return { code: 0, data: {}, message: 'success' };
     }
 
+    @LogAPIRoute
+    @CheckLogin
     static async delete(req: NextRequest): Promise<APIRet> {
         // const ret = await deleteEmbeddings('');
         return { code: 0, data: null, message: 'success' };
