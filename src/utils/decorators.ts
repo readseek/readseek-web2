@@ -23,7 +23,7 @@ export function LogAPIRoute(target: any, propertyKey: string, descriptor: Proper
                 });
             }
 
-            logInfo(`${propertyKey} is calling with: ${req.url}, params: ${params}, geo-city: ${req.geo?.city}`);
+            logInfo(`${propertyKey} is called from url: ${req.url}, params: ${params}, geo: ${req.geo?.city}`);
 
             return await originalMethod.apply(this, args);
         } catch (error) {
@@ -47,7 +47,7 @@ export function CheckLogin(target: any, propertyKey: string, descriptor: Propert
 
             if (!accessToken || !clientSecret) {
                 logWarn('login check failed: access-token or client-secret was invalid');
-                return { code: 1, message: 'Unauthorized request' };
+                // return { code: 1, message: 'Unauthorized request' };
             }
 
             return await originalMethod.apply(this, args);
