@@ -39,7 +39,7 @@ const BizHttpCode = (ret: APIRet) => {
         case 1:
             return 401;
         default:
-            return 502;
+            return 500;
     }
 };
 
