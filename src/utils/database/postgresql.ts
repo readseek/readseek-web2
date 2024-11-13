@@ -142,9 +142,9 @@ export async function saveOrUpdate(param: OPParams): Promise<RecordData> {
         }
 
         if (method === PrismaDBMethod.upsert) {
+            let modelData = data[0] as any;
             if (model === 'Document') {
-                const document = data[0] as Document;
-                document.tags = document.tags.reduce((p: any, c: Tag) => {
+                modelData.tags = modelData.tags.reduce((p: any, c: Tag) => {
                     if (!p.hasOwnProperty('connectOrCreate')) {
                         p['connectOrCreate'] = [];
                     }
@@ -154,17 +154,13 @@ export async function saveOrUpdate(param: OPParams): Promise<RecordData> {
                     });
                     return p;
                 }, {});
-                cond.create = { ...document, ...(cond.create || {}) };
-                cond.update = { ...document, ...(cond.update || {}) };
-                cond.where = { id: document.id, ...(cond.where || {}) };
+            }
+
+            if (modelData.hasOwnProperty('id')) {
+                cond.update = { ...modelData, ...(cond.update || {}) };
+                cond.where = { id: modelData.id, ...(cond.where || {}) };
             } else {
-                const ctu = data[0] as Category | Tag | User;
-                if (ctu.hasOwnProperty('id')) {
-                    cond.update = { ...ctu, ...(cond.update || {}) };
-                    cond.where = { id: ctu.id, ...(cond.where || {}) };
-                } else {
-                    cond.create = { ...ctu, ...(cond.create || {}) };
-                }
+                cond.create = { ...modelData, ...(cond.create || {}) };
             }
 
             logInfo('upsert condition: \n', cond);
