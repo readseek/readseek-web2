@@ -6,13 +6,13 @@ export default class SystemService {
     @LogAPIRoute
     @CheckLogin
     static async allUsers(req: NextRequest): Promise<APIRet> {
-        return { code: 0, data: [], message: 'home success' };
+        return { code: 0, data: [], message: 'ok' };
     }
 
     @LogAPIRoute
     @CheckLogin
     static async allFiles(req: NextRequest): Promise<APIRet> {
-        return { code: 0, data: [], message: 'list success' };
+        return { code: 0, data: [], message: 'ok' };
     }
 
     @LogAPIRoute
@@ -24,6 +24,6 @@ export default class SystemService {
                 confs[key] = process.env[key] || '';
             }
         });
-        return { code: 0, data: confs, message: 'systemConf success' };
+        return { code: 0, data: confs, message: 'ok' };
     }
 }

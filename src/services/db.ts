@@ -1,7 +1,7 @@
 import type { Category, Tag, Document, User } from '@/types';
 
 import LevelDB from '@/utils/database/leveldb';
-import { RecordData, PrismaModelOption, saveOrUpdate, find, QueryPaging } from '@/utils/database/postgresql';
+import { RecordData, PrismaDBMethod, saveOrUpdate, find, OPCondition } from '@/utils/database/postgresql';
 import { deleteEmbeddings, parseAndSaveContentEmbedding } from '@/utils/embeddings';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -19,7 +19,7 @@ export default class DBService {
                 // save supabase postgresql
                 saveOrUpdate({
                     model: 'Document',
-                    option: PrismaModelOption.upsert,
+                    method: PrismaDBMethod.upsert,
                     data: [
                         {
                             id: fileHash,
@@ -41,30 +41,54 @@ export default class DBService {
         return false;
     }
 
-    static async getFiles(data: any, paging?: QueryPaging): Promise<RecordData> {
+    static async getFiles(data: any): Promise<RecordData> {
         return await find({
             model: 'Document',
-            option: PrismaModelOption.findMany,
-            data: [data],
+            method: PrismaDBMethod.findMany,
+            condition: {
+                paging: { pageNum: data.pageNum, pageSize: data.pageSize },
+                select: {
+                    id: true,
+                    title: true,
+                    description: true,
+                    authors: true,
+                    coverUrl: true,
+                },
+                where: {
+                    state: 'SUCCESS',
+                },
+                orderBy: {
+                    viewCount: 'desc',
+                },
+            },
         });
     }
 
-    static async getUserFiles(data: User, paging?: QueryPaging): Promise<RecordData> {
-        return await find(
-            {
-                model: 'Document',
-                option: PrismaModelOption.findMany,
-                data: [data],
+    static async getUserFiles(data: any): Promise<RecordData> {
+        return await find({
+            model: 'Document',
+            method: PrismaDBMethod.findMany,
+            condition: {
+                paging: { pageNum: data.pageNum, pageSize: data.pageSize },
+                select: {
+                    id: true,
+                    title: true,
+                    state: true,
+                    viewCount: true,
+                    updatedAt: true,
+                },
+                orderBy: {
+                    viewCount: 'desc',
+                },
             },
-            paging,
-        );
+        });
     }
 
-    static async getUserInfo(data: User): Promise<RecordData> {
+    static async getUserInfo(id: number): Promise<RecordData> {
         return await find({
             model: 'User',
-            option: PrismaModelOption.findUnique,
-            data: [data],
+            method: PrismaDBMethod.findUnique,
+            condition: { where: { id } },
         });
     }
 }

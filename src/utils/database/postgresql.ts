@@ -3,8 +3,23 @@ import type { Category, Tag, Document, User } from '@/types';
 import prisma from '@/utils/database/prisma';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
+const parseRealCondition = (data?: object): OPCondition => {
+    if (data && typeof data === 'object') {
+        return Object.keys(data).reduce((p: any, c: string) => {
+            if (c === 'paging') {
+                p['skip'] = data[c].pageNum;
+                p['take'] = data[c].pageSize;
+            } else {
+                p[c] = data[c];
+            }
+            return p;
+        }, {});
+    }
+    throw new Error(`Invalid condition data: ${data}`);
+};
+
 // https://www.prisma.io/docs/orm/reference/prisma-client-reference#model-queries
-export const enum PrismaModelOption {
+export const enum PrismaDBMethod {
     upsert = 'upsert', // for a single create,update
     createManyAndReturn = 'createManyAndReturn',
 
@@ -16,15 +31,27 @@ export const enum PrismaModelOption {
     count = 'count',
 }
 
-export type DBOptionParams = {
-    model: 'Category' | 'Tag' | 'Document' | 'User';
-    option: PrismaModelOption;
-    data?: (Document | Category | Tag | User)[];
+// Prisma operator condition
+export type OPCondition = {
+    skipDuplicates?: boolean;
+    create?: object;
+    update?: object;
+    select?: object;
+    include?: object;
+    where?: object;
+    paging?: {
+        pageSize: number;
+        pageNum: number;
+    };
+    orderBy?: object;
 };
 
-export type QueryPaging = {
-    pageSize: number;
-    pageNum: number;
+// general parameters for CRUD
+export type OPParams = {
+    model: 'Category' | 'Tag' | 'Document' | 'User';
+    method: PrismaDBMethod;
+    data?: (Document | Category | Tag | User)[];
+    condition?: OPCondition;
 };
 
 export type RecordData =
@@ -38,7 +65,7 @@ export type RecordData =
     | User
     | null;
 
-export async function count(param: DBOptionParams): Promise<number> {
+export async function count(param: OPParams): Promise<number> {
     const { model } = param;
 
     const prismaModel: any = prisma[model.toLowerCase()];
@@ -51,41 +78,30 @@ export async function count(param: DBOptionParams): Promise<number> {
 
 /**
  * 获取一条或多条记录
- * @param {DBOptionParams} 查询参数
- * @param {pageSize: number,  pageNumber: number} 分页参数
+ * @param {OPParams} 查询参数
+ * @param {Condition} 查询条件
  * @returns {RecordData}
  */
-export async function find(param: DBOptionParams, paging: QueryPaging = { pageSize: 10, pageNum: 0 }): Promise<RecordData> {
-    const { model, option, data } = param;
-
+export async function find(param: OPParams): Promise<RecordData> {
+    const { model, method, condition } = param;
     const prismaModel: any = prisma[model.toLowerCase()];
     if (!prismaModel) {
         throw new Error(`Invalid model: ${model}`);
     }
 
     try {
-        let total = 1;
-        let rets: any;
-        const args: any = {
-            where: {
-                // @ts-ignore
-                id: data && data[0] ? data[0].id : undefined,
-            },
-        };
-        if (option === PrismaModelOption.findFirst) {
-            return await prismaModel.findFirst(args);
+        const cond: OPCondition = parseRealCondition(condition);
+        logInfo('query condition: =>\n', cond);
+        if (method === PrismaDBMethod.findFirst) {
+            return await prismaModel.findFirst(cond);
         }
-        if (option === PrismaModelOption.findUnique) {
-            return await prismaModel.findUnique(args);
+        if (method === PrismaDBMethod.findUnique) {
+            return await prismaModel.findUnique(cond);
         }
-
-        if (option === PrismaModelOption.findMany) {
-            total = await count(param);
+        if (method === PrismaDBMethod.findMany) {
+            const total = await count(param);
             if (total > 0) {
-                rets = await prismaModel.findMany({
-                    take: paging.pageSize,
-                    skip: paging.pageNum,
-                });
+                const rets = await prismaModel.findMany(cond);
                 return { total, list: rets };
             }
             logWarn('no data in :', model);
@@ -101,11 +117,11 @@ export async function find(param: DBOptionParams, paging: QueryPaging = { pageSi
  * 多表增加、修改
  * 1、ID是否为空：为空是新增，否则是更新；
  * 2、对于涉及关联表的字段需要特别处理；
- * @param {DBOptionParams} 其中，option 可选项仅为：createManyAndReturn、upsert
+ * @param {OPParams} 其中，option 可选项仅为：createManyAndReturn、upsert
  * @returns {RecordData}
  */
-export async function saveOrUpdate(param: DBOptionParams): Promise<RecordData> {
-    const { model, option, data } = param;
+export async function saveOrUpdate(param: OPParams): Promise<RecordData> {
+    const { model, method, data, condition } = param;
 
     const prismaModel: any = prisma[model.toLowerCase()];
     if (!prismaModel) {
@@ -117,25 +133,15 @@ export async function saveOrUpdate(param: DBOptionParams): Promise<RecordData> {
     }
 
     try {
-        if (option === PrismaModelOption.createManyAndReturn) {
-            return await prismaModel.createManyAndReturn({
-                data: data,
-                skipDuplicates: false,
-                select: {
-                    id: true,
-                },
-            });
+        let cond: OPCondition = parseRealCondition(condition);
+        cond.select = cond.select || { id: true };
+
+        if (method === PrismaDBMethod.createManyAndReturn) {
+            cond.skipDuplicates = cond.skipDuplicates ?? false;
+            return await prismaModel.createManyAndReturn({ data, ...cond });
         }
 
-        if (option === PrismaModelOption.upsert) {
-            const args: any = {
-                create: {},
-                update: {},
-                where: {},
-                select: {
-                    id: true,
-                },
-            };
+        if (method === PrismaDBMethod.upsert) {
             if (model === 'Document') {
                 const document = data[0] as Document;
                 document.tags = document.tags.reduce((p: any, c: Tag) => {
@@ -148,18 +154,22 @@ export async function saveOrUpdate(param: DBOptionParams): Promise<RecordData> {
                     });
                     return p;
                 }, {});
-                args.create = { ...document };
-                args.update = { ...document };
-                args.where = { id: document.id };
+                cond.create = { ...document, ...(cond.create || {}) };
+                cond.update = { ...document, ...(cond.update || {}) };
+                cond.where = { id: document.id, ...(cond.where || {}) };
             } else {
                 const ctu = data[0] as Category | Tag | User;
-                args.where = { id: ctu.id };
-                args[ctu.id ? 'update' : 'create'] = { ...ctu };
+                if (ctu.hasOwnProperty('id')) {
+                    cond.update = { ...ctu, ...(cond.update || {}) };
+                    cond.where = { id: ctu.id, ...(cond.where || {}) };
+                } else {
+                    cond.create = { ...ctu, ...(cond.create || {}) };
+                }
             }
 
-            logInfo('upsert input: ', args);
+            logInfo('upsert condition: \n', cond);
 
-            return await prismaModel.upsert(args);
+            return await prismaModel.upsert(cond);
         }
     } catch (error) {
         logError('error on saveOrUpdate: ', error);
@@ -170,19 +180,19 @@ export async function saveOrUpdate(param: DBOptionParams): Promise<RecordData> {
 
 /**
  * 根据id删除一项或多项数据
- * @param {DBOptionParams} 当前仅支持根据id删除
+ * @param {OPParams} 当前仅支持根据id删除
  * @returns {boolean}
  */
-export async function remove(param: DBOptionParams): Promise<boolean> {
-    const { model, option, data } = param;
+export async function remove(param: OPParams): Promise<boolean> {
+    const { model, method, data } = param;
 
     const prismaModel: any = prisma[model.toLowerCase()];
     if (!prismaModel) {
         throw new Error(`Invalid model: ${model}`);
     }
 
-    if (option !== PrismaModelOption.deleteMany) {
-        throw new Error(`Invalid option: ${option}`);
+    if (method !== PrismaDBMethod.deleteMany) {
+        throw new Error(`Invalid method: ${method}`);
     }
 
     const args: any = {

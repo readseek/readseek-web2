@@ -26,9 +26,10 @@ const prismaClientSingleton = () => {
     });
     if (isDevModel()) {
         prisma.$on('query', e => {
-            console.log('Query: ' + e.query);
-            console.log('Params: ' + e.params);
+            console.group(`DB Query: ${e.timestamp}`);
+            console.log('Target: ' + e.target + ', ' + 'Query: ' + e.query + ', ' + 'Params: ' + e.params);
             console.log('Duration: ' + e.duration + 'ms');
+            console.groupEnd();
         });
     }
 

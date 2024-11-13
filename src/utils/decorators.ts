@@ -25,7 +25,7 @@ export function LogAPIRoute(target: any, propertyKey: string, descriptor: Proper
                     body: jsonStr,
                 });
             } else {
-                logInfo(`${propertyKey} is called from url: ${req.url}, method: ${req.method} geo: ${req.geo?.city}`);
+                logInfo(`${propertyKey} is called from url: ${req.url}, method: ${req.method}, geo: ${req.geo?.city}`);
             }
 
             return await originalMethod.apply(this, args);

@@ -21,9 +21,14 @@ const ErrorRet = (msg: string) => {
 export default class DocumentService {
     @LogAPIRoute
     static async list(req: NextRequest): Promise<APIRet> {
-        const list = await DBService.getFiles(null);
+        const searchParams = req.nextUrl.searchParams;
+
+        const pageSize = Number(searchParams.get('pageSize')) || 10;
+        const pageNum = Number(searchParams.get('pageNum')) || 1;
+
+        const list = await DBService.getFiles({ pageSize, pageNum });
         if (list) {
-            return { code: 0, data: list, message: 'success' };
+            return { code: 0, data: list, message: 'ok' };
         }
         return { code: 0, data: [], message: 'no data found' };
     }
@@ -67,7 +72,7 @@ export default class DocumentService {
                         mimetype: file.type,
                         size: file.size,
                     },
-                    message: 'upload and save success',
+                    message: 'upload and save ok',
                 };
             }
         } catch (error: any) {
@@ -79,13 +84,13 @@ export default class DocumentService {
     @LogAPIRoute
     @CheckLogin
     static async chat(req: NextRequest): Promise<APIRet> {
-        return { code: 0, data: {}, message: 'success' };
+        return { code: 0, data: {}, message: 'ok' };
     }
 
     @LogAPIRoute
     @CheckLogin
     static async delete(req: NextRequest): Promise<APIRet> {
         // const ret = await deleteEmbeddings('');
-        return { code: 0, data: null, message: 'success' };
+        return { code: 0, data: null, message: 'ok' };
     }
 }
