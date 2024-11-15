@@ -53,12 +53,13 @@ export default class DBService {
                     description: true,
                     authors: true,
                     coverUrl: true,
+                    viewCount: true,
                 },
                 where: {
                     state: 'SUCCESS',
                 },
                 orderBy: {
-                    viewCount: 'desc',
+                    updatedAt: 'desc',
                 },
             },
         });
