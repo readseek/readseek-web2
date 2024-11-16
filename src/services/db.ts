@@ -89,7 +89,17 @@ export default class DBService {
         return await find({
             model: 'User',
             method: PrismaDBMethod.findUnique,
-            condition: { where: { id } },
+            condition: {
+                select: {
+                    name: true,
+                    age: true,
+                    email: true,
+                    avatarUrl: true,
+                    bio: true,
+                    createdAt: true,
+                },
+                where: { id },
+            },
         });
     }
 }
