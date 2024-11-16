@@ -6,8 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { doGet } from '@/utils/http';
 
@@ -20,15 +18,18 @@ export default async function PersonalPage() {
     return (
         <main className="pageBody">
             {data && data.email ? (
-                <ul className="grid w-1/3 grid-rows-4 gap-4">
+                <ul className="grid w-1/2 grid-rows-4 gap-4">
                     <li className="flex items-center justify-between">
                         <Label htmlFor="avatar" className="w-28">
-                            头像
+                            名称
                         </Label>
-                        <Avatar className="ml-4">
-                            <AvatarImage src={data.avatarUrl} alt={`@${data.avatarUrl}`} />
-                            <AvatarFallback>avatar</AvatarFallback>
-                        </Avatar>
+                        <div className="flex items-center justify-end">
+                            <span className="text-slate-800s">{data.name}</span>
+                            <Avatar className="ml-4">
+                                <AvatarImage src={data.avatarUrl} alt={`@${data.avatarUrl}`} />
+                                <AvatarFallback>avatar</AvatarFallback>
+                            </Avatar>
+                        </div>
                     </li>
                     <li className="flex items-center justify-between">
                         <Label htmlFor="email" className="w-28">
@@ -40,16 +41,16 @@ export default async function PersonalPage() {
                         <Label htmlFor="avatar" className="w-28">
                             简介
                         </Label>
-                        <Textarea placeholder="个人简介" rows={3} className="resize-none" defaultValue={data.bio} />
+                        <Textarea placeholder="个人简介" rows={4} className="resize-none" defaultValue={data.bio} />
                     </li>
                     <li className="flex items-center justify-between">
                         <Label htmlFor="share-mode" className="w-28">
-                            数据共享
+                            创建时间
                         </Label>
-                        <Switch id="share-mode" />
+                        <span className="text-slate-800s">{new Date(data.createdAt!).toUTCString()}</span>
                     </li>
                     <li className="flex items-center justify-evenly">
-                        <Button variant="default" type="submit">
+                        <Button variant="default" type="submit" disabled>
                             更新信息
                         </Button>
                         <Button variant="destructive" type="button">
