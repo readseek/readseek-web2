@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { logWarn } from '@/utils/logger';
 
 export function LocalImage(name: string, ext = 'svg') {
-    return <Image src={`assets/${name}.${ext}`} alt={name} priority={false} sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" fill className="block" />;
+    return <Image src={`assets/${name}.${ext}`} alt={name} sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" fill className="block" />;
 }
 
 /**
@@ -15,10 +15,11 @@ export function LocalImage(name: string, ext = 'svg') {
  * @param alt image alt
  * @returns LoadingImage
  */
-export function RemoteImage(src: string, alt?: string) {
+export function RemoteImage(props: any) {
+    const { src, alt } = props;
     const [isLoading, setIsLoading] = useState(true);
 
-    let defaultAlt = `@${src}`;
+    let defaultAlt = alt || `@${src}`;
     try {
         defaultAlt = src.split('/').reverse()[0];
     } catch (e) {
@@ -28,7 +29,15 @@ export function RemoteImage(src: string, alt?: string) {
     return (
         <div className="relative">
             {isLoading && <div className="absolute inset-0 animate-pulse bg-gray-200" />}
-            <Image src={src} alt={defaultAlt} priority={true} loading={'lazy'} width={1200} height={800} className={`object-contain transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`} onLoadingComplete={() => setIsLoading(false)} />
+            <Image
+                src={src}
+                alt={defaultAlt}
+                loading={'lazy'}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className={`object-contain transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+                onLoad={() => setIsLoading(false)}
+            />
         </div>
     );
 }

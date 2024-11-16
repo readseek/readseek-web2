@@ -13,6 +13,23 @@ const nextConfig = {
         serverComponentsExternalPackages: ['level', 'onnxruntime-node', '@turingscript/tokenizers', '@zilliz/milvus2-sdk-node'],
     },
 
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'mn.tangkunyin.com',
+                port: '',
+                pathname: '/assets/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'readseek.com',
+                port: '',
+                pathname: '/assets/**',
+            },
+        ],
+    },
+
     // 这项配置还有点问题：https://github.com/payloadcms/payload/issues/7501
     // outputFileTracingIncludes: {
     //     // When deploying to Vercel, the following configuration is required
