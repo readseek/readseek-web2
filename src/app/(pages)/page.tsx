@@ -10,7 +10,7 @@ export default async function HomePage() {
         const contentView = data.list.map((doc: Document, index: number) => {
             return (
                 <div className="rectangle" key={`doc_card_${index}`}>
-                    <RemoteImage src={doc.coverUrl} />
+                    <RemoteImage src={doc.coverUrl} fill={true} />
                 </div>
             );
         });

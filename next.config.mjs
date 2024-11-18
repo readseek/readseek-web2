@@ -17,17 +17,20 @@ const nextConfig = {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'mn.tangkunyin.com',
-                port: '',
+                hostname: '*.tangkunyin.com',
                 pathname: '/assets/**',
+                port: '',
             },
             {
                 protocol: 'https',
-                hostname: 'readseek.com',
-                port: '',
+                hostname: '*.readseek.com',
                 pathname: '/assets/**',
+                port: '',
             },
         ],
+        // for development
+        unoptimized: true,
+        formats: ['image/avif', 'image/webp'],
     },
 
     // 这项配置还有点问题：https://github.com/payloadcms/payload/issues/7501
