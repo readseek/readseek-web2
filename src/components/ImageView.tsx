@@ -3,8 +3,6 @@
 import Image from 'next/image';
 import { useState } from 'react';
 
-import { logWarn } from '@/utils/logger';
-
 export function LocalImage(name: string, ext = 'svg') {
     return (
         <div className="relative h-full w-full">
@@ -13,38 +11,26 @@ export function LocalImage(name: string, ext = 'svg') {
     );
 }
 
-/**
- * Image with loading state
- * @param src url | file path
- * @param alt image alt
- * @returns LoadingImage
- */
-export function RemoteImage(props: any) {
-    const { src, alt, fill } = props;
+interface RemoteImageProps {
+    src: string;
+    alt?: string;
+    fill?: boolean;
+}
+
+export function RemoteImage({ src, alt = undefined, fill = false }: RemoteImageProps) {
     const [isLoading, setIsLoading] = useState(true);
 
-    let defaultAlt = alt;
-    try {
-        if (!alt || alt === '') {
-            defaultAlt = src.split('/').reverse()[0];
-        }
-    } catch (e) {
-        logWarn(e);
-    }
-
-    let contentLayouts: any = {
-        style: {
-            width: '100%',
-            height: 'auto',
-        },
-        width: 1080,
-        height: 720,
-    };
-    if (fill) {
-        contentLayouts = {
-            fill: true,
-        };
-    }
+    const defaultAlt = alt || src.split('/').pop() || `@${src}`;
+    const contentLayouts = fill
+        ? { fill: true }
+        : {
+              style: {
+                  width: '100%',
+                  height: 'auto',
+              },
+              width: 1080,
+              height: 720,
+          };
 
     return (
         <div className={`h-full w-full ${fill ? 'relative' : ''}`}>
@@ -52,8 +38,8 @@ export function RemoteImage(props: any) {
             <Image
                 src={src}
                 alt={defaultAlt}
-                loading={'lazy'}
-                decoding={'auto'}
+                loading="lazy"
+                decoding="auto"
                 sizes="(max-width: 1200px) 100vw, (max-width: 1920px) 50vw, 33vw"
                 className={`transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
                 {...contentLayouts}

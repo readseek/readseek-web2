@@ -29,7 +29,7 @@ const nextConfig = {
             },
         ],
         // for development
-        unoptimized: true,
+        unoptimized: process.env.__RSN_ENV === 'dev' ? true : false,
         formats: ['image/avif', 'image/webp'],
     },
 
