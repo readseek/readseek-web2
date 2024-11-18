@@ -9,8 +9,19 @@ export default async function HomePage() {
     if (data && data.total > 0) {
         const contentView = data.list.map((doc: Document, index: number) => {
             return (
-                <div className="rectangle" key={`doc_card_${index}`}>
+                <div id="doc" className="rectangle group relative" key={`doc_card_${index}`}>
                     <RemoteImage src={doc.coverUrl!} fill />
+                    <div id="info" className="absolute bottom-0 left-0 z-10 flex h-16 w-full flex-col items-start bg-neutral-600 bg-opacity-45 text-white transition-all duration-300 group-hover:h-[70%] group-hover:bg-opacity-100">
+                        <h2 className="m-0 truncate p-1 underline hover:italic hover:no-underline">
+                            <a href={`/chat?id=${doc.id}`} target="_blank">
+                                {doc.title}
+                            </a>
+                        </h2>
+                        <b className="m-0 px-1">{doc.authors?.join(', ')}</b>
+                        <h3 id="desc" className="no-scrollbar hidden overflow-auto p-1 italic group-hover:block">
+                            {doc.description}
+                        </h3>
+                    </div>
                 </div>
             );
         });
@@ -47,7 +58,7 @@ export default async function HomePage() {
         );
     }
     return (
-        <main className="flex flex-col">
+        <main className="flex items-center justify-center">
             <NodataImage />
         </main>
     );
