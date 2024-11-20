@@ -43,7 +43,7 @@ export async function doGet(path: string) {
             headers: headers(),
             method: 'GET',
             next: {
-                revalidate: 3600,
+                revalidate: isDevModel() ? 10 : 60 * 60 * 2,
             },
         });
         return respDataHandler(res);
