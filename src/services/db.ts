@@ -75,6 +75,8 @@ export default class DBService {
                     id: true,
                     title: true,
                     state: true,
+                    authors: true,
+                    keywords: true,
                     viewCount: true,
                     updatedAt: true,
                 },

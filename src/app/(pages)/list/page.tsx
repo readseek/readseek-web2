@@ -1,4 +1,5 @@
 'use client';
+
 import type { Document } from '@/types';
 
 import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
@@ -16,53 +17,7 @@ const metadata = {
     title: '文库中心 - 搜读',
 };
 
-type Payment = {
-    id: string;
-    name: string;
-    author: string;
-    amount: number;
-    status: 'pending' | 'processing' | 'success' | 'failed';
-};
-
-const data: Payment[] = [
-    {
-        id: 'm5gr84i9',
-        name: 'HTTP权威指南',
-        author: 'jack@readseek.com',
-        amount: 88,
-        status: 'success',
-    },
-    {
-        id: '3u1reuv4',
-        name: 'TypeScript进阶',
-        author: 'thomas@readseek.com',
-        amount: 58,
-        status: 'success',
-    },
-    {
-        id: 'derv1ws0',
-        name: '低欲望社会',
-        author: 'pony@readseek.com',
-        amount: 43,
-        status: 'pending',
-    },
-    {
-        id: '5kma53ae',
-        name: '聪明的投资',
-        author: 'tony@readseek.com',
-        amount: 72,
-        status: 'processing',
-    },
-    {
-        id: 'bhqecj4p',
-        name: '看见',
-        author: 'lucy@readseek.com',
-        amount: 50,
-        status: 'failed',
-    },
-];
-
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<Document>[] = [
     {
         id: 'select',
         header: ({ table }) => <Checkbox checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')} onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)} aria-label="全选" />,
@@ -71,47 +26,39 @@ export const columns: ColumnDef<Payment>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: 'name',
-        header: '书名',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('name')}</div>,
+        accessorKey: 'title',
+        header: '名称',
+        cell: ({ row }) => <div className="capitalize">{row.getValue('title')}</div>,
     },
     {
-        accessorKey: 'author',
-        header: '作者',
-        cell: ({ row }) => <div className="lowercase">{row.getValue('author')}</div>,
+        accessorKey: 'state',
+        header: '状态',
+        cell: ({ row }) => <div className="capitalize">{row.getValue('state')}</div>,
     },
     {
-        accessorKey: 'amount',
-        header: ({ column }) => {
-            return (
-                <Button variant="ghost" className="px-0" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-                    价格
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-        cell: ({ row }) => {
-            const amount = parseFloat(row.getValue('amount'));
-            // Format the amount as a dollar amount
-            const formatted = new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-            }).format(amount);
-            return <div className="font-medium capitalize">{formatted}</div>;
-        },
+        accessorKey: 'authors',
+        header: '原作者',
+        cell: ({ row }) => <div className="capitalize">{(row.getValue('authors') as string[])?.join(', ')}</div>,
     },
     {
-        accessorKey: 'status',
-        header: '转录状态',
-        cell: ({ row }) => <div className="capitalize">{row.getValue('status')}</div>,
+        accessorKey: 'keywords',
+        header: '关键词',
+        cell: ({ row }) => <div className="capitalize">{(row.getValue('keywords') as string[])?.join(', ')}</div>,
+    },
+    {
+        accessorKey: 'viewCount',
+        header: '访问量',
+        cell: ({ row }) => <div className="lowercase">{row.getValue('viewCount')}</div>,
+    },
+    {
+        accessorKey: 'updatedAt',
+        header: '更新时间',
+        cell: ({ row }) => <div className="capitalize">{new Date(row.getValue('updatedAt')).toLocaleString()}</div>,
     },
 ];
 
 export default function FileListPage() {
-    useEffect(() => {
-        document.title = metadata.title;
-    }, []);
-
+    const [data, setData] = useState<Document[]>([]);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -135,10 +82,23 @@ export default function FileListPage() {
             rowSelection,
         },
     });
+
+    useEffect(() => {
+        document.title = metadata.title;
+
+        async function fetchData() {
+            const data: any = await doGet('/api/web/userFiles');
+            console.log(data.list);
+            if (data && Array.isArray(data.list)) {
+                setData(data.list);
+            }
+        }
+        fetchData();
+    }, []);
     return (
         <main className="container flex flex-col">
             <div className="flex items-center py-4">
-                <Input placeholder="根据书名筛选信息" value={(table.getColumn('name')?.getFilterValue() as string) ?? ''} onChange={event => table.getColumn('name')?.setFilterValue(event.target.value)} className="max-w-sm" />
+                <Input placeholder="根据书名筛选信息" value={(table.getColumn('title')?.getFilterValue() as string) ?? ''} onChange={event => table.getColumn('title')?.setFilterValue(event.target.value)} className="max-w-sm" />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">
@@ -195,10 +155,10 @@ export default function FileListPage() {
                 </div>
                 <div className="space-x-2">
                     <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-                        Previous
+                        上一页
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-                        Next
+                        下一页
                     </Button>
                 </div>
             </div>
