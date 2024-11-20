@@ -7,8 +7,8 @@ const parseRealCondition = (data?: object): OPCondition => {
     if (data && typeof data === 'object') {
         return Object.keys(data).reduce((p: any, c: string) => {
             if (c === 'paging') {
-                p['skip'] = data[c].pageNum;
                 p['take'] = data[c].pageSize;
+                p['skip'] = (data[c].pageNum - 1) * data[c].pageSize;
             } else {
                 p[c] = data[c];
             }
@@ -66,14 +66,14 @@ export type RecordData =
     | null;
 
 export async function count(param: OPParams): Promise<number> {
-    const { model } = param;
+    const { model, condition } = param;
 
     const prismaModel: any = prisma[model.toLowerCase()];
     if (!prismaModel) {
         throw new Error(`Invalid model: ${model}`);
     }
 
-    return await prismaModel.count();
+    return await prismaModel.count({ where: condition?.where || {} });
 }
 
 /**
