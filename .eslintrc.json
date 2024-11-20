@@ -8,6 +8,7 @@
         "tailwindcss/enforces-shorthand": "off",
         "tailwindcss/classnames-order": "warn",
         "tailwindcss/no-unnecessary-arbitrary-value": "off",
+        "tailwindcss/migration-from-tailwind-2": "off",
         "no-unused-vars": "off",
         "no-undef": "warn",
         "no-prototype-builtins": "off"
