@@ -12,6 +12,8 @@ export const runtime = 'nodejs';
 export const maxDuration = 10;
 
 const enum GET_URI {
+    fileCategories = 'fileCategories',
+    fileTags = 'fileTags',
     fileList = 'fileList',
     fileChat = 'fileChat',
     // user's info
@@ -48,6 +50,12 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
 
     let ret: APIRet;
     switch (action as GET_URI) {
+        case GET_URI.fileCategories:
+            ret = await DocumentService.categoryList(req);
+            break;
+        case GET_URI.fileTags:
+            ret = await DocumentService.tagList(req);
+            break;
         case GET_URI.fileList:
             ret = await DocumentService.list(req);
             break;

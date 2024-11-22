@@ -20,6 +20,24 @@ const ErrorRet = (msg: string) => {
 
 export default class DocumentService {
     @LogAPIRoute
+    static async categoryList(req: NextRequest): Promise<APIRet> {
+        const list = await DBService.getCategories();
+        if (list) {
+            return { code: 0, data: list, message: 'ok' };
+        }
+        return { code: 0, data: [], message: 'no data found' };
+    }
+
+    @LogAPIRoute
+    static async tagList(req: NextRequest): Promise<APIRet> {
+        const list = await DBService.getTags();
+        if (list) {
+            return { code: 0, data: list, message: 'ok' };
+        }
+        return { code: 0, data: [], message: 'no data found' };
+    }
+
+    @LogAPIRoute
     static async list(req: NextRequest): Promise<APIRet> {
         const searchParams = req.nextUrl.searchParams;
 

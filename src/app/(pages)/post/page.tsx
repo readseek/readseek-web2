@@ -1,12 +1,15 @@
 'use client';
 
+import type { Document, Category, Tag } from '@/types';
+
 import { UploadCloud } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 import { UploadBox } from '@/components/Chat/UploadBox';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { doGet, doPost } from '@/utils/http';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
 const metadata = {
@@ -14,11 +17,29 @@ const metadata = {
 };
 
 export default function PostContentPage() {
+    let doc: Document;
+
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [tags, setTags] = useState<Tag[]>([]);
+    const [isUploading, setIsUploading] = useState<boolean>(false);
+
+    const fetchMetaData = useCallback(async () => {
+        if (isUploading) return;
+
+        const rets: any[] = await Promise.all(['/api/web/fileCategories', '/api/web/fileTags'].map(uri => doGet(uri)));
+
+        setCategories(rets[0]?.list || []);
+        setTags(rets[1]?.list || []);
+    }, [isUploading]);
+
     useEffect(() => {
         document.title = metadata.title;
-    }, []);
+
+        fetchMetaData();
+    }, [fetchMetaData]);
 
     const onFileSelected = (file: File) => {
+        console.log(categories, tags);
         logInfo(file);
     };
 

@@ -104,4 +104,32 @@ export default class DBService {
             },
         });
     }
+
+    static async getCategories(): Promise<RecordData> {
+        return await find({
+            model: 'Category',
+            method: PrismaDBMethod.findMany,
+            condition: {
+                select: {
+                    id: true,
+                    key: true,
+                    value: true,
+                },
+            },
+        });
+    }
+
+    static async getTags(): Promise<RecordData> {
+        return await find({
+            model: 'Tag',
+            method: PrismaDBMethod.findMany,
+            condition: {
+                select: {
+                    id: true,
+                    key: true,
+                    value: true,
+                },
+            },
+        });
+    }
 }
