@@ -1,3 +1,5 @@
+'use server';
+
 import { Document } from 'langchain/document';
 import { TokenTextSplitter } from 'langchain/text_splitter';
 

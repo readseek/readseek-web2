@@ -1,3 +1,5 @@
+'use server';
+
 import { JsEncoding, Tokenizer } from '@turingscript/tokenizers';
 import { LRUCache } from 'lru-cache';
 

@@ -1,3 +1,5 @@
+'use server';
+
 import path from 'node:path';
 
 import { absolutePath } from '@/utils/common';

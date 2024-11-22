@@ -1,3 +1,5 @@
+'use server';
+
 import type { EmbeddingTextItem } from '../embeddings';
 
 import { DataType, MilvusClient } from '@zilliz/milvus2-sdk-node';

@@ -1,3 +1,5 @@
+'use server';
+
 import type { DocumentLoader } from 'langchain/document_loaders/base';
 
 import { CSVLoader } from '@langchain/community/document_loaders/fs/csv';

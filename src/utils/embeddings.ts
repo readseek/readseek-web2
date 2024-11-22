@@ -1,3 +1,5 @@
+'use server';
+
 import type { Document } from 'langchain/document';
 
 import path from 'node:path';

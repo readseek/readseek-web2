@@ -1,3 +1,5 @@
+'use server';
+
 import type { Category, Tag, Document, User } from '@/types';
 
 import { isDevModel } from '@/utils/common';

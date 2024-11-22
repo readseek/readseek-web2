@@ -1,3 +1,5 @@
+'use server';
+
 import path from 'node:path';
 
 import { Level } from 'level';
