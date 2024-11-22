@@ -20,15 +20,15 @@ enum DocumentState {
 
 model Category {
   id        Int        @id @default(autoincrement()) @db.SmallInt
-  key       String?    @db.VarChar(64)
-  value     Int?       @db.SmallInt
+  name      String     @db.VarChar(64)
+  alias     String?    @db.VarChar(64)
   documents Document[]
 }
 
 model Tag {
   id        Int        @id @default(autoincrement()) @db.SmallInt
-  key       String?    @db.VarChar(64)
-  value     Int?       @db.SmallInt
+  name      String     @db.VarChar(64)
+  alias     String?    @db.VarChar(64)
   documents Document[]
 }
 
@@ -64,7 +64,7 @@ model User {
   age       Int        @db.SmallInt
   /// unique public userId for the system
   email     String     @unique @db.VarChar(128)
-  avatarUrl String?    @db.VarChar(255)
+  avatar    String?    @db.VarChar(255)
   /// description for user
   bio       String?    @db.VarChar(255)
   /// documents that a user posted

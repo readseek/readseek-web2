@@ -1,7 +1,17 @@
 import type { Category, Tag, Document, User } from '@/types';
 
+import { isDevModel } from '@/utils/common';
 import prisma from '@/utils/database/prisma';
 import { logError, logInfo, logWarn } from '@/utils/logger';
+
+if (isDevModel()) {
+    prisma.$on('query', e => {
+        console.group(`DB Query: ${e.timestamp}`);
+        console.log('Target: ' + e.target + ', ' + 'Query: ' + e.query + ', ' + 'Params: ' + e.params);
+        console.log('Duration: ' + e.duration + 'ms');
+        console.groupEnd();
+    });
+}
 
 const parseRealCondition = (data?: object): OPCondition => {
     if (data && typeof data === 'object') {

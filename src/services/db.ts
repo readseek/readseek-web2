@@ -1,7 +1,7 @@
 import type { Category, Tag, Document, User } from '@/types';
 
 import LevelDB from '@/utils/database/leveldb';
-import { RecordData, PrismaDBMethod, saveOrUpdate, find, OPCondition } from '@/utils/database/postgresql';
+import { RecordData, PrismaDBMethod, saveOrUpdate, find } from '@/utils/database/postgresql';
 import { deleteEmbeddings, parseAndSaveContentEmbedding } from '@/utils/embeddings';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -96,7 +96,7 @@ export default class DBService {
                     name: true,
                     age: true,
                     email: true,
-                    avatarUrl: true,
+                    avatar: true,
                     bio: true,
                     createdAt: true,
                 },
@@ -112,8 +112,7 @@ export default class DBService {
             condition: {
                 select: {
                     id: true,
-                    key: true,
-                    value: true,
+                    name: true,
                 },
             },
         });
@@ -126,8 +125,7 @@ export default class DBService {
             condition: {
                 select: {
                     id: true,
-                    key: true,
-                    value: true,
+                    name: true,
                 },
             },
         });

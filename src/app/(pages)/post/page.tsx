@@ -54,9 +54,9 @@ export default function PostContentPage() {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup>
-                            {categories.map((tag: Tag, index: number) => (
-                                <SelectItem key={`tg_${index}`} value={tag.value}>
-                                    {tag.key}
+                            {categories.map((cat: Category, index: number) => (
+                                <SelectItem key={`cat_${index}`} value={`${cat.id}`}>
+                                    {cat.name}
                                 </SelectItem>
                             ))}
                         </SelectGroup>
@@ -70,8 +70,8 @@ export default function PostContentPage() {
                     <SelectContent>
                         <SelectGroup>
                             {tags.map((tag: Tag, index: number) => (
-                                <SelectItem key={`tg_${index}`} value={tag.value}>
-                                    {tag.key}
+                                <SelectItem key={`tag_${index}`} value={`${tag.id}`}>
+                                    {tag.name}
                                 </SelectItem>
                             ))}
                         </SelectGroup>

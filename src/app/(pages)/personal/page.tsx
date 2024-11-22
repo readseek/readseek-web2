@@ -26,7 +26,7 @@ export default async function PersonalPage() {
                         <div className="flex items-center justify-end">
                             <span className="text-slate-800s">{data.name}</span>
                             <Avatar className="ml-4">
-                                <AvatarImage src={data.avatarUrl} alt={`@${data.avatarUrl}`} />
+                                <AvatarImage src={data.avatar} alt={`@${data.avatar}`} />
                                 <AvatarFallback>avatar</AvatarFallback>
                             </Avatar>
                         </div>

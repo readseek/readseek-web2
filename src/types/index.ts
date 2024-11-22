@@ -20,14 +20,14 @@ export const enum DocumentState {
 
 export type Category = {
     id?: number;
-    key?: string;
-    value?: number;
+    name: string;
+    alias?: string;
 };
 
 export type Tag = {
     id?: number;
-    key?: string;
-    value?: number;
+    name: string;
+    alias?: string;
 };
 
 export type Document = {
@@ -52,7 +52,7 @@ export type User = {
     name?: string;
     age?: number;
     email?: string;
-    avatarUrl?: string;
+    avatar?: string;
     bio?: string;
     posts?: Document[];
     createdAt?: Date;
