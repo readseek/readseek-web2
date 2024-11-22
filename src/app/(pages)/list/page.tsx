@@ -3,8 +3,8 @@
 import type { Document } from '@/types';
 
 import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
-import { ArrowUpDown, ChevronDown } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ChevronDown } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -58,11 +58,15 @@ export const columns: ColumnDef<Document>[] = [
 ];
 
 export default function FileListPage() {
-    const [data, setData] = useState<Document[]>([]);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState({});
+
+    const pageSize = 10;
+    const [data, setData] = useState<Document[]>([]);
+    const [page, setPage] = useState<number>(1);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const table = useReactTable({
         data,
@@ -83,18 +87,29 @@ export default function FileListPage() {
         },
     });
 
+    const fetchData = useCallback(async () => {
+        const data: any = await doGet(`/api/web/userFiles?page=${page}&size=${pageSize}`);
+        console.log('fetchedData: ', data);
+        if (data && Array.isArray(data.list)) {
+            setData(data.list);
+        }
+    }, [page]);
+
     useEffect(() => {
         document.title = metadata.title;
-
-        async function fetchData() {
-            const data: any = await doGet('/api/web/userFiles');
-            console.log(data.list);
-            if (data && Array.isArray(data.list)) {
-                setData(data.list);
-            }
-        }
         fetchData();
-    }, []);
+    }, [fetchData]);
+
+    function previousPage() {
+        setPage(page - 1);
+        table.previousPage();
+    }
+
+    function nextPage() {
+        setPage(page + 1);
+        table.nextPage();
+    }
+
     return (
         <main className="container flex flex-col">
             <div className="flex items-center py-4">
@@ -154,10 +169,10 @@ export default function FileListPage() {
                     {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected.
                 </div>
                 <div className="space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+                    <Button variant="outline" size="sm" onClick={() => previousPage()} disabled={page === 1}>
                         上一页
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+                    <Button variant="outline" size="sm" onClick={() => nextPage()} disabled={data.length < pageSize}>
                         下一页
                     </Button>
                 </div>

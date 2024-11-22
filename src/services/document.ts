@@ -23,8 +23,8 @@ export default class DocumentService {
     static async list(req: NextRequest): Promise<APIRet> {
         const searchParams = req.nextUrl.searchParams;
 
-        const pageSize = Number(searchParams.get('pageSize')) || 10;
-        const pageNum = Number(searchParams.get('pageNum')) || 1;
+        const pageSize = Number(searchParams.get('size')) || 10;
+        const pageNum = Number(searchParams.get('page')) || 1;
 
         const list = await DBService.getFiles({ pageSize, pageNum });
         if (list) {

@@ -51,8 +51,8 @@ export default class UserService {
 
         const searchParams = req.nextUrl.searchParams;
 
-        const pageSize = Number(searchParams.get('pageSize')) || 10;
-        const pageNum = Number(searchParams.get('pageNum')) || 1;
+        const pageSize = Number(searchParams.get('size')) || 10;
+        const pageNum = Number(searchParams.get('page')) || 1;
         // 根据标题模糊查询
         const title = searchParams.get('title');
         if (title && title.trim().length > 0) {
