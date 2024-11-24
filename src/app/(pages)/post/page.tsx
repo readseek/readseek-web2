@@ -135,13 +135,11 @@ export default function PostContentPage() {
                             const opts = tags.map((tag: Tag) => ({ label: tag.name, value: `${tag.id}` }));
                             // @ts-ignore
                             const selects = field.value as OptionType[];
-
-                            console.log('selects', selects);
                             return (
                                 <FormItem>
                                     <FormLabel>内容标签（可多选）</FormLabel>
                                     <FormControl>
-                                        <MultiSelect selected={selects} options={opts} {...field} className="w-full" />
+                                        <MultiSelect selected={selects} options={opts} {...field} className="sm:w-[510px]" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
