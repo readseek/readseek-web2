@@ -1,15 +1,17 @@
 /** @type {import('next').NextConfig} */
 import i18next from './next-i18next.config.mjs';
 
+const isDev = process.env.__RSN_ENV === 'dev' ? true : false;
+
 const nextConfig = {
     swcMinify: true,
     i18n: i18next.i18n,
     reactStrictMode: true,
 
-    productionBrowserSourceMaps: false,
+    productionBrowserSourceMaps: isDev,
 
     experimental: {
-        serverSourceMaps: true,
+        serverSourceMaps: isDev,
         serverComponentsExternalPackages: ['level', 'onnxruntime-node', '@turingscript/tokenizers', '@zilliz/milvus2-sdk-node'],
     },
 
@@ -29,7 +31,7 @@ const nextConfig = {
             },
         ],
         // for development
-        unoptimized: process.env.__RSN_ENV === 'dev' ? true : false,
+        unoptimized: isDev,
         formats: ['image/avif', 'image/webp'],
     },
 
