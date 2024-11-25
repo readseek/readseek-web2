@@ -87,7 +87,7 @@ export default function PostContentPage() {
     return (
         <main className="pageBody">
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="flex h-auto w-1/3 flex-col items-stretch space-y-6">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col items-stretch space-y-10 sm:w-[511px]">
                     <FormField
                         control={form.control}
                         name="file"
@@ -105,7 +105,7 @@ export default function PostContentPage() {
                         control={form.control}
                         name="category"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem className="h-[3rem]">
                                 <FormLabel>内容分类（有且仅有一个）</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
@@ -136,10 +136,10 @@ export default function PostContentPage() {
                             // @ts-ignore
                             const selects = field.value as OptionType[];
                             return (
-                                <FormItem>
+                                <FormItem className="h-[3rem]">
                                     <FormLabel>内容标签（可多选）</FormLabel>
                                     <FormControl>
-                                        <MultiSelect selected={selects} options={opts} {...field} className="sm:w-[510px]" />
+                                        <MultiSelect selected={selects} options={opts} {...field} className="sm:w-[511px]" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -147,8 +147,8 @@ export default function PostContentPage() {
                         }}
                     />
 
-                    <div className="flex items-center justify-around">
-                        <Button type="reset" className="mr-2 h-11 w-1/3" variant="secondary">
+                    <div className="mt-8 flex items-center justify-around">
+                        <Button type="reset" className="mr-2 w-1/3" variant="secondary">
                             重置
                         </Button>
                         <Button type="submit" className="mr-2 h-11 w-1/3" variant="default">
