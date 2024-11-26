@@ -1,4 +1,5 @@
 import prisma from '@/utils/database/prisma';
+import { logInfo, logError } from '@/utils/logger';
 
 const Tags = [
     { name: '大前端', alias: 'frontEnds' },
@@ -40,7 +41,7 @@ async function seedMetaData() {
             const ret: any = await prisma[key].create({
                 data,
             });
-            console.log(`Created ${key} with id: ${ret.id}`);
+            logInfo(`Created ${key} with id: ${ret.id}`);
         }
     });
     console.timeEnd('seedingMetaData costs:');
@@ -51,7 +52,7 @@ seedMetaData()
         await prisma.$disconnect();
     })
     .catch(async e => {
-        console.error(e);
+        logError(e);
         await prisma.$disconnect();
         process.exit(1);
     });
@@ -89,7 +90,7 @@ seedMetaData()
 //     const ret: any = await prisma.document.create({
 //         data: AnyModel.data,
 //     });
-//     console.log(`Created ${tableName} with id: ${ret.id}`, ret);
+//     logInfo(`Created ${tableName} with id: ${ret.id}`, ret);
 //     console.timeEnd('seedingData costs:');
 // }
 
@@ -98,7 +99,7 @@ seedMetaData()
 //         await prisma.$disconnect();
 //     })
 //     .catch(async e => {
-//         console.error(e);
+//         logError(e);
 //         await prisma.$disconnect();
 //         process.exit(1);
 //     });

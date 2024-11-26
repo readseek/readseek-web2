@@ -1,22 +1,25 @@
 import chalk from 'chalk';
 
-import { isDevModel, getFullTime } from './common';
+import { isDevModel, isBrowserModel, getFullTime } from './common';
 
 function logWrapper(level: number) {
     // Using curried wrapper
     return (...logs: any[]) => {
         if (isDevModel() && logs.length > 0) {
+            const timestamp = `[${getFullTime()}]`;
+            let logFunction: any = null;
             switch (level) {
                 case 1:
-                    console.log(chalk.yellow.underline(`[${getFullTime()}]`), ...logs);
+                    logFunction = isBrowserModel ? console.warn : (msg: any) => console.log(chalk.yellow.italic.underline(msg));
                     break;
                 case -1:
-                    console.log(chalk.red.bold.underline(`[${getFullTime()}]`), ...logs);
+                    logFunction = isBrowserModel ? console.error : (msg: any) => console.log(chalk.red.bold.underline(msg));
                     break;
                 default:
-                    console.log(chalk.green(`[${getFullTime()}]`), ...logs);
+                    logFunction = isBrowserModel ? console.log : (msg: any) => console.log(chalk.green.underline(msg));
                     break;
             }
+            logFunction(timestamp, ...logs);
         }
     };
 }

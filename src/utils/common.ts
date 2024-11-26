@@ -6,7 +6,19 @@ import { Readable } from 'node:stream';
 import { DocumentType } from '@/types';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
+export const isBrowserModel = ((): boolean => {
+    try {
+        return typeof window === 'object' && typeof document === 'object';
+    } catch (error) {
+        console.warn(error);
+        return false;
+    }
+})();
+
 export function isDevModel(): boolean {
+    if (isBrowserModel) {
+        return true;
+    }
     return Boolean(process.env.__RSN_ENV && process.env.__RSN_ENV === 'dev');
 }
 
