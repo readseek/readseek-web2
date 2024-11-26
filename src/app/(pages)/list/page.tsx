@@ -89,7 +89,6 @@ export default function FileListPage() {
 
     const fetchData = useCallback(async () => {
         const data: any = await doGet(`/api/web/userFiles?page=${page}&size=${pageSize}`);
-        console.log('fetchedData: ', data);
         if (data && Array.isArray(data.list)) {
             setData(data.list);
         }

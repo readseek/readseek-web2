@@ -12,7 +12,6 @@ import { OptionType, MultiSelect } from '@/components/MultiSelect';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from '@/components/ui/use-toast';
 import { doGet, doPost } from '@/utils/http';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -22,21 +21,25 @@ const metadata = {
 
 const FormSchema = z.object({
     file: z
-        .string({
-            required_error: 'Please select a file to upload.',
+        .instanceof(globalThis.File, {
+            message: '请选择一个有效的文件',
         })
-        .length(1),
+        .refine(file => file.size > 0, {
+            message: '文件内容不能为空',
+        }),
     category: z
         .string({
-            required_error: 'Please select a category to display.',
+            required_error: '请为要上传的内容选择一个分类（有且仅有一个）',
         })
         .length(1),
     tags: z
-        .array(z.string(), {
-            // Specify the type of the array elements
-            required_error: 'Please select at least one tag to display.',
-        })
-        .min(1),
+        .array(
+            z.object({
+                label: z.string(),
+                value: z.string(),
+            }),
+        )
+        .min(1, '请为内容至少选择一个标签（可多选）'),
 });
 
 export default function PostContentPage() {
@@ -64,37 +67,27 @@ export default function PostContentPage() {
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
+            file: undefined,
             tags: [],
+            category: '',
         },
     });
 
-    const onFileSelected = (file: File) => {
-        console.log(categories, tags);
-        logInfo(file);
-    };
-
     function onSubmit(data: z.infer<typeof FormSchema>) {
-        toast({
-            title: 'You submitted the following values:',
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-        });
+        logInfo('onSubmit', data);
     }
 
     return (
         <main className="pageBody">
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col items-stretch space-y-10 sm:w-[511px]">
+                <form onSubmit={form.handleSubmit(onSubmit)} onReset={() => form.reset()} className="flex flex-col items-stretch space-y-14 sm:w-[511px]">
                     <FormField
                         control={form.control}
                         name="file"
                         render={({ field }) => (
                             <FormItem>
                                 <FormControl>
-                                    <UploadBox onFileSelected={onFileSelected} />
+                                    <UploadBox field={field} formState={form.formState} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -106,8 +99,8 @@ export default function PostContentPage() {
                         name="category"
                         render={({ field }) => (
                             <FormItem className="h-[3rem]">
-                                <FormLabel>内容分类（有且仅有一个）</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormLabel>分类</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value || ''}>
                                     <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select ..." />
@@ -137,7 +130,7 @@ export default function PostContentPage() {
                             const selects = field.value as OptionType[];
                             return (
                                 <FormItem className="h-[3rem]">
-                                    <FormLabel>内容标签（可多选）</FormLabel>
+                                    <FormLabel className="mt-10">标签</FormLabel>
                                     <FormControl>
                                         <MultiSelect selected={selects} options={opts} {...field} className="sm:w-[511px]" />
                                     </FormControl>
@@ -147,8 +140,8 @@ export default function PostContentPage() {
                         }}
                     />
 
-                    <div className="mt-8 flex items-center justify-around">
-                        <Button type="reset" className="mr-2 w-1/3" variant="secondary">
+                    <div className="flex items-center justify-around">
+                        <Button type="reset" className="mr-2 w-1/3" variant="destructive">
                             重置
                         </Button>
                         <Button type="submit" className="mr-2 h-11 w-1/3" variant="default">

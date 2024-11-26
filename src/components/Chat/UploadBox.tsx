@@ -1,51 +1,64 @@
 'use client';
 
-import { useState } from 'react';
+import type { FormState, FieldValues } from 'react-hook-form';
 
-import { useToast } from '@/components/ui/use-toast';
+import { useState, useCallback, useEffect } from 'react';
+
 import { validFileSize } from '@/utils/common';
-import { logError, logInfo, logWarn } from '@/utils/logger';
+import { logInfo, logWarn } from '@/utils/logger';
 
 interface Props {
-    onFileSelected: (file: File) => void;
+    field?: any;
+    formState?: FormState<FieldValues>;
+    onSelected?: (file: File) => void;
 }
 
 const supportFileType = ['pdf', 'epub', 'docx', 'txt', 'md'];
 const supportFileExts = supportFileType.map(item => `.${item}`);
 
-export const UploadBox = ({ onFileSelected }: Props) => {
-    const { toast } = useToast();
-    const [uploadFile, setUploadFile] = useState<string>();
+export const UploadBox = ({ field, formState, onSelected }: Props) => {
+    const [uploadFile, setUploadFile] = useState<File>();
 
-    const handleFile = async (e: any) => {
-        if (e.target.files && e.target.files[0]) {
-            const file: File = e.target.files[0];
-            const sizeUnits = validFileSize(file.size);
-            logInfo(`上传文件大小为: ${sizeUnits}`);
+    const onChange = useCallback(
+        (e: any) => {
+            if (e.target.files && e.target.files[0]) {
+                const file: File = e.target.files[0];
 
-            if (file.size / 1000 / 1024 > 200) {
-                toast({
-                    title: '温馨提醒',
-                    description: `要发布的文件体积${sizeUnits}，已超过最大限额200MB，请重新选择...`,
-                });
-                return false;
+                if (uploadFile?.size === file.size && uploadFile?.lastModified === file.lastModified) {
+                    logInfo('与上次选择的文件一致', uploadFile.name, file.name);
+                    return false;
+                }
+
+                const sizeUnits = validFileSize(file.size);
+                logInfo(`所选文件大小为: ${sizeUnits}`);
+
+                if (file.size / 1000 / 1024 > 200) {
+                    logWarn(`文件体积${sizeUnits}，已超过最大限额200MB，请重新选择...`);
+                    return false;
+                }
+
+                if (!supportFileType.includes(file.name.split('.').pop()!)) {
+                    logWarn(`请上传支持的文件类型：${supportFileType.join(' ,')}`);
+                    return false;
+                }
+
+                if (onSelected) {
+                    onSelected(file);
+                }
+
+                field?.onChange(file);
+
+                setUploadFile(file);
             }
+        },
+        [uploadFile, onSelected, field],
+    );
 
-            if (!supportFileType.includes(file.name.split('.').pop()!)) {
-                toast({
-                    title: '温馨提醒',
-                    description: `请上传支持的文件类型：${supportFileType.join(' ,')}`,
-                });
-                return false;
-            }
-
-            setUploadFile(`${file.name}, ${sizeUnits}, 将被发布`);
-
-            if (onFileSelected) {
-                onFileSelected(file);
-            }
+    useEffect(() => {
+        if (formState && Object.keys(formState.dirtyFields).length === 0) {
+            setUploadFile(undefined);
         }
-    };
+    }, [formState]);
 
     return (
         <div className="center w-full">
@@ -61,8 +74,8 @@ export const UploadBox = ({ onFileSelected }: Props) => {
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{'支持的文件类型：TXT, PDF, EPUB, Markdown, DOCX'}</p>
                 </div>
-                {uploadFile ? <p className="text-md text-gray-600 underline">{uploadFile}</p> : undefined}
-                <input id="dropzone-file" type="file" className="hidden" accept={supportFileExts.join(',')} multiple={false} required={true} onChange={handleFile} />
+                {uploadFile ? <p className="text-md italic text-gray-600">{`File: ${uploadFile.name}, lastModified: ${new Date(uploadFile.lastModified).toLocaleString()}`}</p> : null}
+                <input id="dropzone-file" name={field?.name || 'file'} type="file" className="hidden" accept={supportFileExts.join(',')} multiple={false} onChange={onChange} />
             </label>
         </div>
     );
