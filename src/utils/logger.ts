@@ -4,22 +4,22 @@ import { isDevModel, isBrowserModel, getFullTime } from './common';
 
 function logWrapper(level: number) {
     // Using curried wrapper
-    return (...logs: any[]) => {
+    return (logs: any[]) => {
         if (isDevModel() && logs.length > 0) {
             const timestamp = `[${getFullTime()}]`;
             let logFunction: any = null;
             switch (level) {
                 case 1:
-                    logFunction = isBrowserModel ? console.warn : (...msg: any) => console.log(chalk.yellow.italic(msg));
+                    logFunction = isBrowserModel ? console.warn : (time: string, ...msg: any) => console.log(chalk.yellow.italic.underline(time), ...msg);
                     break;
                 case -1:
-                    logFunction = isBrowserModel ? console.error : (...msg: any) => console.log(chalk.red.bold.italic(msg));
+                    logFunction = isBrowserModel ? console.error : (time: string, ...msg: any) => console.log(chalk.red.bold.italic.underline(time), ...msg);
                     break;
                 default:
-                    logFunction = isBrowserModel ? console.log : (...msg: any) => console.log(chalk.green(msg));
+                    logFunction = isBrowserModel ? console.log : (time: string, ...msg: any) => console.log(chalk.green.underline(time), ...msg);
                     break;
             }
-            logFunction(timestamp, logs);
+            logFunction(timestamp, ...logs);
         }
     };
 }
@@ -28,7 +28,7 @@ function logWrapper(level: number) {
  * print standard console log with current time
  * @param args log
  */
-export const logInfo = (...args: any[]) => logWrapper(0)(...args);
+export const logInfo = (...args: any[]) => logWrapper(0)(args);
 
 /**
  * print warning console log with current time
