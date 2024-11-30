@@ -27,11 +27,7 @@ const FormSchema = z.object({
         .refine(file => file.size > 0, {
             message: '文件内容不能为空',
         }),
-    category: z
-        .string({
-            required_error: '请为要上传的内容选择一个分类（有且仅有一个）',
-        })
-        .length(1),
+    category: z.string().min(1, '请为要上传的内容选择一个分类（有且仅有一个）'),
     tags: z
         .array(
             z.object({
@@ -66,6 +62,7 @@ export default function PostContentPage() {
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
+        mode: 'onChange',
         defaultValues: {
             file: undefined,
             tags: [],
