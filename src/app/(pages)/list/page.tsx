@@ -11,7 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { doGet } from '@/utils/http';
+import { getData } from '@/utils/http/client';
 
 const metadata = {
     title: '文库中心 - 搜读',
@@ -88,7 +88,7 @@ export default function FileListPage() {
     });
 
     const fetchData = useCallback(async () => {
-        const data: any = await doGet(`/api/web/userFiles?page=${page}&size=${pageSize}`);
+        const data: any = await getData(`/api/web/userFiles?page=${page}&size=${pageSize}`);
         if (data && Array.isArray(data.list)) {
             setData(data.list);
         }

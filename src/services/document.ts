@@ -55,11 +55,6 @@ export default class DocumentService {
     @CheckLogin
     static async upload(req: NextRequest): Promise<APIRet> {
         try {
-            const contentType = req.headers.get('content-type') || '';
-            if (!contentType.includes('multipart/form-data')) {
-                return ErrorRet('Invalid content type');
-            }
-
             let file,
                 fileHash = '',
                 fileName = '',
@@ -69,30 +64,47 @@ export default class DocumentService {
                 if (!formData || !formData.has('file')) {
                     return ErrorRet('no parameter file upload');
                 }
+
                 file = formData.get('file') as File;
                 fileHash = await getFileHash(file);
                 fileName = `${fileHash}.${file.name.split('.')[1]}`;
                 filePath = path.join(UPLOAD_PATH, fileName);
+
+                const cateId = formData.get('category');
+                const tagIds = formData.get('tags');
+
+                logInfo(cateId, tagIds);
             } catch (error) {
                 logError('error on get formData or getFileHash: ', error);
                 return ErrorRet('error on parsing uploaded data');
             }
 
-            // save file to fds
-            await pipelineAsync(Readable.fromWeb(file.stream()), createWriteStream(filePath));
-            const ret = await DBService.saveOrUpdateDocument({ fileHash, filePath });
-            if (ret) {
-                return {
-                    code: 0,
-                    data: {
-                        fileName,
-                        originalFilename: file?.name,
-                        mimetype: file.type,
-                        size: file.size,
-                    },
-                    message: 'upload and save ok',
-                };
-            }
+            return {
+                code: 0,
+                data: {
+                    fileName,
+                    originalFilename: file?.name,
+                    mimetype: file.type,
+                    size: file.size,
+                },
+                message: 'upload ok',
+            };
+
+            // TODO: save file to fds
+            // await pipelineAsync(Readable.fromWeb(file.stream()), createWriteStream(filePath));
+            // const ret = await DBService.saveOrUpdateDocument({ fileHash, filePath });
+            // if (ret) {
+            //     return {
+            //         code: 0,
+            //         data: {
+            //             fileName,
+            //             originalFilename: file?.name,
+            //             mimetype: file.type,
+            //             size: file.size,
+            //         },
+            //         message: 'upload and save ok',
+            //     };
+            // }
         } catch (error: any) {
             logError('fileUpload service: ', error);
         }

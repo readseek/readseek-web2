@@ -10,16 +10,16 @@ function logWrapper(level: number) {
             let logFunction: any = null;
             switch (level) {
                 case 1:
-                    logFunction = isBrowserModel ? console.warn : (msg: any) => console.log(chalk.yellow.italic.underline(msg));
+                    logFunction = isBrowserModel ? console.warn : (...msg: any) => console.log(chalk.yellow.italic(msg));
                     break;
                 case -1:
-                    logFunction = isBrowserModel ? console.error : (msg: any) => console.log(chalk.red.bold.underline(msg));
+                    logFunction = isBrowserModel ? console.error : (...msg: any) => console.log(chalk.red.bold.italic(msg));
                     break;
                 default:
-                    logFunction = isBrowserModel ? console.log : (msg: any) => console.log(chalk.green.underline(msg));
+                    logFunction = isBrowserModel ? console.log : (...msg: any) => console.log(chalk.green(msg));
                     break;
             }
-            logFunction(timestamp, ...logs);
+            logFunction(timestamp, logs);
         }
     };
 }
@@ -34,10 +34,10 @@ export const logInfo = (...args: any[]) => logWrapper(0)(...args);
  * print warning console log with current time
  * @param args log
  */
-export const logWarn = (...args: any[]) => logWrapper(1)(...args);
+export const logWarn = (...args: any[]) => logWrapper(1)(args);
 
 /**
  * print error console log with current time
  * @param args log
  */
-export const logError = (...args: any[]) => logWrapper(-1)(...args);
+export const logError = (...args: any[]) => logWrapper(-1)(args);

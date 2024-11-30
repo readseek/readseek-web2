@@ -12,7 +12,7 @@ import { OptionType, MultiSelect } from '@/components/MultiSelect';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { doGet, doPost } from '@/utils/http';
+import { getData, postForm } from '@/utils/http/client';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
 const metadata = {
@@ -48,7 +48,7 @@ export default function PostContentPage() {
     const fetchMetaData = useCallback(async () => {
         if (isUploading) return;
 
-        const rets: any[] = await Promise.all(['/api/web/fileCategories', '/api/web/fileTags'].map(uri => doGet(uri)));
+        const rets: any[] = await Promise.all(['/api/web/fileCategories', '/api/web/fileTags'].map(uri => getData(uri)));
 
         setCategories(rets[0]?.list || []);
         setTags(rets[1]?.list || []);
@@ -70,8 +70,15 @@ export default function PostContentPage() {
         },
     });
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
+    async function onSubmit(data: z.infer<typeof FormSchema>) {
         logInfo('onSubmit', data);
+        try {
+            const ret = await postForm('/api/web/fileUpload', data);
+
+            console.log(ret);
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     return (

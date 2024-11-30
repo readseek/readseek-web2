@@ -3,17 +3,10 @@
 import { headers } from 'next/headers';
 import { Response } from 'node-fetch';
 
-import { isDevModel } from './common';
-import { logError } from './logger';
+import { LOGIN_URL, API_URL } from '@/constants/Application';
 
-const LOGIN_URL = isDevModel() ? 'http://localhost:4455' : process.env.__RSN_API_HOST;
-
-const API_URL = (path: string) => {
-    if (typeof path === 'string') {
-        return (isDevModel() ? 'http://localhost:4455' : process.env.__RSN_API_HOST) + path;
-    }
-    return '';
-};
+import { isDevModel } from '../common';
+import { logError } from '../logger';
 
 async function respDataHandler(res: Response) {
     try {
@@ -36,7 +29,7 @@ async function respDataHandler(res: Response) {
     return false;
 }
 
-export async function doGet(path: string) {
+export async function getServerData(path: string) {
     const url = API_URL(path);
     try {
         const res: any = await fetch(url, {
@@ -53,7 +46,7 @@ export async function doGet(path: string) {
     return null;
 }
 
-export async function doPost(path: string, data: any) {
+export async function postServerJson(path: string, data: Record<string, any>) {
     const url = API_URL(path);
     try {
         const res: any = await fetch(url, {

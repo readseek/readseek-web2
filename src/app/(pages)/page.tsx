@@ -2,7 +2,7 @@ import type { Document } from '@/types';
 
 import { RemoteImage, NodataImage } from '@/components/ImageView';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { doGet } from '@/utils/http';
+import { getServerData } from '@/utils/http/server';
 
 function renderDocList(data: any[]) {
     if (data.length > 0) {
@@ -33,7 +33,7 @@ function renderDocList(data: any[]) {
 }
 
 export default async function HomePage() {
-    const data: any = await doGet('/api/web/fileList');
+    const data: any = await getServerData('/api/web/fileList');
 
     if (data && Array.isArray(data.list)) {
         return (
