@@ -1,5 +1,4 @@
 import prisma from '@/utils/database/prisma';
-import { logInfo, logError } from '@/utils/logger';
 
 const Tags = [
     { name: '大前端', alias: 'frontEnds' },
@@ -41,65 +40,65 @@ async function seedMetaData() {
             const ret: any = await prisma[key].create({
                 data,
             });
-            logInfo(`Created ${key} with id: ${ret.id}`);
+            console.log(`Created ${key} with id: ${ret.id}`);
         }
     });
     console.timeEnd('seedingMetaData costs:');
 }
 
-seedMetaData()
-    .then(async () => {
-        await prisma.$disconnect();
-    })
-    .catch(async e => {
-        logError(e);
-        await prisma.$disconnect();
-        process.exit(1);
-    });
-
-// const AnyModel = {
-//     model: 'Document',
-//     data: {
-//         id: 'fc20069fa25bd07537eae8559fde792dff9d944288bc3c2ecbc8785ea98bc5c8',
-//         title: 'What is Milvus',
-//         description: 'Milvus Guildline,What is Milvus?,Everything you need to know about Milvus in less than 10 minutes.',
-//         keywords: ['Milvus', 'Guildline'],
-//         categoryId: 1,
-//         userId: 1,
-//         authors: ['tom', 'jack'],
-//         coverUrl: 'https://mn.tangkunyin.com/assets/ideal-img/hero.cae8a08.1080.png',
-//         tags: {
-//             // 创建时，自动校验关联关系，如果有、则绑定，否则创建并绑定
-//             connectOrCreate: [
-//                 {
-//                     where: { id: 0 },
-//                     create: { key: '', value: 0 },
-//                 },
-//                 {
-//                     where: { id: 5 },
-//                     create: { key: '', value: 0 },
-//                 },
-//             ],
-//         },
-//     },
-// };
-
-// async function seedData() {
-//     console.time('seedingData costs:');
-//     const tableName = AnyModel.model.toLowerCase();
-//     const ret: any = await prisma.document.create({
-//         data: AnyModel.data,
-//     });
-//     logInfo(`Created ${tableName} with id: ${ret.id}`, ret);
-//     console.timeEnd('seedingData costs:');
-// }
-
-// seedData()
+// seedMetaData()
 //     .then(async () => {
 //         await prisma.$disconnect();
 //     })
 //     .catch(async e => {
-//         logError(e);
+//         console.error(e);
 //         await prisma.$disconnect();
 //         process.exit(1);
 //     });
+
+const AnyModel = {
+    model: 'Document',
+    data: {
+        id: 'fc20069fa25bd07537eae8559fde792dff9d944288bc3c2ecbc8785ea98bc5c9',
+        title: 'Insert test manually',
+        description: 'Milvus Guildline,What is Milvus?,Everything you need to know about Milvus in less than 10 minutes.',
+        keywords: ['Milvus', 'Guildline'],
+        categoryId: 1,
+        userId: 1,
+        authors: ['tom', 'jack'],
+        coverUrl: 'https://mn.tangkunyin.com/assets/ideal-img/hero.cae8a08.1080.png',
+        tags: {
+            // 创建时，自动校验关联关系，如果有、则绑定，否则创建并绑定
+            connectOrCreate: [
+                {
+                    where: { id: 0 },
+                    create: { name: '', alias: '' },
+                },
+                {
+                    where: { id: 5 },
+                    create: { name: '', alias: '' },
+                },
+            ],
+        },
+    },
+};
+
+async function seedData() {
+    console.time('seedingData costs:');
+    const tableName = AnyModel.model.toLowerCase();
+    const ret: any = await prisma.document.create({
+        data: AnyModel.data,
+    });
+    console.log(`Created ${tableName} with id: ${ret.id}`, ret);
+    console.timeEnd('seedingData costs:');
+}
+
+seedData()
+    .then(async () => {
+        await prisma.$disconnect();
+    })
+    .catch(async e => {
+        console.error(e);
+        await prisma.$disconnect();
+        process.exit(1);
+    });

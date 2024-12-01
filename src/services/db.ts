@@ -12,9 +12,18 @@ import { logError, logInfo, logWarn } from '@/utils/logger';
  */
 export default class DBService {
     static async saveOrUpdateDocument(data: any): Promise<boolean> {
-        const { fileHash, filePath } = data;
+        const { fileHash, filePath, cateId, tagIds } = data;
         const parsedResult = await parseAndSaveContentEmbedding(filePath);
         if (parsedResult.state) {
+            const modeData = {
+                id: fileHash,
+                tags: JSON.parse(tagIds).map((val: string) => ({ id: Number(val) })),
+                categoryId: Number(cateId),
+                userId: 1,
+                ...parsedResult.meta,
+            };
+            logInfo('on saveOrUpdateDocument, modeData is: ', modeData);
+
             const [ret1, ret2] = await Promise.all([
                 // save local mappings
                 LevelDB.getSharedDB.put(fileHash, filePath),
@@ -22,15 +31,7 @@ export default class DBService {
                 saveOrUpdate({
                     model: 'Document',
                     method: PrismaDBMethod.upsert,
-                    data: [
-                        {
-                            id: fileHash,
-                            tags: [{ id: 1 }, { id: 5 }],
-                            categoryId: 1,
-                            userId: 1,
-                            ...parsedResult.meta,
-                        } as any,
-                    ],
+                    data: [modeData],
                 }),
             ]);
             if (!ret1 || !ret2) {

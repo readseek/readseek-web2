@@ -22,7 +22,7 @@
 
 # google levelDB files
 .levelDB/*
-.levelDB_data/*
+.leveldb_data/*
 
 # misc
 .DS_Store

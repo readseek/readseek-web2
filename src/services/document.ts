@@ -55,7 +55,9 @@ export default class DocumentService {
     @CheckLogin
     static async upload(req: NextRequest): Promise<APIRet> {
         try {
-            let file,
+            let cateId,
+                tagIds,
+                file,
                 fileHash = '',
                 fileName = '',
                 filePath = '';
@@ -65,50 +67,37 @@ export default class DocumentService {
                     return ErrorRet('no parameter file upload');
                 }
 
+                cateId = formData.get('category');
+                tagIds = formData.get('tags');
+
                 file = formData.get('file') as File;
                 fileHash = await getFileHash(file);
                 fileName = `${fileHash}.${file.name.split('.')[1]}`;
                 filePath = path.join(UPLOAD_PATH, fileName);
-
-                const cateId = formData.get('category');
-                const tagIds = formData.get('tags');
-
-                logInfo(cateId, tagIds);
             } catch (error) {
                 logError('error on get formData or getFileHash: ', error);
-                return ErrorRet('error on parsing uploaded data');
+                return ErrorRet('error on parsing data');
             }
 
-            return {
-                code: 0,
-                data: {
-                    fileName,
-                    originalFilename: file?.name,
-                    mimetype: file.type,
-                    size: file.size,
-                },
-                message: 'upload ok',
-            };
-
-            // TODO: save file to fds
-            // await pipelineAsync(Readable.fromWeb(file.stream()), createWriteStream(filePath));
-            // const ret = await DBService.saveOrUpdateDocument({ fileHash, filePath });
-            // if (ret) {
-            //     return {
-            //         code: 0,
-            //         data: {
-            //             fileName,
-            //             originalFilename: file?.name,
-            //             mimetype: file.type,
-            //             size: file.size,
-            //         },
-            //         message: 'upload and save ok',
-            //     };
-            // }
+            // save file to fds
+            await pipelineAsync(Readable.fromWeb(file.stream()), createWriteStream(filePath));
+            const ret = await DBService.saveOrUpdateDocument({ fileHash, filePath, cateId, tagIds });
+            if (ret) {
+                return {
+                    code: 0,
+                    data: {
+                        fileName,
+                        originalFilename: file?.name,
+                        mimetype: file.type,
+                        size: file.size,
+                    },
+                    message: 'save ok',
+                };
+            }
         } catch (error: any) {
             logError('fileUpload service: ', error);
         }
-        return ErrorRet('fileUpload failed');
+        return ErrorRet('upload failed');
     }
 
     @LogAPIRoute

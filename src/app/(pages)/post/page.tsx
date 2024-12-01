@@ -1,8 +1,9 @@
 'use client';
 
-import type { Document, Category, Tag } from '@/types';
+import type { Category, Tag } from '@/types';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -13,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getData, postForm } from '@/utils/http/client';
-import { logError, logInfo, logWarn } from '@/utils/logger';
+import { logError, logWarn } from '@/utils/logger';
 
 const metadata = {
     title: '内容发布 - 搜读',
@@ -39,7 +40,7 @@ const FormSchema = z.object({
 });
 
 export default function PostContentPage() {
-    let doc: Document;
+    const router = useRouter();
 
     const [categories, setCategories] = useState<Category[]>([]);
     const [tags, setTags] = useState<Tag[]>([]);
@@ -71,13 +72,16 @@ export default function PostContentPage() {
     });
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
-        logInfo('onSubmit', data);
         try {
-            const ret = await postForm('/api/web/fileUpload', data);
-
-            console.log(ret);
+            const ret: any = await postForm('/api/web/fileUpload', data);
+            if (ret && ret.originalFilename === data.file.name) {
+                // upload success, then jump to user fileList
+                router.push(`/list?file=${ret.fileName}`);
+                return;
+            }
+            logWarn('upload failed', ret);
         } catch (error) {
-            console.log(error);
+            logError(error);
         }
     }
 

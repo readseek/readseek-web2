@@ -8,7 +8,7 @@ import { logError, logInfo, logWarn } from '@/utils/logger';
 
 import { isJSONObject } from '../common';
 
-const LevelDB_PATH = path.join(process.cwd(), process.env.__RSN_LevelDB_PATH ?? '.levelDB_data');
+const LevelDB_PATH = path.join(process.cwd(), process.env.__RSN_LevelDB_PATH ?? '.leveldb_data');
 
 class LevelDBWrapper {
     private db: Level;

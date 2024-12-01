@@ -15,21 +15,6 @@ if (isDevModel()) {
     });
 }
 
-const parseRealCondition = (data?: object): OPCondition => {
-    if (data && typeof data === 'object') {
-        return Object.keys(data).reduce((p: any, c: string) => {
-            if (c === 'paging') {
-                p['take'] = data[c].pageSize;
-                p['skip'] = (data[c].pageNum - 1) * data[c].pageSize;
-            } else {
-                p[c] = data[c];
-            }
-            return p;
-        }, {});
-    }
-    throw new Error(`Invalid condition data: ${data}`);
-};
-
 // https://www.prisma.io/docs/orm/reference/prisma-client-reference#model-queries
 export const enum PrismaDBMethod {
     upsert = 'upsert', // for a single create,update
@@ -76,6 +61,25 @@ export type RecordData =
     | Document
     | User
     | null;
+
+const parseRealCondition = (data?: object): OPCondition => {
+    try {
+        if (data && typeof data === 'object') {
+            return Object.keys(data).reduce((p: any, c: string) => {
+                if (c === 'paging') {
+                    p['take'] = data[c].pageSize;
+                    p['skip'] = (data[c].pageNum - 1) * data[c].pageSize;
+                } else {
+                    p[c] = data[c];
+                }
+                return p;
+            }, {});
+        }
+    } catch (error) {
+        logError(`error on parseRealCondition, input is: ${data}`, error);
+    }
+    return {};
+};
 
 export async function count(param: OPParams): Promise<number> {
     const { model, condition } = param;
@@ -145,7 +149,7 @@ export async function saveOrUpdate(param: OPParams): Promise<RecordData> {
     }
 
     try {
-        let cond: OPCondition = parseRealCondition(condition);
+        const cond: OPCondition = parseRealCondition(condition);
         cond.select = cond.select || { id: true };
 
         if (method === PrismaDBMethod.createManyAndReturn) {
@@ -154,25 +158,25 @@ export async function saveOrUpdate(param: OPParams): Promise<RecordData> {
         }
 
         if (method === PrismaDBMethod.upsert) {
-            let modelData = data[0] as any;
+            let modelX = data[0] as any;
             if (model === 'Document') {
-                modelData.tags = modelData.tags.reduce((p: any, c: Tag) => {
+                modelX.tags = modelX.tags.reduce((p: any, c: Tag) => {
                     if (!p.hasOwnProperty('connectOrCreate')) {
                         p['connectOrCreate'] = [];
                     }
                     p['connectOrCreate'].push({
                         where: { id: c.id },
-                        create: { key: c.key, value: c.value },
+                        create: { name: c.name, alias: c.alias },
                     });
                     return p;
                 }, {});
             }
 
-            if (modelData.hasOwnProperty('id')) {
-                cond.update = { ...modelData, ...(cond.update || {}) };
-                cond.where = { id: modelData.id, ...(cond.where || {}) };
+            if (modelX.hasOwnProperty('id')) {
+                cond.update = { ...modelX, ...(cond.update || {}) };
+                cond.where = { id: modelX.id, ...(cond.where || {}) };
             } else {
-                cond.create = { ...modelData, ...(cond.create || {}) };
+                cond.create = { ...modelX, ...(cond.create || {}) };
             }
 
             logInfo('upsert condition: \n', cond);
