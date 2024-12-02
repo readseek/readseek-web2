@@ -59,20 +59,20 @@ async function seedMetaData() {
 const AnyModel = {
     model: 'Document',
     data: {
-        id: 'fc20069fa25bd07537eae8559fde792dff9d944288bc3c2ecbc8785ea98bc5c9',
-        title: 'Insert test manually',
+        id: 'fc20069fa25bd07537eae8559fde792dff9d944288bc3c2ecbc8785ea98bc211',
+        title: 'Insert test tags',
         description: 'Milvus Guildline,What is Milvus?,Everything you need to know about Milvus in less than 10 minutes.',
         keywords: ['Milvus', 'Guildline'],
         categoryId: 1,
         userId: 1,
-        authors: ['tom', 'jack'],
+        authors: ['thomas', 'kevin'],
         coverUrl: 'https://mn.tangkunyin.com/assets/ideal-img/hero.cae8a08.1080.png',
         tags: {
             // 创建时，自动校验关联关系，如果有、则绑定，否则创建并绑定
             connectOrCreate: [
                 {
                     where: { id: 0 },
-                    create: { name: '', alias: '' },
+                    create: { name: '大模型', alias: 'llm' },
                 },
                 {
                     where: { id: 5 },
