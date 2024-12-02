@@ -12,16 +12,26 @@ import { logError, logInfo, logWarn } from '@/utils/logger';
  */
 export default class DBService {
     static async saveOrUpdateDocument(data: any): Promise<boolean> {
-        const { fileHash, filePath, cateId, tagIds } = data;
+        const { fileHash, filePath, cateId, tags } = data;
         const parsedResult = await parseAndSaveContentEmbedding(filePath);
         if (parsedResult.state) {
             const modeData = {
                 id: fileHash,
-                tags: JSON.parse(tagIds).map((val: string) => ({ id: Number(val) })),
-                categoryId: Number(cateId),
                 userId: 1,
+                categoryId: cateId,
+                tags: tags.reduce((p: any, c: Tag) => {
+                    if (!p.hasOwnProperty('connectOrCreate')) {
+                        p['connectOrCreate'] = [];
+                    }
+                    p['connectOrCreate'].push({
+                        where: { id: c.id },
+                        create: { name: c.name, alias: c.alias },
+                    });
+                    return p;
+                }, {}),
                 ...parsedResult.meta,
             };
+
             logInfo('on saveOrUpdateDocument, modeData is: ', modeData);
 
             const [ret1, ret2] = await Promise.all([

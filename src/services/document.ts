@@ -56,7 +56,7 @@ export default class DocumentService {
     static async upload(req: NextRequest): Promise<APIRet> {
         try {
             let cateId,
-                tagIds,
+                tags,
                 file,
                 fileHash = '',
                 fileName = '',
@@ -67,21 +67,29 @@ export default class DocumentService {
                     return ErrorRet('no parameter file upload');
                 }
 
-                cateId = formData.get('category');
-                tagIds = formData.get('tags');
+                cateId = Number(formData.get('category'));
+                tags = formData.get('tags');
+                if (tags) {
+                    tags = JSON.parse(tags).map((tag: any) => {
+                        if (typeof tag === 'object') {
+                            return { id: Number(tag.id), name: tag.name, alias: tag.alias };
+                        }
+                        return { id: Number(tag), name: '', alias: '' };
+                    });
+                }
 
                 file = formData.get('file') as File;
                 fileHash = await getFileHash(file);
                 fileName = `${fileHash}.${file.name.split('.')[1]}`;
                 filePath = path.join(UPLOAD_PATH, fileName);
             } catch (error) {
-                logError('error on get formData or getFileHash: ', error);
+                logError('error on parsing data: ', error);
                 return ErrorRet('error on parsing data');
             }
 
             // save file to fds
             await pipelineAsync(Readable.fromWeb(file.stream()), createWriteStream(filePath));
-            const ret = await DBService.saveOrUpdateDocument({ fileHash, filePath, cateId, tagIds });
+            const ret = await DBService.saveOrUpdateDocument({ fileHash, filePath, cateId, tags });
             if (ret) {
                 return {
                     code: 0,

@@ -158,25 +158,12 @@ export async function saveOrUpdate(param: OPParams): Promise<RecordData> {
         }
 
         if (method === PrismaDBMethod.upsert) {
-            let modelX = data[0] as any;
-            if (model === 'Document') {
-                modelX.tags = modelX.tags.reduce((p: any, c: Tag) => {
-                    if (!p.hasOwnProperty('connectOrCreate')) {
-                        p['connectOrCreate'] = [];
-                    }
-                    p['connectOrCreate'].push({
-                        where: { id: c.id },
-                        create: { name: c.name, alias: c.alias },
-                    });
-                    return p;
-                }, {});
-            }
+            const modelX = data[0] as any;
 
+            cond.create = { ...modelX, ...(cond.create || {}) };
             if (modelX.hasOwnProperty('id')) {
-                cond.update = { ...modelX, ...(cond.update || {}) };
                 cond.where = { id: modelX.id, ...(cond.where || {}) };
-            } else {
-                cond.create = { ...modelX, ...(cond.create || {}) };
+                cond.update = { ...modelX, ...(cond.update || {}) };
             }
 
             logInfo('upsert condition: \n', cond);

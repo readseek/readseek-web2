@@ -89,6 +89,9 @@ async function seedData() {
     const ret: any = await prisma.document.create({
         data: AnyModel.data,
     });
+    // const ret: any = await prisma.document.upsert({
+    //     data: AnyModel.data,
+    // });
     console.log(`Created ${tableName} with id: ${ret.id}`, ret);
     console.timeEnd('seedingData costs:');
 }
