@@ -32,30 +32,6 @@ const Users = [
     },
 ];
 
-async function seedMetaData() {
-    const metaData = { tag: Tags, category: Categories, user: Users };
-    console.time('seedingMetaData costs:');
-    Object.keys(metaData).forEach(async (key: string) => {
-        for (const data of metaData[key]) {
-            const ret: any = await prisma[key].create({
-                data,
-            });
-            console.log(`Created ${key} with id: ${ret.id}`);
-        }
-    });
-    console.timeEnd('seedingMetaData costs:');
-}
-
-// seedMetaData()
-//     .then(async () => {
-//         await prisma.$disconnect();
-//     })
-//     .catch(async e => {
-//         console.error(e);
-//         await prisma.$disconnect();
-//         process.exit(1);
-//     });
-
 const AnyModel = {
     model: 'Document',
     data: {
@@ -83,6 +59,20 @@ const AnyModel = {
     },
 };
 
+async function seedMetaData() {
+    const metaData = { tag: Tags, category: Categories, user: Users };
+    console.time('seedingMetaData costs:');
+    Object.keys(metaData).forEach(async (key: string) => {
+        for (const data of metaData[key]) {
+            const ret: any = await prisma[key].create({
+                data,
+            });
+            console.log(`Created ${key} with id: ${ret.id}`);
+        }
+    });
+    console.timeEnd('seedingMetaData costs:');
+}
+
 async function seedData() {
     console.time('seedingData costs:');
     const tableName = AnyModel.model.toLowerCase();
@@ -96,12 +86,41 @@ async function seedData() {
     console.timeEnd('seedingData costs:');
 }
 
-seedData()
-    .then(async () => {
-        await prisma.$disconnect();
-    })
-    .catch(async e => {
-        console.error(e);
-        await prisma.$disconnect();
-        process.exit(1);
+async function queryAll() {
+    const ret: any = await prisma.tag.findMany({
+        select: {
+            id: true,
+            name: true,
+        },
+        where: {
+            AND: [
+                {
+                    name: {
+                        not: {
+                            equals: '',
+                        },
+                    },
+                },
+                {
+                    name: {
+                        not: undefined,
+                    },
+                },
+            ],
+        },
     });
+    console.log('queryAll: ', ret);
+}
+
+(async () => {
+    try {
+        // await seedMetaData();
+        // await seedData();
+
+        await queryAll();
+    } catch (error) {
+        console.error(error);
+    } finally {
+        await prisma.$disconnect();
+    }
+})();

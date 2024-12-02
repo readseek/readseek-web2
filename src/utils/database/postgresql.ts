@@ -8,9 +8,9 @@ import { logError, logInfo, logWarn } from '@/utils/logger';
 
 if (isDevModel()) {
     prisma.$on('query', e => {
-        console.group(`DB Query: ${e.timestamp}`);
-        console.log('Target: ' + e.target + ', ' + 'Query: ' + e.query + ', ' + 'Params: ' + e.params);
-        console.log('Duration: ' + e.duration + 'ms');
+        console.group(`⏰ DB Query Event: ${e.timestamp}`);
+        console.log('🔍 SQL: ' + e.query + ', ' + 'Params: ' + e.params);
+        console.log('⌛️ Duration: ' + e.duration + 'ms');
         console.groupEnd();
     });
 }
@@ -107,7 +107,7 @@ export async function find(param: OPParams): Promise<RecordData> {
 
     try {
         const cond: OPCondition = parseRealCondition(condition);
-        logInfo('query condition: =>\n', cond);
+        logInfo('query condition: 👇🏻\n', JSON.stringify(cond));
         if (method === PrismaDBMethod.findFirst) {
             return await prismaModel.findFirst(cond);
         }

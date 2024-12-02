@@ -127,6 +127,22 @@ export default class DBService {
                     id: true,
                     name: true,
                 },
+                where: {
+                    AND: [
+                        {
+                            name: {
+                                not: {
+                                    equals: '',
+                                },
+                            },
+                        },
+                        {
+                            name: {
+                                not: undefined,
+                            },
+                        },
+                    ],
+                },
             },
         });
     }
@@ -139,6 +155,22 @@ export default class DBService {
                 select: {
                     id: true,
                     name: true,
+                },
+                where: {
+                    AND: [
+                        {
+                            name: {
+                                not: {
+                                    equals: '',
+                                },
+                            },
+                        },
+                        {
+                            name: {
+                                not: undefined,
+                            },
+                        },
+                    ],
                 },
             },
         });
