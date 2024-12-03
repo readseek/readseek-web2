@@ -93,7 +93,7 @@ pnpm add @turingscript/tokenizers
 ```javascript
 const nextConfig = {
     experimental: {
-        serverComponentsExternalPackages: ['sharp', 'onnxruntime-node', '@turingscript/tokenizers'],
+        serverComponentsExternalPackages: ['onnxruntime-node', '@turingscript/tokenizers'],
     },
 };
 ```
