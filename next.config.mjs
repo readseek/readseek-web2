@@ -12,7 +12,7 @@ const nextConfig = {
 
     experimental: {
         serverSourceMaps: isDev,
-        serverComponentsExternalPackages: ['level', 'onnxruntime-node', '@turingscript/tokenizers', '@zilliz/milvus2-sdk-node'],
+        serverComponentsExternalPackages: ['level', 'onnxruntime-node', '@zilliz/milvus2-sdk-node'],
     },
 
     images: {
