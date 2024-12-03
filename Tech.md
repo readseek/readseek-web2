@@ -98,6 +98,13 @@ const nextConfig = {
 };
 ```
 
+如果更新NPM包或删除node_modules后，重新运行发生如下错误：
+
+```txt
+ModuleBuildError: ./node_modules/.pnpm/@turingscript+tokenizers@0.15.2-alpha.4/node_modules/@turingscript/tokenizers/index.js
+Package @turingscript/tokenizers.js (serverComponentsExtenalPackages or default list) can't be external
+```
+
 ## 其他
 
 <u>种种迹象说明，想通过Nodejs本地化愉快的玩，往往会让人血压一路飙升...</u>

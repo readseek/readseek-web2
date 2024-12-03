@@ -18,11 +18,10 @@ class LevelDBWrapper {
         this.db = new Level(dbPath, { keyEncoding: 'utf8', valueEncoding: 'utf8' });
     }
 
-    private close() {
+    private async close() {
         try {
-            this.db.close(() => {
-                logWarn('LevelDB has closed.');
-            });
+            await this.db.close();
+            logWarn('LevelDB has been closed.');
         } catch (err) {
             logError(`LevelDB has closed error: `, err);
         }
@@ -45,7 +44,7 @@ class LevelDBWrapper {
         } catch (err: any) {
             logWarn(`LevelDB no key '${key}' found, code is:`, err?.code);
         } finally {
-            this.close();
+            await this.close();
         }
         return null;
     }
@@ -63,7 +62,7 @@ class LevelDBWrapper {
         } catch (err: any) {
             logError(`LevelDB put [key: ${key}] error`, err?.code);
         } finally {
-            this.close();
+            await this.close();
         }
         return false;
     }
@@ -83,7 +82,7 @@ class LevelDBWrapper {
         } catch (err: any) {
             logError(`LevelDB delete error`, err?.code);
         } finally {
-            this.close();
+            await this.close();
         }
         return false;
     }
