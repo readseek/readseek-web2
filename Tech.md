@@ -105,6 +105,15 @@ ModuleBuildError: ./node_modules/.pnpm/@turingscript+tokenizers@0.15.2-alpha.4/n
 Package @turingscript/tokenizers.js (serverComponentsExtenalPackages or default list) can't be external
 ```
 
+则需要改一下导包指令
+
+```typescript
+import type { JsEncoding, Tokenizer as TokenizerType } from '@turingscript/tokenizers';
+
+// for reason: The request could not be resolved by Node.js from the importing module.
+const { Tokenizer } = require('@turingscript/tokenizers');
+```
+
 ## 其他
 
 <u>种种迹象说明，想通过Nodejs本地化愉快的玩，往往会让人血压一路飙升...</u>

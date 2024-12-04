@@ -8,8 +8,8 @@ import { logError, logInfo, logWarn } from '@/utils/logger';
 
 if (isDevModel()) {
     prisma.$on('query', e => {
-        console.group(`⏰ DB Query Event: ${e.timestamp}`);
-        console.log('🔍 SQL: ' + e.query + ', ' + 'Params: ' + e.params);
+        console.group(`DB Event: ${e.timestamp}`);
+        console.log('🔍 Query: ' + e.query + ', ' + 'Params: ' + e.params);
         console.log('⌛️ Duration: ' + e.duration + 'ms');
         console.groupEnd();
     });

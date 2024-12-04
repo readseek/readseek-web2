@@ -1,12 +1,15 @@
 'use server';
 
-import { JsEncoding, Tokenizer } from '@turingscript/tokenizers';
+import type { JsEncoding, Tokenizer as TokenizerType } from '@turingscript/tokenizers';
+
 import { LRUCache } from 'lru-cache';
 
-export type TokenizeResult = { inputIds: number[]; attentionMask: number[]; tokenTypeIds?: number[] };
+// for reason: The request could not be resolved by Node.js from the importing module.
+const { Tokenizer } = require('@turingscript/tokenizers');
 
+export type TokenizeResult = { inputIds: number[]; attentionMask: number[]; tokenTypeIds?: number[] };
 export default class OptimizedTokenizer {
-    tokenizer: Tokenizer;
+    tokenizer: TokenizerType;
     cache: LRUCache<string, any>;
 
     constructor(tokenizerPath: string, maxCacheSize = 1000) {
