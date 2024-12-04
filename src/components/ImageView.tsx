@@ -57,7 +57,7 @@ export function NodataImage() {
     return (
         <div className="h-1/3 w-1/6">
             {LocalImage('no_data')}
-            <h3 className="mt-7 w-full text-center text-lg italic leading-10 text-slate-500">no data found...</h3>
+            <h3 className="mt-7 w-full text-center text-lg italic leading-10 text-slate-500">NO DATA FOUND</h3>
         </div>
     );
 }
