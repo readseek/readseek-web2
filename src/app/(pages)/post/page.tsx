@@ -71,10 +71,16 @@ export default function PostContentPage() {
         },
     });
 
+    const resetForm = () => {
+        form.reset();
+    };
+
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         try {
+            setIsUploading(true);
             const ret: any = await postForm('/api/web/fileUpload', data);
             if (ret && ret.originalFilename === data.file.name) {
+                resetForm();
                 // upload success, then jump to user fileList
                 router.push(`/list?file=${ret.fileName}`);
                 return;
@@ -82,13 +88,15 @@ export default function PostContentPage() {
             logWarn('upload failed', ret);
         } catch (error) {
             logError(error);
+        } finally {
+            setIsUploading(false);
         }
     }
 
     return (
         <main className="pageBody">
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} onReset={() => form.reset()} className="flex flex-col items-stretch space-y-14 sm:w-[511px]">
+                <form onSubmit={form.handleSubmit(onSubmit)} onReset={resetForm} className="flex flex-col items-stretch space-y-14 sm:w-[511px]">
                     <FormField
                         control={form.control}
                         name="file"
@@ -149,10 +157,10 @@ export default function PostContentPage() {
                     />
 
                     <div className="flex items-center justify-around">
-                        <Button type="reset" className="mr-2 w-1/3" variant="destructive">
+                        <Button type="reset" className="mr-2 w-1/3" variant="destructive" disabled={isUploading}>
                             重置
                         </Button>
-                        <Button type="submit" className="mr-2 h-11 w-1/3" variant="default">
+                        <Button type="submit" className="mr-2 h-11 w-1/3" variant="default" disabled={isUploading}>
                             提交
                         </Button>
                     </div>

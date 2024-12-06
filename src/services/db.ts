@@ -12,45 +12,52 @@ import { logError, logInfo, logWarn } from '@/utils/logger';
  */
 export default class DBService {
     static async saveOrUpdateDocument(data: any): Promise<boolean> {
-        const { fileHash, filePath, cateId, tags } = data;
-        const parsedResult = await parseAndSaveContentEmbedding(filePath);
-        if (parsedResult.state) {
-            const modeData = {
-                id: fileHash,
-                userId: 1,
-                categoryId: cateId,
-                tags: tags.reduce((p: any, c: Tag) => {
-                    if (!p.hasOwnProperty('connectOrCreate')) {
-                        p['connectOrCreate'] = [];
-                    }
-                    p['connectOrCreate'].push({
-                        where: { id: c.id },
-                        create: { name: c.name, alias: c.alias },
-                    });
-                    return p;
-                }, {}),
-                ...parsedResult.meta,
-            };
+        try {
+            console.time('ParseAndSaveContent Costs:');
+            const { fileHash, filePath, cateId, tags } = data;
+            const parsedResult = await parseAndSaveContentEmbedding(filePath);
+            if (parsedResult.state) {
+                const modeData = {
+                    id: fileHash,
+                    userId: 1,
+                    categoryId: cateId,
+                    tags: tags.reduce((p: any, c: Tag) => {
+                        if (!p.hasOwnProperty('connectOrCreate')) {
+                            p['connectOrCreate'] = [];
+                        }
+                        p['connectOrCreate'].push({
+                            where: { id: c.id },
+                            create: { name: c.name, alias: c.alias },
+                        });
+                        return p;
+                    }, {}),
+                    ...parsedResult.meta,
+                };
 
-            logInfo('on saveOrUpdateDocument, modeData is: ', modeData);
+                logInfo('on saveOrUpdateDocument, modeData is: ', modeData);
 
-            const [ret1, ret2] = await Promise.all([
-                // save local mappings
-                LevelDB.getSharedDB.put(fileHash, filePath),
-                // save supabase postgresql
-                saveOrUpdate({
-                    model: 'Document',
-                    method: PrismaDBMethod.upsert,
-                    data: [modeData],
-                }),
-            ]);
-            if (!ret1 || !ret2) {
-                logError(`error on saving to db: [${ret1} -- ${ret2}]`);
-                return false;
+                const [ret1, ret2] = await Promise.all([
+                    // save local mappings
+                    LevelDB.getSharedDB.put(fileHash, filePath),
+                    // save supabase postgresql
+                    saveOrUpdate({
+                        model: 'Document',
+                        method: PrismaDBMethod.upsert,
+                        data: [modeData],
+                    }),
+                ]);
+                if (!ret1 || !ret2) {
+                    logError(`error on saving to db: [${ret1} -- ${ret2}]`);
+                    return false;
+                }
+                return true;
             }
-            return true;
+            logWarn(`error on parseAndSaveContentEmbedding result: ${parsedResult}`);
+        } catch (error) {
+            logError(error);
+        } finally {
+            console.timeEnd('ParseAndSaveContent Costs:');
         }
-        logError(`error on parseAndSaveContentEmbedding result: ${parsedResult}`);
         return false;
     }
 
