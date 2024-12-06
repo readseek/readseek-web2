@@ -69,7 +69,11 @@ export default class DBService {
                     viewCount: true,
                 },
                 where: {
-                    state: 'SUCCESS',
+                    state: {
+                        not: {
+                            equals: 'FAILED',
+                        },
+                    },
                 },
                 orderBy: {
                     updatedAt: 'desc',
