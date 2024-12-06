@@ -12,13 +12,16 @@ function renderDocList(data: any[]) {
                     return (
                         <div id="doc" className="rectangle group relative" key={`doc_card_${index}`}>
                             <RemoteImage src={doc.coverUrl!} fill />
-                            <div id="info" className="absolute bottom-0 left-0 z-10 flex h-16 w-full flex-col items-start bg-neutral-600 bg-opacity-35 text-white transition-all duration-300 group-hover:h-[70%] group-hover:bg-opacity-90">
-                                <h2 className="m-0 truncate p-1 underline hover:italic hover:no-underline">
+                            <div id="info" className="absolute bottom-0 left-0 z-10 flex h-14 w-full flex-col items-start bg-neutral-600 bg-opacity-35 p-1 text-white transition-all duration-300 group-hover:h-[85%] group-hover:bg-opacity-90">
+                                {'标题: '}
+                                <h2 className="m-0 underline hover:italic hover:no-underline">
                                     <a href={`/chat?id=${doc.id}`} target="_blank">
                                         {doc.title}
                                     </a>
                                 </h2>
+                                {'作者: '}
                                 <b className="m-0 px-1">{doc.authors?.join(', ')}</b>
+                                {'简介: '}
                                 <h3 id="desc" className="no-scrollbar hidden overflow-auto p-1 italic group-hover:block">
                                     {doc.description}
                                 </h3>
