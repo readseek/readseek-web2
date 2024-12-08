@@ -10,11 +10,8 @@ import { getOptimizedUnstructuredLoader } from './documentLoader';
 
 export async function getSplitContents(filepath: string) {
     try {
-        const loader = getOptimizedUnstructuredLoader(filepath);
-        console.time('Document Loading');
-        const docs: Document[] = await loader.load();
-        console.timeEnd('Document Loading');
-
+        console.time('Document Loading&splitting:');
+        const docs: Document[] = await getOptimizedUnstructuredLoader(filepath).load();
         const processedDocuments = docs.filter(doc => doc.pageContent.length > 0);
 
         return new TokenTextSplitter({
@@ -22,7 +19,9 @@ export async function getSplitContents(filepath: string) {
             chunkOverlap: 200,
         }).splitDocuments(processedDocuments);
     } catch (error) {
-        logError('getSplitContents error', error);
+        logError('getSplitContents', error);
+    } finally {
+        console.timeEnd('Document Loading&splitting:');
     }
     return null;
 }

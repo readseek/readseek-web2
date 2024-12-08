@@ -100,7 +100,7 @@ export function isJSONObject(val: any): boolean {
             return typeof result === 'object' && result !== null;
         }
     } catch (e) {
-        logWarn('JSON.parse input: ', val);
+        logWarn('isJSONObject', val, e);
     }
     return false;
 }

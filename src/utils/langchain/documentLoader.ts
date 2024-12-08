@@ -2,16 +2,17 @@
 
 import type { DocumentLoader } from 'langchain/document_loaders/base';
 
-import fs from 'node:fs';
+import { statSync } from 'node:fs';
 
 import { CSVLoader } from '@langchain/community/document_loaders/fs/csv';
 import { DocxLoader } from '@langchain/community/document_loaders/fs/docx';
 import { EPubLoader } from '@langchain/community/document_loaders/fs/epub';
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
-import { UnstructuredLoader, UnstructuredLoaderOptions } from '@langchain/community/document_loaders/fs/unstructured';
+import { UnstructuredLoader, UnstructuredLoaderOptions, UnstructuredLoaderStrategy } from '@langchain/community/document_loaders/fs/unstructured';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 
 import { DocumentType } from '@/types';
+import { logInfo } from '@/utils/logger';
 
 const UNSTRUCTURED_API_KEY = process.env.__RSN_UNSTRUCTURED_API_KEY as string;
 const UNSTRUCTURED_API_URL = process.env.__RSN_UNSTRUCTURED_API_URL as string;
@@ -47,21 +48,26 @@ export function getDocumentLoader(fileType: DocumentType, filePath: string): Doc
             break;
         default:
             // for markdown and html
-            loader = getOptimizedUnstructuredLoader(filePath);
+            loader = getOptimizedUnstructuredLoader(fileType, filePath);
             break;
     }
     return loader;
 }
 
-export function getOptimizedUnstructuredLoader(filePath: string): DocumentLoader {
-    // Adaptive strategy based on file size
-    const determineStrategy = (path: string): UnstructuredLoaderOptions => {
-        const fileStats = fs.statSync(path);
-        const fileSizeInMB = fileStats.size / (1024 * 1024);
-
-        if (fileSizeInMB < 1) return { strategy: 'fast' }; // Small files
-        if (fileSizeInMB < 10) return { strategy: 'hi_res' }; // Medium files
-        return { strategy: 'ocr_only' }; // Large files
+export function getOptimizedUnstructuredLoader(fileType: DocumentType, filePath: string): DocumentLoader {
+    const fileSize = statSync(filePath || '').size / (1024 * 1024);
+    const strategies: Record<string, UnstructuredLoaderStrategy> = {
+        md: 'fast',
+        txt: 'fast',
+        csv: 'fast',
+        tsv: 'fast',
+        doc: 'fast',
+        docx: 'fast',
+        html: 'fast',
+        pdf: fileSize > 15 ? 'hi_res' : 'fast',
+        epub: fileSize > 15 ? 'hi_res' : 'fast',
+        jpg: 'ocr_only',
+        png: 'ocr_only',
     };
 
     const loaderOptions: UnstructuredLoaderOptions = {
@@ -70,7 +76,7 @@ export function getOptimizedUnstructuredLoader(filePath: string): DocumentLoader
         encoding: 'utf8',
 
         // Performance and Extraction Strategy
-        strategy: determineStrategy(filePath).strategy,
+        strategy: strategies[fileType] || 'auto',
 
         // Parsing Optimization
         chunkingStrategy: 'by_title', // Intelligent section-based chunking
@@ -78,14 +84,9 @@ export function getOptimizedUnstructuredLoader(filePath: string): DocumentLoader
         combineUnderNChars: 1000, // Combine small chunks
         overlap: 200, // Slight overlap between chunks for context
 
-        // OCR and Language Configuration
-        coordinates: false, // Disable positional data
-        ocrLanguages: ['en', 'zh-Hans'], // Only required languages
-
         // File Type Specific Optimizations
-        hiResModelName: 'chipper',
+        coordinates: false, // Disable positional data
         pdfInferTableStructure: true,
-        skipInferTableTypes: ['docx', 'doc', 'xlsx', 'xls', 'jpg', 'jpeg', 'html', 'htm'],
 
         // Advanced Parsing Controls
         xmlKeepTags: false, // Simplify XML parsing
@@ -98,8 +99,9 @@ export function getOptimizedUnstructuredLoader(filePath: string): DocumentLoader
 
         // Image Extraction (if needed)
         extractImageBlockTypes: ['image/jpeg', 'image/png'],
-    };
 
-    const loader = new UnstructuredLoader(filePath, loaderOptions);
-    return loader;
+        // OCR and Language Configuration
+        ocrLanguages: ['en', 'zh-Hans'], // Only required languages
+    };
+    return new UnstructuredLoader(filePath, loaderOptions);
 }

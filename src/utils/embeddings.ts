@@ -107,7 +107,7 @@ async function createEmbeddings(texts: string[]): Promise<Array<EmbeddingTextIte
         // Filter out any null results
         return embeddings.filter(embedding => embedding !== null);
     } catch (error) {
-        logError('createEmbeddings error: ', error);
+        logError('createEmbeddings', error);
     }
     return [];
 }
@@ -119,7 +119,7 @@ export async function saveEmbeddings({ metadata, sentences }: { metadata: any; s
             return await MilvusDB.saveDocument(embeddings, { metadata, dim: model.outputDimension });
         }
     } catch (error) {
-        logError('saveEmbeddings error: ', error);
+        logError('saveEmbeddings', error);
     }
     return false;
 }
@@ -153,7 +153,7 @@ export async function parseAndSaveContentEmbedding(filepath: string): Promise<Pa
             };
         }
     } catch (error) {
-        logError('parseAndSaveContentEmbedding: ', error);
+        logError('parseAndSaveContentEmbedding', error);
     }
     return { state: false };
 }
