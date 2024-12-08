@@ -1,7 +1,5 @@
 'use server';
 
-import type { Document } from 'langchain/document';
-
 import path from 'node:path';
 
 // @ts-ignore
@@ -9,8 +7,7 @@ import { InferenceSession, Tensor } from 'onnxruntime-node';
 
 import { getOnnxModel, OnnxModel } from '@/constants/OnnxModel';
 import { getFileType } from '@/utils/common';
-import { getUnstructuredLoader } from '@/utils/langchain/documentLoader';
-import { getSplitterDocument } from '@/utils/langchain/splitter';
+import { getSplitContents } from '@/utils/langchain/splitter';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
 import MilvusDB from './database/milvus';
@@ -129,21 +126,19 @@ export async function saveEmbeddings({ metadata, sentences }: { metadata: any; s
 
 export async function parseAndSaveContentEmbedding(filepath: string): Promise<ParsedResult> {
     try {
+        const splitContents = await getSplitContents(filepath);
+
         const { name, ext } = path.parse(filepath);
         const fileType = getFileType(ext);
 
-        const loader = getUnstructuredLoader(filepath);
-        const documents: Document[] = await loader.load();
-        const splitDocuments = await getSplitterDocument(documents);
-
-        if (Array.isArray(splitDocuments) && splitDocuments.length > 0) {
+        if (Array.isArray(splitContents) && splitContents.length > 0) {
             const content = {
                 metadata: {
                     fileName: name,
                     fileType: fileType,
-                    title: splitDocuments[0].pageContent || splitDocuments[0].metadata.filename,
+                    title: splitContents[0].pageContent || splitContents[0].metadata.filename,
                 },
-                sentences: splitDocuments.map(doc => doc.pageContent),
+                sentences: splitContents.map(doc => doc.pageContent),
             };
             const ret = await saveEmbeddings(content);
             return {
