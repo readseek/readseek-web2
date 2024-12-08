@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 
-import { createWriteStream } from 'node:fs';
+import { createWriteStream, existsSync } from 'node:fs';
 import path from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
@@ -87,14 +87,17 @@ export default class DocumentService {
                 });
             }
 
-            console.time('FileUploading Costs:');
             file = formData.get('file') as File;
             fileHash = await getFileHash(file);
             fileName = `${fileHash}.${file.name.split('.')[1]}`;
             filePath = path.join(UPLOAD_PATH, fileName);
-            await pipelineAsync(Readable.fromWeb(file.stream()), createWriteStream(filePath));
-            console.timeEnd('FileUploading Costs:');
-            logInfo('file has been uploaded: ', filePath);
+
+            if (!existsSync(filePath)) {
+                console.time('FileUploading Costs:');
+                await pipelineAsync(Readable.fromWeb(file.stream()), createWriteStream(filePath));
+                console.timeEnd('FileUploading Costs:');
+                logInfo('file has been uploaded: ', filePath);
+            }
 
             const ret = await DBService.saveOrUpdateDocument({ fileHash, filePath, cateId, tags });
             if (ret) {
