@@ -124,12 +124,12 @@ export async function saveEmbeddings({ metadata, sentences }: { metadata: any; s
     return false;
 }
 
-export async function parseAndSaveContentEmbedding(filepath: string): Promise<ParsedResult> {
+export async function parseAndSaveContentEmbedding(filePath: string): Promise<ParsedResult> {
     try {
-        const splitContents = await getSplitContents(filepath);
-
-        const { name, ext } = path.parse(filepath);
+        const { name, ext } = path.parse(filePath);
         const fileType = getFileType(ext);
+
+        const splitContents = await getSplitContents(fileType, filePath);
 
         if (Array.isArray(splitContents) && splitContents.length > 0) {
             const content = {

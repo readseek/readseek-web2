@@ -12,7 +12,6 @@ import { UnstructuredLoader, UnstructuredLoaderOptions, UnstructuredLoaderStrate
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 
 import { DocumentType } from '@/types';
-import { logInfo } from '@/utils/logger';
 
 const UNSTRUCTURED_API_KEY = process.env.__RSN_UNSTRUCTURED_API_KEY as string;
 const UNSTRUCTURED_API_URL = process.env.__RSN_UNSTRUCTURED_API_URL as string;
