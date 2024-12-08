@@ -158,7 +158,7 @@ export async function parseAndSaveContentEmbedding(filepath: string): Promise<Pa
             };
         }
     } catch (error) {
-        logError('error on parseAndSaveContentEmbedding: ', error);
+        logError('parseAndSaveContentEmbedding: ', error);
     }
     return { state: false };
 }

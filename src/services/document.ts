@@ -7,7 +7,7 @@ import { promisify } from 'util';
 
 import { getFileHash } from '@/utils/common';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
-import { logError, logInfo, logWarn } from '@/utils/logger';
+import { logError, logInfo } from '@/utils/logger';
 
 import DBService from './db';
 
@@ -94,6 +94,7 @@ export default class DocumentService {
             filePath = path.join(UPLOAD_PATH, fileName);
             await pipelineAsync(Readable.fromWeb(file.stream()), createWriteStream(filePath));
             console.timeEnd('FileUploading Costs:');
+            logInfo('file has been uploaded: ', filePath);
 
             const ret = await DBService.saveOrUpdateDocument({ fileHash, filePath, cateId, tags });
             if (ret) {

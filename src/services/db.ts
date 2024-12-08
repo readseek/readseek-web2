@@ -52,7 +52,7 @@ export default class DBService {
                 }
                 return true;
             }
-            logWarn(`error on parseAndSaveContentEmbedding result: ${parsedResult}`);
+            logWarn('parseAndSaveContent result: ', parsedResult);
         } catch (error) {
             logError(error);
         } finally {
