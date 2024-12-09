@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Toaster } from '@/components/ui/toaster';
 
 import '@/styles/globals.css';
 
@@ -71,6 +72,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                         {children}
                     </div>
                 </div>
+                <Toaster />
             </body>
         </html>
     );

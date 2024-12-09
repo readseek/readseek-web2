@@ -12,9 +12,11 @@ import { UploadBox } from '@/components/Chat/UploadBox';
 import { OptionType, MultiSelect } from '@/components/MultiSelect';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useToast } from '@/components/ui/hooks/use-toast';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ToastAction } from '@/components/ui/toast';
 import { getData, postForm } from '@/utils/http/client';
-import { logError, logWarn } from '@/utils/logger';
+import { logWarn } from '@/utils/logger';
 
 const metadata = {
     title: '内容发布 - 搜读',
@@ -45,6 +47,8 @@ export default function PostContentPage() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [tags, setTags] = useState<Tag[]>([]);
     const [isUploading, setIsUploading] = useState<boolean>(false);
+
+    const { toast } = useToast();
 
     const fetchMetaData = useCallback(async () => {
         if (isUploading) return;
@@ -85,9 +89,14 @@ export default function PostContentPage() {
                 router.push(`/list?file=${ret.fileName}`);
                 return;
             }
-            logWarn('upload failed', ret);
+            toast({
+                variant: 'destructive',
+                title: '提交失败',
+                description: `${ret?.message || '网络服务异常~'}`,
+                action: <ToastAction altText="Try again">再来一次</ToastAction>,
+            });
         } catch (error) {
-            logError(error);
+            logWarn(error);
         } finally {
             setIsUploading(false);
         }
