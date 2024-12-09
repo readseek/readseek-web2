@@ -89,7 +89,7 @@
         @apply h-72 content-center rounded-md xl:h-96;
     }
 
-    .pageBody {
+    .main-content {
         @apply flex flex-col items-center pt-28;
     }
 }

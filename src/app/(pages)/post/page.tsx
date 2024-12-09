@@ -103,7 +103,7 @@ export default function PostContentPage() {
     }
 
     return (
-        <main className="pageBody">
+        <div className="main-content">
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} onReset={resetForm} className="flex flex-col items-stretch space-y-14 sm:w-[511px]">
                     <FormField
@@ -155,7 +155,7 @@ export default function PostContentPage() {
                             const selects = field.value as OptionType[];
                             return (
                                 <FormItem className="h-[3rem]">
-                                    <FormLabel className="mt-10">标签</FormLabel>
+                                    <FormLabel>标签</FormLabel>
                                     <FormControl>
                                         <MultiSelect selected={selects} options={opts} {...field} className="sm:w-[511px]" />
                                     </FormControl>
@@ -182,6 +182,6 @@ export default function PostContentPage() {
                     </div>
                 </form>
             </Form>
-        </main>
+        </div>
     );
 }

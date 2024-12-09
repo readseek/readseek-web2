@@ -40,7 +40,7 @@ export default async function HomePage() {
 
     if (data && Array.isArray(data.list)) {
         return (
-            <main className="flex flex-col">
+            <div className="flex flex-col">
                 {renderDocList(data.list)}
                 {data.total > 10 ?? (
                     <footer className="center h-20">
@@ -70,12 +70,12 @@ export default async function HomePage() {
                         </Pagination>
                     </footer>
                 )}
-            </main>
+            </div>
         );
     }
     return (
-        <main className="flex items-center justify-center">
+        <div className="flex items-center justify-center">
             <NodataImage />
-        </main>
+        </div>
     );
 }

@@ -5,5 +5,5 @@ export const metadata: Metadata = {
 };
 
 export default async function ChatPage() {
-    return <main className="flex flex-col bg-slate-400">交流中心</main>;
+    return <div className="flex flex-col bg-slate-400">交流中心</div>;
 }

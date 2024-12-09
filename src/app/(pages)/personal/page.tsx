@@ -16,13 +16,11 @@ export const metadata: Metadata = {
 export default async function PersonalPage() {
     const data: User = await getServerData('/api/web/userProfile?uid=1');
     return (
-        <main className="pageBody">
+        <div className="main-content">
             {data && data.email ? (
                 <ul className="grid w-1/2 grid-rows-4 gap-4">
                     <li className="flex items-center justify-between">
-                        <Label htmlFor="avatar" className="w-28">
-                            名称
-                        </Label>
+                        <Label className="w-28">名称</Label>
                         <div className="flex items-center justify-end">
                             <span className="text-slate-800s">{data.name}</span>
                             <Avatar className="ml-4">
@@ -35,18 +33,16 @@ export default async function PersonalPage() {
                         <Label htmlFor="email" className="w-28">
                             电邮
                         </Label>
-                        <Input type="email" id="email" placeholder={data.email} disabled />
+                        <Input id="email" type="email" placeholder={data.email} disabled />
                     </li>
                     <li className="flex items-center justify-between">
-                        <Label htmlFor="avatar" className="w-28">
+                        <Label htmlFor="bio" className="w-28">
                             简介
                         </Label>
-                        <Textarea placeholder="个人简介" rows={4} className="resize-none" defaultValue={data.bio} />
+                        <Textarea id="bio" placeholder="个人简介" rows={4} className="resize-none" defaultValue={data.bio} />
                     </li>
                     <li className="flex items-center justify-between">
-                        <Label htmlFor="share-mode" className="w-28">
-                            创建时间
-                        </Label>
+                        <Label className="w-28">创建时间</Label>
                         <span className="text-slate-800s">{new Date(data.createdAt!).toUTCString()}</span>
                     </li>
                     <li className="flex items-center justify-evenly">
@@ -61,6 +57,6 @@ export default async function PersonalPage() {
             ) : (
                 <NodataImage />
             )}
-        </main>
+        </div>
     );
 }

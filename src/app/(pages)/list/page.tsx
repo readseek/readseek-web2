@@ -110,7 +110,7 @@ export default function FileListPage() {
     }
 
     return (
-        <main className="container flex flex-col">
+        <div className="container flex flex-col">
             <div className="flex items-center py-4">
                 <Input placeholder="根据书名筛选信息" value={(table.getColumn('title')?.getFilterValue() as string) ?? ''} onChange={event => table.getColumn('title')?.setFilterValue(event.target.value)} className="max-w-sm" />
                 <DropdownMenu>
@@ -176,6 +176,6 @@ export default function FileListPage() {
                     </Button>
                 </div>
             </div>
-        </main>
+        </div>
     );
 }
