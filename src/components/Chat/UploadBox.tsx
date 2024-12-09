@@ -3,6 +3,7 @@
 import type { FormState, FieldValues } from 'react-hook-form';
 
 import { useState, useCallback, useEffect } from 'react';
+import { useDropzone } from 'react-dropzone';
 
 import { validFileSize } from '@/utils/common';
 import { logInfo, logWarn } from '@/utils/logger';
@@ -10,19 +11,23 @@ import { logInfo, logWarn } from '@/utils/logger';
 interface Props {
     field?: any;
     formState?: FormState<FieldValues>;
-    onSelected?: (file: File) => void;
 }
 
-const supportFileType = ['pdf', 'epub', 'docx', 'txt', 'md'];
-const supportFileExts = supportFileType.map(item => `.${item}`);
+const supportFileType = ['txt', 'md', 'pdf', 'epub', 'csv', 'tsv', 'doc', 'docx'];
 
-export const UploadBox = ({ field, formState, onSelected }: Props) => {
+export const UploadBox = ({ field, formState }: Props) => {
     const [uploadFile, setUploadFile] = useState<File>();
 
-    const onChange = useCallback(
-        (e: any) => {
-            if (e.target.files && e.target.files[0]) {
-                const file: File = e.target.files[0];
+    useEffect(() => {
+        if (!formState?.dirtyFields?.file) {
+            setUploadFile(undefined);
+        }
+    }, [formState]);
+
+    const onDrop = useCallback(
+        (acceptedFiles: File[]) => {
+            if (Array.isArray(acceptedFiles) && acceptedFiles.length > 0) {
+                const file: File = acceptedFiles[0];
 
                 if (uploadFile?.size === file.size && uploadFile?.lastModified === file.lastModified) {
                     logInfo('与上次选择的文件一致', uploadFile.name, file.name);
@@ -32,8 +37,8 @@ export const UploadBox = ({ field, formState, onSelected }: Props) => {
                 const sizeUnits = validFileSize(file.size);
                 logInfo(`所选文件大小为: ${sizeUnits}`);
 
-                if (file.size / 1000 / 1024 > 200) {
-                    logWarn(`文件体积${sizeUnits}，已超过最大限额200MB，请重新选择...`);
+                if (file.size / 1000 / 1024 > 100) {
+                    logWarn(`文件体积${sizeUnits}，已超过最大限额100MB，请重新选择...`);
                     return false;
                 }
 
@@ -42,26 +47,32 @@ export const UploadBox = ({ field, formState, onSelected }: Props) => {
                     return false;
                 }
 
-                if (onSelected) {
-                    onSelected(file);
-                }
+                setUploadFile(file);
 
                 field?.onChange(file);
-
-                setUploadFile(file);
             }
         },
-        [uploadFile, onSelected, field],
+        [field, uploadFile],
     );
 
-    useEffect(() => {
-        if (formState && Object.keys(formState.dirtyFields).length === 0) {
-            setUploadFile(undefined);
-        }
-    }, [formState]);
+    const { getRootProps, getInputProps } = useDropzone({
+        accept: {
+            'text/*': ['.txt', '.md', '.csv', '.tsv'],
+            'application/pdf': [],
+            'application/epub+zip': [],
+            'application/msword': ['.doc'],
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+        },
+        autoFocus: false,
+        maxFiles: 1,
+        minSize: 1024,
+        maxSize: 1024 * 1024 * 100, // 最大限额100MB
+        noClick: true,
+        onDrop,
+    });
 
     return (
-        <div className="center w-full">
+        <div {...getRootProps()} className="center w-full">
             <label
                 htmlFor="dropzone-file"
                 className="dark:hover:bg-bray-800 flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600">
@@ -72,10 +83,10 @@ export const UploadBox = ({ field, formState, onSelected }: Props) => {
                     <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
                         <span className="font-semibold">{'点击上传'}</span> {'或者 把文件拖到此处放下'}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{'支持的文件类型：TXT, PDF, EPUB, Markdown, DOCX'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{`支持的文件类型: ${supportFileType.join(',')}`}</p>
                 </div>
                 {uploadFile ? <p className="text-md italic text-gray-600">{`File: ${uploadFile.name}, lastModified: ${new Date(uploadFile.lastModified).toLocaleString()}`}</p> : null}
-                <input id="dropzone-file" name={field?.name || 'file'} type="file" className="hidden" accept={supportFileExts.join(',')} multiple={false} onChange={onChange} />
+                <input id="dropzone-file" name={field?.name || 'file'} type="file" className="hidden" {...getInputProps()} />
             </label>
         </div>
     );

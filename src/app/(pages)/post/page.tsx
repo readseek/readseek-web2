@@ -161,7 +161,14 @@ export default function PostContentPage() {
                             重置
                         </Button>
                         <Button type="submit" className="mr-2 h-11 w-1/3" variant="default" disabled={isUploading}>
-                            提交
+                            {isUploading ? (
+                                <>
+                                    <svg className="mr-3 h-5 w-5 animate-spin rounded-full border-4 border-solid border-white border-t-transparent" viewBox="0 0 50 50" />
+                                    正在处理...
+                                </>
+                            ) : (
+                                '提交'
+                            )}
                         </Button>
                     </div>
                 </form>
