@@ -78,26 +78,22 @@ export function getOptimizedUnstructuredLoader(fileType: DocumentType, filePath:
         strategy: strategies[fileType] || 'auto',
 
         // Parsing Optimization
-        chunkingStrategy: 'by_title', // Intelligent section-based chunking
-        maxCharacters: 100000, // Limit chunk size
-        combineUnderNChars: 1000, // Combine small chunks
+        chunkingStrategy: 'by_similarity', // Intelligent section-based chunking
         overlap: 200, // Slight overlap between chunks for context
+        overlapAll: false, // Prevent excessive overlapping
+        newAfterNChars: 4000, // Create new chunks after 3000 characters
+        combineUnderNChars: 500, // Combine small chunks
+        maxCharacters: 20000, // Limit chunk size
 
-        // File Type Specific Optimizations
+        // // File Type Specific Optimizations
         coordinates: false, // Disable positional data
         pdfInferTableStructure: true,
+        skipInferTableTypes: ['doc', 'docx', 'xls', 'xlsx', 'txt', 'md'],
 
-        // Advanced Parsing Controls
+        // // Advanced Parsing Controls
         xmlKeepTags: false, // Simplify XML parsing
         includePageBreaks: false, // Disable page break tracking
         multiPageSections: true, // Allow section spanning multiple pages
-
-        // Advanced Chunking
-        overlapAll: false, // Prevent excessive overlapping
-        newAfterNChars: 3000, // Create new chunks after 3000 characters
-
-        // Image Extraction (if needed)
-        extractImageBlockTypes: ['image/jpeg', 'image/png'],
 
         // OCR and Language Configuration
         ocrLanguages: ['en', 'zh-Hans'], // Only required languages

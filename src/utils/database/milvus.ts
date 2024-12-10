@@ -6,11 +6,15 @@ import { DataType, MilvusClient } from '@zilliz/milvus2-sdk-node';
 
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
-import { DocumentType } from '../../types';
 import { isDevModel } from '../common';
 
-const CollectionNameWithFileType = (type: DocumentType) => {
-    return `RS_DOC_${type.toLocaleUpperCase()}_Embeddings`;
+/**
+ * https://milvus.io/docs/manage-collections.md
+ * Collection and entity are similar to tables and records in relational databases.
+ * In this project, every stand-alone file has its own Collection.
+ */
+const CollectionWithFileName = (name: string) => {
+    return `RS_DOC_${name.toLocaleUpperCase()}`;
 };
 
 export default class MilvusDB {
@@ -105,13 +109,15 @@ export default class MilvusDB {
         return false;
     }
 
-    public static async saveDocument(textItems: Array<EmbeddingTextItem>, { metadata, dim }: { metadata: any; dim: number }) {
+    public static async saveDocument(data: any) {
         if (!(await this.checkHealth())) {
             return false;
         }
 
+        const { textItems, fileName, dim, metas } = data;
+
         // one type doc one collection
-        const collectionName = CollectionNameWithFileType(metadata.fileType);
+        const collectionName = CollectionWithFileName(fileName);
         logInfo('Using collection: ', collectionName);
 
         if (!(await this.checkCollection(collectionName, dim))) {
@@ -123,12 +129,12 @@ export default class MilvusDB {
             // Insert the embedding
             res = await this.milvusClient?.insert({
                 collection_name: collectionName,
-                fields_data: textItems.map((item: EmbeddingTextItem) => {
+                fields_data: textItems.map((item: EmbeddingTextItem, index: number) => {
                     return {
                         number: item.number,
                         text: item.text,
                         embedding: item.embedding,
-                        metadata,
+                        metadata: metas[index],
                     };
                 }),
             });
@@ -141,23 +147,23 @@ export default class MilvusDB {
         return false;
     }
 
-    public static async searchDocument(embeddings: Array<number>, metadata: any) {
+    public static async searchDocument(embeddings: Array<number>, fileName: string) {
         if (!(await this.checkHealth())) {
             return false;
         }
 
-        const collectionName = CollectionNameWithFileType(metadata.fileType);
-        logInfo(`searchingDocument ${collectionName}, metadata is: `, metadata);
+        const collectionName = CollectionWithFileName(fileName);
+        logInfo(`searchingDocument ${collectionName}, fileName is: `, fileName);
 
         return true;
     }
 
-    public static async deleteDocument(metadata: any) {
+    public static async deleteDocument(fileName: string) {
         if (!(await this.checkHealth())) {
             return false;
         }
 
-        const collectionName = CollectionNameWithFileType(metadata.fileType);
+        const collectionName = CollectionWithFileName(fileName);
 
         // Drop collection on prod was not permitted
         if (isDevModel()) {

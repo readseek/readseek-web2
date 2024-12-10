@@ -16,7 +16,7 @@ import { useToast } from '@/components/ui/hooks/use-toast';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToastAction } from '@/components/ui/toast';
 import { getData, postForm } from '@/utils/http/client';
-import { logWarn } from '@/utils/logger';
+import { logInfo, logWarn } from '@/utils/logger';
 
 const metadata = {
     title: '内容发布 - 搜读',
@@ -83,6 +83,7 @@ export default function PostContentPage() {
         try {
             setIsUploading(true);
             const ret: any = await postForm('/api/web/fileUpload', data);
+            logInfo(ret);
             if (ret && ret.originalFilename === data.file.name) {
                 resetForm();
                 // upload success, then jump to user fileList

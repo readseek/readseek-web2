@@ -13,10 +13,10 @@ export async function getSplitContents(fileType: DocumentType, filepath: string)
     try {
         console.time('Document Loading&splitting:');
         const docs: Document[] = await getOptimizedUnstructuredLoader(fileType, filepath).load();
-        const processedDocuments = docs.filter(doc => doc.pageContent.length > 0);
+        const processedDocuments = docs.filter(doc => doc.pageContent.trim().length > 0);
 
         return new TokenTextSplitter({
-            chunkSize: 3000,
+            chunkSize: 4000, // 4k
             chunkOverlap: 200,
         }).splitDocuments(processedDocuments);
     } catch (error) {

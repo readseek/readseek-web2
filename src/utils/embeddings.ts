@@ -23,12 +23,28 @@ export type EmbeddingTextItem = {
     embedding: Array<number>;
 };
 
+// Langchain Document real types, for per text segment
+export type LSegment = {
+    metadata: {
+        category: string;
+        filename: string;
+        filetype: string;
+        languages: string[];
+        loc: object;
+        orig_elements: string;
+        emphasized_text_contents?: string[];
+        emphasized_text_tags?: string[];
+    };
+    pageContent: string;
+};
+
 export type DocumentMeta = {
     title?: string;
     description?: string;
     keywords?: string[];
     authors?: string[]; //original authors
     coverUrl?: string;
+    content?: object;
 };
 
 export type ParsedResult = {
@@ -112,11 +128,18 @@ async function createEmbeddings(texts: string[]): Promise<Array<EmbeddingTextIte
     return [];
 }
 
-export async function saveEmbeddings({ metadata, sentences }: { metadata: any; sentences: string[] }) {
+export async function saveEmbeddings(segments: LSegment[]) {
     try {
-        const embeddings = await createEmbeddings(sentences);
-        if (Array.isArray(embeddings) && embeddings.length > 0) {
-            return await MilvusDB.saveDocument(embeddings, { metadata, dim: model.outputDimension });
+        const contents: string[] = segments.map(segment => segment.pageContent);
+        const textItems = await createEmbeddings(contents);
+        if (Array.isArray(textItems) && textItems.length > 0) {
+            const params = {
+                textItems,
+                dim: model.outputDimension,
+                fileName: segments[0].metadata.filename.split('.')[0],
+                metas: segments.map(segment => segment.metadata),
+            };
+            return await MilvusDB.saveDocument(params);
         }
     } catch (error) {
         logError('saveEmbeddings', error);
@@ -126,29 +149,30 @@ export async function saveEmbeddings({ metadata, sentences }: { metadata: any; s
 
 export async function parseAndSaveContentEmbedding(filePath: string): Promise<ParsedResult> {
     try {
-        const { name, ext } = path.parse(filePath);
-        const fileType = getFileType(ext);
+        const fileType = getFileType(path.parse(filePath).ext);
+        const segments = await getSplitContents(fileType, filePath);
 
-        const splitContents = await getSplitContents(fileType, filePath);
+        if (Array.isArray(segments) && segments.length > 0) {
+            const ret = await saveEmbeddings(segments as LSegment[]);
+            // 从第一段内容截取
+            const title = segments[0].pageContent.trim().replace(/\n+/g, '.').substring(0, 128);
+            // 从前三段内容截取
+            const description = segments
+                .slice(0, 3)
+                .map(item => item.pageContent)
+                .join(',')
+                .replace(/\n+/g, '.')
+                .substring(0, 255);
 
-        if (Array.isArray(splitContents) && splitContents.length > 0) {
-            const content = {
-                metadata: {
-                    fileName: name,
-                    fileType: fileType,
-                    title: splitContents[0].pageContent || splitContents[0].metadata.filename,
-                },
-                sentences: splitContents.map(doc => doc.pageContent),
-            };
-            const ret = await saveEmbeddings(content);
+            // 返回实际的内容数据落库
             return {
                 state: ret,
                 meta: {
-                    title: content.metadata.title,
-                    description: content.sentences.slice(0, 3).join(',').substring(0, 255),
-                    keywords: content.metadata.title.split(' '),
-                    authors: ['tomas', 'jack'],
-                    coverUrl: process.env.__RSN_DEFAULT_COVER,
+                    title,
+                    description,
+                    keywords: title.split('.'),
+                    authors: ['tomartisan'], // 先写死，后面从前端传过来
+                    coverUrl: process.env.__RSN_DEFAULT_COVER, // 后边从网络抓取，或随机
                 },
             };
         }
