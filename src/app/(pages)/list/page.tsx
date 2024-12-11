@@ -18,7 +18,6 @@ export default function FileListPage() {
 
     const [data, setData] = useState<Document[]>([]);
     const [page, setPage] = useState<number>(1);
-    const [loading, setLoading] = useState<boolean>(false);
 
     const fetchData = useCallback(async () => {
         const data: any = await getData(`/api/web/userFiles?page=${page}&size=${pageSize}`);
