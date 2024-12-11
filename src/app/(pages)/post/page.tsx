@@ -86,7 +86,7 @@ export default function PostContentPage() {
             if (ret && ret.originalFilename === data.file.name) {
                 resetForm();
                 // upload success, then jump to user fileList
-                router.push(`/list?file=${ret.fileName}`);
+                router.push(`/list`);
                 return;
             }
             toast({
