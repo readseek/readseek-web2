@@ -30,11 +30,11 @@ export default class MilvusDB {
                 this._milvusClient = new MilvusClient({
                     address: this.MILVUS_ADDRESS,
                     username: this.MILVUS_USERNAME,
-                    timeout: 180,
+                    timeout: 120,
                     logLevel: 'warn',
                     pool: {
-                        max: 5,
-                        min: 1,
+                        max: 10,
+                        min: 2,
                         autostart: true,
                         idleTimeoutMillis: 1000 * 60 * 5,
                     },

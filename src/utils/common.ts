@@ -4,7 +4,7 @@ import path from 'node:path';
 import { Readable } from 'node:stream';
 
 import { DocumentType } from '@/types';
-import { logError, logInfo, logWarn } from '@/utils/logger';
+import { logError } from '@/utils/logger';
 
 export const isBrowserModel = ((): boolean => {
     try {
@@ -91,18 +91,18 @@ export function throttle<T extends (...args: any[]) => any>(func: T, limit: numb
 }
 
 export function isJSONObject(val: any): boolean {
-    if (val && typeof val === 'object') {
-        return true;
-    }
     try {
-        if (typeof val === 'string') {
+        if (val && typeof val === 'object') {
+            return true;
+        } else if (typeof val === 'string') {
             const result = JSON.parse(val);
             return typeof result === 'object' && result !== null;
+        } else {
+            return false;
         }
     } catch (e) {
-        logWarn('isJSONObject', val, e);
+        return false;
     }
-    return false;
 }
 
 export async function getFileHash(file: File): Promise<string> {

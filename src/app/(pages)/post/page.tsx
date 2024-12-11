@@ -83,7 +83,6 @@ export default function PostContentPage() {
         try {
             setIsUploading(true);
             const ret: any = await postForm('/api/web/fileUpload', data);
-            logInfo(ret);
             if (ret && ret.originalFilename === data.file.name) {
                 resetForm();
                 // upload success, then jump to user fileList

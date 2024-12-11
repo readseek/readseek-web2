@@ -99,6 +99,7 @@ export default class DocumentService {
                 logInfo('file has been uploaded: ', filePath);
             }
 
+            logInfo('💪🔥🏆 file is ready, start parsing and embedding...');
             const ret = await DBService.saveOrUpdateDocument({ fileHash, filePath, cateId, tags });
             if (ret) {
                 return {

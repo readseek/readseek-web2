@@ -15,6 +15,7 @@ export default class DBService {
         try {
             console.time('ParseAndSaveContent Costs:');
             const { fileHash, filePath, cateId, tags } = data;
+            // TODO: 耗时操作，后续改成移步执行、成功后通过消息通知
             const parsedResult = await parseAndSaveContentEmbedding(filePath);
             if (parsedResult.state) {
                 const modeData = {

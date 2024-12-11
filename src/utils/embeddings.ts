@@ -149,8 +149,7 @@ export async function saveEmbeddings(segments: LSegment[]) {
 
 export async function parseAndSaveContentEmbedding(filePath: string): Promise<ParsedResult> {
     try {
-        const fileType = getFileType(path.parse(filePath).ext);
-        const segments = await getSplitContents(fileType, filePath);
+        const segments = await getSplitContents(getFileType(path.parse(filePath).ext), filePath);
 
         if (Array.isArray(segments) && segments.length > 0) {
             const ret = await saveEmbeddings(segments as LSegment[]);
@@ -183,9 +182,5 @@ export async function parseAndSaveContentEmbedding(filePath: string): Promise<Pa
 }
 
 export async function deleteEmbeddings(name: string) {
-    // TODO: hard code for test...
-    return MilvusDB.deleteDocument({
-        fileName: name,
-        fileType: 'md',
-    });
+    return MilvusDB.deleteDocument(name);
 }
