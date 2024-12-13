@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Toaster } from '@/components/ui/toaster';
 
+import QueryProvider from './providers';
+
 import '@/styles/globals.css';
 
 export const metadata: Metadata = {
@@ -67,7 +69,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                             </li>
                         </ul>
                     </nav>
-                    <main>{children}</main>
+                    <main>
+                        <QueryProvider>{children}</QueryProvider>
+                    </main>
                 </div>
                 <Toaster />
             </body>

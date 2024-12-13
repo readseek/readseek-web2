@@ -2,9 +2,11 @@
 
 import type { Document } from '@/types';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 import { getData } from '@/utils/http/client';
+import { logInfo } from '@/utils/logger';
 
 import { columns } from './columns';
 import { DataTable } from './data-table';
@@ -13,32 +15,49 @@ const metadata = {
     title: '文库中心 - 搜读',
 };
 
+const fetchFiles = async (page: number, size: number = 10) => {
+    const data: any = await getData(`/api/web/userFiles?page=${page}&size=${size}`);
+    if (data && Array.isArray(data.list)) {
+        return data.list;
+    }
+    return null;
+};
+
 export default function FileListPage() {
-    const pageSize = 10;
-
-    const [data, setData] = useState<Document[]>([]);
-    const [page, setPage] = useState<number>(1);
-
-    const fetchData = useCallback(async () => {
-        const data: any = await getData(`/api/web/userFiles?page=${page}&size=${pageSize}`);
-        if (data && Array.isArray(data.list)) {
-            setData(data.list);
-        }
-    }, [page]);
-
     useEffect(() => {
         document.title = metadata.title;
-        fetchData();
-    }, [fetchData]);
+    }, []);
+
+    const { data, fetchPreviousPage, fetchNextPage, hasNextPage, isFetchingNextPage, isFetchingPreviousPage } = useInfiniteQuery({
+        queryKey: ['fetchUserFiles'],
+        initialPageParam: 1,
+        queryFn: ({ pageParam }) => fetchFiles(pageParam),
+        getPreviousPageParam: (firstPage, pages) => {
+            logInfo('getPreviousPageParam', pages);
+            return firstPage.prevCursor;
+        },
+        getNextPageParam: (lastPage, pages) => {
+            logInfo('getNextPageParam', pages);
+            return lastPage.nextCursor;
+        },
+    });
 
     function previousPage() {
-        setPage(page - 1);
-        // table.previousPage();
+        if (!isFetchingPreviousPage) {
+            fetchPreviousPage();
+            // table.previousPage();
+        }
     }
 
     function nextPage() {
-        setPage(page + 1);
-        // table.nextPage();
+        if (!isFetchingNextPage) {
+            fetchNextPage();
+            // table.nextPage();
+        }
+    }
+
+    if (!hasNextPage) {
+        logInfo('已加载完毕...');
     }
 
     return (

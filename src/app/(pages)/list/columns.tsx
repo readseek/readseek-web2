@@ -3,7 +3,7 @@
 import type { Document } from '@/types';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -47,17 +47,31 @@ export const columns: ColumnDef<Document>[] = [
     },
     {
         accessorKey: 'viewCount',
-        header: '访问量',
         enableSorting: true,
         enableHiding: true,
         cell: ({ row }) => <div className="w-16 text-nowrap">{row.getValue('viewCount')}</div>,
+        header: ({ column }) => {
+            return (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                    {'访问量'}
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            );
+        },
     },
     {
         accessorKey: 'updatedAt',
-        header: '更新时间',
         enableSorting: true,
         enableHiding: true,
         cell: ({ row }) => <div className="w-36 text-balance">{new Date(row.getValue('updatedAt')).toLocaleString()}</div>,
+        header: ({ column }) => {
+            return (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                    {'更新时间'}
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            );
+        },
     },
     {
         id: 'actions',
