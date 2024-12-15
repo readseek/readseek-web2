@@ -3,6 +3,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 
+import { GET_URI, POST_URI } from '@/constants/Application';
 import DocumentService from '@/services/document';
 import SystemService from '@/services/system';
 import UserService from '@/services/user';
@@ -10,28 +11,6 @@ import UserService from '@/services/user';
 export const preferredRegion = 'auto';
 export const runtime = 'nodejs';
 export const maxDuration = 10;
-
-const enum GET_URI {
-    fileCategories = 'fileCategories',
-    fileTags = 'fileTags',
-    fileList = 'fileList',
-    fileChat = 'fileChat',
-    // user's info
-    userFiles = 'userFiles',
-    userProfile = 'userProfile',
-    // only for dev and admin debug
-    sys_env = 'sys_env',
-    sys_files = 'sys_files',
-    sys_users = 'sys_users',
-}
-
-const enum POST_URI {
-    fileUpload = 'fileUpload',
-    fileDelete = 'fileDelete',
-    userLogin = 'userLogin',
-    userUpdate = 'userUpdate',
-    userCancellation = 'userCancellation',
-}
 
 const BizHttpCode = (ret: APIRet) => {
     switch (ret.code) {

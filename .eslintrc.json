@@ -1,6 +1,12 @@
 {
     "root": true,
-    "extends": ["eslint:recommended", "next/core-web-vitals", "plugin:prettier/recommended", "plugin:tailwindcss/recommended"],
+    "extends": [
+        "eslint:recommended", 
+        "next/core-web-vitals", 
+        "plugin:@tanstack/query/recommended",
+        "plugin:prettier/recommended", 
+        "plugin:tailwindcss/recommended"
+    ],
     "plugins": ["prettier", "tailwindcss"],
     "rules": {
         "prettier/prettier": "warn",

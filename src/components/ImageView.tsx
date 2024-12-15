@@ -3,14 +3,6 @@
 import Image from 'next/image';
 import { useState } from 'react';
 
-export function LocalImage(name: string, ext = 'svg') {
-    return (
-        <div className="relative h-full w-full">
-            <Image src={`assets/${name}.${ext}`} alt={name} sizes="100vw" fill className="object-contain" />
-        </div>
-    );
-}
-
 interface RemoteImageProps {
     src: string;
     alt?: string;
@@ -40,7 +32,7 @@ export function RemoteImage({ src, alt = undefined, fill = false }: RemoteImageP
                 alt={defaultAlt}
                 loading="lazy"
                 decoding="auto"
-                sizes="(max-width: 1200px) 100vw, (max-width: 1920px) 50vw, 33vw"
+                sizes="(max-width: 768px) 100vw, (max-width: 1440px) 50vw, 33vw"
                 className={`transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
                 {...contentLayouts}
                 onLoad={() => setIsLoading(false)}
@@ -49,31 +41,59 @@ export function RemoteImage({ src, alt = undefined, fill = false }: RemoteImageP
     );
 }
 
-export function LoadingImage() {
-    return LocalImage('loading');
+export function LocalImage({ file, ext = 'svg' }: { file: string; ext?: string }) {
+    return (
+        <div className="relative h-full w-full">
+            <Image src={`assets/${file}.${ext}`} alt={file} fill={true} priority={true} unoptimized={true} className="object-scale-down" sizes="(max-width: 768px) 100vw, (max-width: 1440px) 50vw, 33vw" />
+        </div>
+    );
+}
+
+export function AvatarDefault({ male = true }: { male?: boolean }) {
+    return <LocalImage file={male ? 'profile_male' : 'profile_female'} />;
 }
 
 export function NodataImage() {
     return (
-        <div className="h-1/3 w-1/6">
-            {LocalImage('no_data')}
+        <div className="h-64 w-1/6">
+            <LocalImage file="no_data" />
             <h3 className="mt-7 w-full text-center text-lg italic leading-10 text-slate-500">NO DATA FOUND</h3>
         </div>
     );
 }
 
-export function SuccessImage() {
-    return LocalImage('success');
+export function LoadingImage({ message = 'data is loading...' }: { message?: string }) {
+    return (
+        <div className="h-64 w-1/6">
+            <LocalImage file="loading" />
+            <h3 className="mt-7 w-full text-center text-lg italic leading-10 text-slate-500">{message}</h3>
+        </div>
+    );
 }
 
-export function WarnImage() {
-    return LocalImage('warning');
+export function ErrorImage({ message = 'error happened...' }: { message?: string }) {
+    return (
+        <div className="h-64 w-1/6">
+            <LocalImage file="50X" />
+            <h3 className="mt-7 w-full text-center text-lg italic leading-10 text-slate-500">{message}</h3>
+        </div>
+    );
 }
 
-export function ErrorImage() {
-    return LocalImage('50X');
+export function SuccessImage({ message = 'congratulations!' }: { message?: string }) {
+    return (
+        <div className="h-64 w-1/6">
+            <LocalImage file="success" />
+            <h3 className="mt-7 w-full text-center text-lg italic leading-10 text-slate-500">{message}</h3>
+        </div>
+    );
 }
 
-export function AvatarDefault(male = true) {
-    return LocalImage(male ? 'profile_male' : 'profile_female');
+export function WarnImage({ message = 'Oh, no...' }: { message?: string }) {
+    return (
+        <div className="h-64 w-1/6">
+            <LocalImage file="warning" />
+            <h3 className="mt-7 w-full text-center text-lg italic leading-10 text-slate-500">{message}</h3>
+        </div>
+    );
 }

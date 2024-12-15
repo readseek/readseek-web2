@@ -23,10 +23,11 @@ async function respDataHandler(res: Response) {
             }
             return ret;
         }
+        return false;
     } catch (error) {
         logError(error);
+        throw error;
     }
-    return false;
 }
 
 export async function getData(path: string) {
@@ -47,8 +48,8 @@ export async function getData(path: string) {
         return respDataHandler(res);
     } catch (error) {
         logError(error, url);
+        throw error;
     }
-    return null;
 }
 
 export async function postJson(path: string, data: Record<string, any>) {
@@ -69,8 +70,8 @@ export async function postJson(path: string, data: Record<string, any>) {
         return respDataHandler(res);
     } catch (error) {
         logError(error, url);
+        throw error;
     }
-    return null;
 }
 
 export async function postForm(path: string, data: Record<string, any>) {
@@ -95,6 +96,6 @@ export async function postForm(path: string, data: Record<string, any>) {
         return respDataHandler(res);
     } catch (error) {
         logError(error, url, 'Error occurred while posting form data');
+        throw error;
     }
-    return null;
 }

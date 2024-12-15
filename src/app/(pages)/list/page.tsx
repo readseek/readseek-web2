@@ -2,25 +2,19 @@
 
 import type { Document } from '@/types';
 
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { PaginationState } from '@tanstack/react-table';
+import { useEffect, useState } from 'react';
 
+import { LoadingImage, ErrorImage } from '@/components/ImageView';
+import { GET_URI, POST_URI } from '@/constants/Application';
 import { getData } from '@/utils/http/client';
 import { logInfo } from '@/utils/logger';
 
-import { columns } from './columns';
 import { DataTable } from './data-table';
 
 const metadata = {
     title: '文库中心 - 搜读',
-};
-
-const fetchFiles = async (page: number, size: number = 10) => {
-    const data: any = await getData(`/api/web/userFiles?page=${page}&size=${size}`);
-    if (data && Array.isArray(data.list)) {
-        return data.list;
-    }
-    return null;
 };
 
 export default function FileListPage() {
@@ -28,41 +22,55 @@ export default function FileListPage() {
         document.title = metadata.title;
     }, []);
 
-    const { data, fetchPreviousPage, fetchNextPage, hasNextPage, isFetchingNextPage, isFetchingPreviousPage } = useInfiniteQuery({
-        queryKey: ['fetchUserFiles'],
-        initialPageParam: 1,
-        queryFn: ({ pageParam }) => fetchFiles(pageParam),
-        getPreviousPageParam: (firstPage, pages) => {
-            logInfo('getPreviousPageParam', pages);
-            return firstPage.prevCursor;
-        },
-        getNextPageParam: (lastPage, pages) => {
-            logInfo('getNextPageParam', pages);
-            return lastPage.nextCursor;
+    const [pagination, setPagination] = useState<PaginationState>({
+        pageIndex: 0,
+        pageSize: 10,
+    });
+
+    const { isPending, isError, error, data, isPlaceholderData } = useQuery({
+        queryKey: [GET_URI.userFiles, pagination],
+        placeholderData: keepPreviousData,
+        queryFn: async () => {
+            const ret = await getData(`/api/web/userFiles?page=${pagination.pageIndex}&size=${pagination.pageSize}`);
+            if (ret && Array.isArray(ret.list)) {
+                return ret.list;
+            }
+            return null;
         },
     });
 
-    function previousPage() {
-        if (!isFetchingPreviousPage) {
-            fetchPreviousPage();
-            // table.previousPage();
-        }
+    function handlePagination(pagination: PaginationState) {
+        logInfo('handlePagination', pagination);
+        setPagination(pagination);
     }
 
-    function nextPage() {
-        if (!isFetchingNextPage) {
-            fetchNextPage();
-            // table.nextPage();
-        }
+    function handleDelete(id: string) {
+        logInfo('handleDelete', id);
     }
 
-    if (!hasNextPage) {
-        logInfo('已加载完毕...');
+    function handleChatWith(id: string) {
+        logInfo('handleChatWith', id);
+    }
+
+    if (isPending) {
+        return (
+            <div className="main-content">
+                <LoadingImage />
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className="main-content">
+                <ErrorImage message={error.message} />
+            </div>
+        );
     }
 
     return (
         <div className="container flex flex-col">
-            <DataTable columns={columns} data={data} />
+            <DataTable data={data} onPaginationChanged={handlePagination} onDelete={handleDelete} onChatWith={handleChatWith} />
         </div>
     );
 }
