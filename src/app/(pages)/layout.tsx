@@ -23,57 +23,57 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     return (
         <html lang="en">
             <body className="grid h-screen grid-rows-[5rem_1fr]">
-                <header className="sticky top-0 flex h-20 flex-row items-center justify-between border-b bg-white px-10 shadow">
-                    <Avatar className="w-36">
-                        <AvatarImage src="logo.svg" alt="@readseek" />
-                        <AvatarFallback>LOGO</AvatarFallback>
-                    </Avatar>
-                    <div className="flex w-1/2 items-center space-x-2">
-                        <Input type="text" placeholder="搜的一下，你就知道好多 🤪" />
-                        <Button type="submit">
-                            <FileSearchIcon className="mr-2 h-4 w-4" /> 搜索
-                        </Button>
-                    </div>
-                </header>
+                <QueryProvider>
+                    <header className="sticky top-0 flex h-20 flex-row items-center justify-between border-b bg-white px-10 shadow">
+                        <Avatar className="w-36">
+                            <AvatarImage src="logo.svg" alt="@readseek" />
+                            <AvatarFallback>LOGO</AvatarFallback>
+                        </Avatar>
+                        <div className="flex w-1/2 items-center space-x-2">
+                            <Input type="text" placeholder="搜的一下，你就知道好多 🤪" />
+                            <Button type="submit">
+                                <FileSearchIcon className="mr-2 h-4 w-4" /> 搜索
+                            </Button>
+                        </div>
+                    </header>
 
-                <div className="grid grid-cols-[12rem_1fr]">
-                    <nav className="w-48">
-                        <ul className="fixed top-36 grid w-48 grid-rows-4 gap-5">
-                            <li className="center h-12 w-full">
-                                <Link href="/">
-                                    <Button type="button">
-                                        <PackageSearch className="mr-2 h-4 w-4" /> 发现
-                                    </Button>
-                                </Link>
-                            </li>
-                            <li className="center h-12 w-full">
-                                <Link href="/post">
-                                    <Button type="button">
-                                        <BookPlus className="mr-2 h-4 w-4" /> 发布
-                                    </Button>
-                                </Link>
-                            </li>
-                            <li className="center h-12 w-full">
-                                <Link href="/list">
-                                    <Button type="button">
-                                        <LibrarySquare className="mr-2 h-4 w-4" /> 文库
-                                    </Button>
-                                </Link>
-                            </li>
-                            <li className="center h-12 w-full">
-                                <Link href="/personal">
-                                    <Button type="button">
-                                        <User className="mr-2 h-4 w-4" /> 个人
-                                    </Button>
-                                </Link>
-                            </li>
-                        </ul>
-                    </nav>
-                    <main>
-                        <QueryProvider>{children}</QueryProvider>
-                    </main>
-                </div>
-                <Toaster />
+                    <div className="grid grid-cols-[12rem_1fr]">
+                        <nav className="w-48">
+                            <ul className="fixed top-36 grid w-48 grid-rows-4 gap-5">
+                                <li className="center h-12 w-full">
+                                    <Link href="/">
+                                        <Button type="button">
+                                            <PackageSearch className="mr-2 h-4 w-4" /> 发现
+                                        </Button>
+                                    </Link>
+                                </li>
+                                <li className="center h-12 w-full">
+                                    <Link href="/post">
+                                        <Button type="button">
+                                            <BookPlus className="mr-2 h-4 w-4" /> 发布
+                                        </Button>
+                                    </Link>
+                                </li>
+                                <li className="center h-12 w-full">
+                                    <Link href="/list">
+                                        <Button type="button">
+                                            <LibrarySquare className="mr-2 h-4 w-4" /> 文库
+                                        </Button>
+                                    </Link>
+                                </li>
+                                <li className="center h-12 w-full">
+                                    <Link href="/personal">
+                                        <Button type="button">
+                                            <User className="mr-2 h-4 w-4" /> 个人
+                                        </Button>
+                                    </Link>
+                                </li>
+                            </ul>
+                        </nav>
+                        <main>{children}</main>
+                    </div>
+                    <Toaster />
+                </QueryProvider>
             </body>
         </html>
     );
