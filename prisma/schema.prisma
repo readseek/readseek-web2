@@ -11,6 +11,19 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum DocumentType {
+  TXT
+  PDF
+  EPUB
+  DOC
+  DOCX
+  CSV
+  TSV
+  Markdown
+  HTML
+  UNKNOWN
+}
+
 enum DocumentState {
   SUCCESS
   FAILED
@@ -40,11 +53,14 @@ model Document {
   keywords    String[]      @db.VarChar(128)
   /// original authors
   authors     String[]      @db.VarChar(128)
+  
   /// one-to-one: a doc to a category
   categoryId  Int           @db.SmallInt
   category    Category      @relation(fields: [categoryId], references: [id])
   /// one-to-many: a doc to several tags
   tags        Tag[]
+  /// file type
+  type        DocumentType
   /// one-to-one: a doc to a user
   userId      Int
   user        User          @relation(fields: [userId], references: [id])

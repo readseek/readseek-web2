@@ -1,18 +1,31 @@
 import prisma from '@/utils/database/prisma';
 
-const Tags = [
-    { name: '大前端', alias: 'frontEnds' },
-    { name: '区块链', alias: 'blockchain' },
-    { name: '投资理财', alias: 'investment' },
-    { name: '外语学习', alias: 'foreignLang' },
-    { name: '人工智能', alias: 'ai' },
-];
 const Categories = [
-    { name: '工程技术', alias: 'projTech' },
+    { name: '人工智能', alias: 'ai' },
+    { name: '编程技术', alias: 'coding' },
+    { name: '产品设计', alias: 'prodes' },
+    { name: '投资理财', alias: 'investment' },
     { name: '企业管理', alias: 'management' },
     { name: '科技杂志', alias: 'magazines' },
     { name: '外语教材', alias: 'materials' },
     { name: '人文社科', alias: 'humanities' },
+];
+
+const Tags = [
+    { name: '语言', alias: 'language' },
+    { name: '历史', alias: 'history' },
+    { name: '自传', alias: 'autobiography' },
+    { name: '经济', alias: 'economy' },
+    { name: '金融', alias: 'finance' },
+    { name: '科技', alias: 'technology' },
+    { name: '旅行', alias: 'traveling' },
+    { name: '干货', alias: 'practicals' },
+    { name: '框架', alias: 'frameworks' },
+    { name: '架构', alias: 'infrastructure' },
+    { name: '生产力', alias: 'productivity' },
+    { name: '大模型', alias: 'llm' },
+    { name: '区块链', alias: 'blockChain' },
+    { name: '自媒体', alias: 'selfMedia' },
 ];
 
 const Users = [
@@ -114,10 +127,10 @@ async function queryAll() {
 
 (async () => {
     try {
-        // await seedMetaData();
-        // await seedData();
+        await seedMetaData();
 
-        await queryAll();
+        // await seedData();
+        // await queryAll();
     } catch (error) {
         console.error(error);
     } finally {
