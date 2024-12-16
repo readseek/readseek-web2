@@ -19,7 +19,7 @@ enum DocumentType {
   DOCX
   CSV
   TSV
-  Markdown
+  MARKDOWN
   HTML
   UNKNOWN
 }

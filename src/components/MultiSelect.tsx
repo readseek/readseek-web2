@@ -88,17 +88,21 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(({ opt
                     <CommandEmpty>No item found.</CommandEmpty>
                     <CommandGroup className="max-h-64 overflow-auto">
                         <CommandList>
-                            {options.map((option, index) => (
-                                <CommandItem
-                                    key={`option_${option.value}_${index}`}
-                                    onSelect={() => {
-                                        onChange(selected.some(item => item.value === option.value) ? selected.filter(item => item.value !== option.value) : [...selected, option]);
-                                        setOpen(true);
-                                    }}>
-                                    <Check className={cn('mr-2 h-4 w-4', selected.some(item => item.value === option.value) ? 'opacity-100' : 'opacity-0')} />
-                                    {option.label}
-                                </CommandItem>
-                            ))}
+                            {options && options.length ? (
+                                options.map((option, index) => (
+                                    <CommandItem
+                                        key={`option_${option.value}_${index}`}
+                                        onSelect={() => {
+                                            onChange(selected.some(item => item.value === option.value) ? selected.filter(item => item.value !== option.value) : [...selected, option]);
+                                            setOpen(true);
+                                        }}>
+                                        <Check className={cn('mr-2 h-4 w-4', selected.some(item => item.value === option.value) ? 'opacity-100' : 'opacity-0')} />
+                                        {option.label}
+                                    </CommandItem>
+                                ))
+                            ) : (
+                                <CommandItem>loading...</CommandItem>
+                            )}
                         </CommandList>
                     </CommandGroup>
                 </Command>

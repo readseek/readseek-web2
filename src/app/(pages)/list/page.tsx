@@ -7,6 +7,7 @@ import { PaginationState } from '@tanstack/react-table';
 import { useEffect, useState } from 'react';
 
 import { LoadingImage, ErrorImage } from '@/components/ImageView';
+import { useToast } from '@/components/ui/hooks/use-toast';
 import { GET_URI, POST_URI } from '@/constants/Application';
 import { getData, postJson } from '@/utils/http/client';
 import { logInfo, logWarn } from '@/utils/logger';
@@ -18,6 +19,8 @@ const metadata = {
 };
 
 export default function FileListPage() {
+    const { toast } = useToast();
+
     useEffect(() => {
         document.title = metadata.title;
     }, []);
@@ -27,7 +30,7 @@ export default function FileListPage() {
         pageSize: 10,
     });
 
-    const { isPending, isError, error, data } = useQuery({
+    const { isPending, isError, error, data, refetch } = useQuery({
         queryKey: [GET_URI.userFiles, pagination],
         placeholderData: keepPreviousData,
         queryFn: async () => {
@@ -41,18 +44,21 @@ export default function FileListPage() {
 
     const mutationDelete = useMutation({
         mutationKey: [POST_URI.fileDelete],
-        mutationFn: async (id?: string) => {
-            const ret = await postJson('/api/web/fileDelete', { id });
+        mutationFn: async (doc?: Document) => {
+            const ret = await postJson('/api/web/fileDelete', { id: doc?.id, type: doc?.type });
             return ret?.code === 0;
         },
         onSuccess: (data: any) => {
-            logInfo('handleDelete onSuccess: ', data);
             if (data) {
-                // TODO: refresh
+                refetch();
             }
         },
         onError: (e: any) => {
             logWarn('handleDelete onError: ', e);
+            toast({
+                title: '啊噢，失败了',
+                description: '操作失败，请稍后再试试~',
+            });
         },
     });
 
@@ -87,8 +93,8 @@ export default function FileListPage() {
                 data={data}
                 onChatWith={handleChatWith}
                 onPaginationChanged={handlePagination}
-                onDelete={(id: string) => {
-                    mutationDelete.mutate(id);
+                onDelete={(doc?: Document) => {
+                    mutationDelete.mutate(doc);
                 }}
             />
         </div>

@@ -1,6 +1,5 @@
 'use server';
 
-import type { DocumentType } from '@/types';
 import type { Document } from 'langchain/document';
 
 import { TokenTextSplitter } from 'langchain/text_splitter';
@@ -9,10 +8,10 @@ import { logError } from '@/utils/logger';
 
 import { getOptimizedUnstructuredLoader } from './documentLoader';
 
-export async function getSplitContents(fileType: DocumentType, filepath: string) {
+export async function getSplitContents(filepath: string, fileType: string) {
     try {
         console.time('Document Loading&splitting:');
-        const docs: Document[] = await getOptimizedUnstructuredLoader(fileType, filepath).load();
+        const docs: Document[] = await getOptimizedUnstructuredLoader(filepath, fileType).load();
         const processedDocuments = docs.filter(doc => doc.pageContent.trim().length > 0);
 
         return new TokenTextSplitter({

@@ -3,8 +3,9 @@
 import type { Category, Tag } from '@/types';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { keepPreviousData, useQuery, useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -15,6 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/components/ui/hooks/use-toast';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToastAction } from '@/components/ui/toast';
+import { GET_URI, POST_URI } from '@/constants/Application';
 import { getData, postForm } from '@/utils/http/client';
 import { logInfo, logWarn } from '@/utils/logger';
 
@@ -42,29 +44,12 @@ const FormSchema = z.object({
 });
 
 export default function PostContentPage() {
-    const router = useRouter();
-
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [tags, setTags] = useState<Tag[]>([]);
-    const [isUploading, setIsUploading] = useState<boolean>(false);
-
-    const { toast } = useToast();
-
-    const fetchMetaData = useCallback(async () => {
-        if (isUploading) return;
-
-        const rets: any[] = await Promise.all(['/api/web/fileCategories', '/api/web/fileTags'].map(uri => getData(uri)));
-        if (Array.isArray(rets[0].data?.list) && Array.isArray(rets[1].data?.list)) {
-            setCategories(rets[0].data.list);
-            setTags(rets[1].data.list);
-        }
-    }, [isUploading]);
-
     useEffect(() => {
         document.title = metadata.title;
+    }, []);
 
-        fetchMetaData();
-    }, [fetchMetaData]);
+    const router = useRouter();
+    const { toast } = useToast();
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -80,10 +65,34 @@ export default function PostContentPage() {
         form.reset();
     };
 
-    async function onSubmit(data: z.infer<typeof FormSchema>) {
-        try {
-            setIsUploading(true);
-            const ret: any = await postForm('/api/web/fileUpload', data);
+    const catesQuery = useQuery({
+        queryKey: [GET_URI.fileCategories],
+        placeholderData: keepPreviousData,
+        queryFn: async () => {
+            const ret = await getData('/api/web/fileCategories');
+            if (!ret || ret?.code) {
+                return null;
+            }
+            return ret?.data?.list ?? [];
+        },
+    });
+    const tagsQuery = useQuery({
+        queryKey: [GET_URI.fileTags],
+        placeholderData: keepPreviousData,
+        queryFn: async () => {
+            const ret = await getData('/api/web/fileTags');
+            if (!ret || ret?.code) {
+                return null;
+            }
+            return ret?.data?.list ?? [];
+        },
+    });
+
+    const mutationUpload = useMutation({
+        mutationKey: [POST_URI.fileUpload],
+        mutationFn: async (data: z.infer<typeof FormSchema>) => {
+            // logInfo('mutationUpload:', data);
+            const ret = await postForm('/api/web/fileUpload', data);
             if (!ret || ret?.code) {
                 toast({
                     variant: 'destructive',
@@ -91,22 +100,29 @@ export default function PostContentPage() {
                     description: `${ret?.message || '网络服务异常~'}`,
                     action: <ToastAction altText="Try again">再来一次</ToastAction>,
                 });
-                return;
+                return false;
             }
-            resetForm();
-            // upload success, then jump to user fileList
-            router.push(`/list`);
-        } catch (error) {
-            logWarn(error);
-        } finally {
-            setIsUploading(false);
-        }
-    }
+            return true;
+        },
+        onSuccess: (data: any) => {
+            if (data) {
+                resetForm();
+                router.push(`/list`);
+            }
+        },
+        onError: (e: any) => {
+            logWarn('handleUpload onError: ', e);
+            toast({
+                title: '啊噢，失败了',
+                description: '操作失败，请稍后再试试~',
+            });
+        },
+    });
 
     return (
         <div className="main-content">
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} onReset={resetForm} className="flex flex-col items-stretch space-y-14 sm:w-[511px]">
+                <form onSubmit={form.handleSubmit((data: any) => mutationUpload.mutate(data))} onReset={resetForm} className="flex flex-col items-stretch space-y-14 sm:w-[511px]">
                     <FormField
                         control={form.control}
                         name="file"
@@ -134,11 +150,15 @@ export default function PostContentPage() {
                                     </FormControl>
                                     <SelectContent>
                                         <SelectGroup>
-                                            {categories.map((cat: Category, index: number) => (
-                                                <SelectItem key={`cat_${index}`} value={`${cat.id}`}>
-                                                    {cat.name}
-                                                </SelectItem>
-                                            ))}
+                                            {Array.isArray(catesQuery?.data) ? (
+                                                catesQuery.data.map((cat: Category, index: number) => (
+                                                    <SelectItem key={`cat_${index}`} value={`${cat.id}`}>
+                                                        {cat.name}
+                                                    </SelectItem>
+                                                ))
+                                            ) : (
+                                                <SelectItem value="null">loading...</SelectItem>
+                                            )}
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>
@@ -151,9 +171,9 @@ export default function PostContentPage() {
                         control={form.control}
                         name="tags"
                         render={({ field }) => {
-                            const opts = tags.map((tag: Tag) => ({ label: tag.name, value: `${tag.id}` }));
                             // @ts-ignore
                             const selects = field.value as OptionType[];
+                            const opts: any = Array.isArray(tagsQuery?.data) && tagsQuery.data.map((tag: Tag) => ({ label: tag.name, value: `${tag.id}` }));
                             return (
                                 <FormItem className="h-[3rem]">
                                     <FormLabel>标签</FormLabel>
@@ -167,11 +187,11 @@ export default function PostContentPage() {
                     />
 
                     <div className="flex items-center justify-around">
-                        <Button type="reset" className="mr-2 w-1/3" variant="destructive" disabled={isUploading}>
+                        <Button type="reset" className="mr-2 w-1/3" variant="destructive" disabled={mutationUpload.isPending}>
                             重置
                         </Button>
-                        <Button type="submit" className="mr-2 h-11 w-1/3" variant="default" disabled={isUploading}>
-                            {isUploading ? (
+                        <Button type="submit" className="mr-2 h-11 w-1/3" variant="default" disabled={mutationUpload.isPending}>
+                            {mutationUpload.isPending ? (
                                 <>
                                     <svg className="mr-3 h-5 w-5 animate-spin rounded-full border-4 border-solid border-white border-t-transparent" viewBox="0 0 50 50" />
                                     正在处理...

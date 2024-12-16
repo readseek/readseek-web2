@@ -1,4 +1,4 @@
-export const enum DocumentType {
+export enum DocumentType {
     TXT = 'txt',
     PDF = 'pdf',
     EPUB = 'epub',
@@ -6,12 +6,12 @@ export const enum DocumentType {
     DOCX = 'docx',
     CSV = 'csv',
     TSV = 'tsv',
-    Markdown = 'md',
+    MARKDOWN = 'md',
     HTML = 'html',
     UNKNOWN = 'UnKnown',
 }
 
-export const enum DocumentState {
+export enum DocumentState {
     SUCCESS = 'SUCCESS',
     FAILED = 'FAILED',
     PENDING = 'PENDING',
@@ -37,6 +37,7 @@ export type Document = {
     categoryId: number;
     userId: number;
     tags: Tag[];
+    type: DocumentType;
     keywords?: string[];
     authors?: string[];
     visible?: boolean;

@@ -16,7 +16,7 @@ import { tableColumns } from './data-columns';
 
 interface DataTableProps {
     data: Document[];
-    onDelete: (id: string) => void;
+    onDelete: (doc?: Document) => void;
     onChatWith: (id: string) => void;
     onPaginationChanged?: (pagination: PaginationState) => void;
 }
@@ -204,7 +204,7 @@ export function DataTable({ data, onDelete, onChatWith, onPaginationChanged }: D
                         <AlertDialogCancel>{'取消'}</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={() => {
-                                onDelete(docToDelete?.id || '');
+                                onDelete(docToDelete!);
                                 setShowAlertDialog(false);
                             }}>
                             {'继续'}

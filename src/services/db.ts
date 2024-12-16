@@ -1,7 +1,6 @@
 'use server';
 
-import type { Category, Tag, Document, User } from '@/types';
-
+import { DocumentType, Category, Tag, Document, User } from '@/types';
 import LevelDB from '@/utils/database/leveldb';
 import { RecordData, PrismaDBMethod, saveOrUpdate, find } from '@/utils/database/postgresql';
 import { deleteEmbeddings, parseAndSaveContentEmbedding } from '@/utils/embeddings';
@@ -14,13 +13,14 @@ export default class DBService {
     static async saveOrUpdateDocument(data: any): Promise<boolean> {
         try {
             console.time('ParseAndSaveContent Costs:');
-            const { fileHash, filePath, cateId, tags } = data;
+            const { fileHash, filePath, cateId, tags, type } = data;
             // TODO: 耗时操作，后续改成移步执行、成功后通过消息通知
-            const parsedResult = await parseAndSaveContentEmbedding(filePath);
+            const parsedResult = await parseAndSaveContentEmbedding(filePath, DocumentType[type]);
             if (parsedResult.state) {
                 const modeData = {
                     id: fileHash,
                     userId: 1,
+                    type,
                     categoryId: cateId,
                     tags: tags.reduce((p: any, c: Tag) => {
                         if (!p.hasOwnProperty('connectOrCreate')) {
@@ -71,6 +71,7 @@ export default class DBService {
                 select: {
                     id: true,
                     title: true,
+                    type: true,
                     description: true,
                     authors: true,
                     coverUrl: true,
@@ -99,6 +100,7 @@ export default class DBService {
                 select: {
                     id: true,
                     title: true,
+                    type: true,
                     state: true,
                     authors: true,
                     keywords: true,
@@ -186,5 +188,11 @@ export default class DBService {
                 },
             },
         });
+    }
+
+    static async deleteFileStorage(id: string): Promise<boolean> {
+        const ret = await deleteEmbeddings('');
+
+        return true;
     }
 }

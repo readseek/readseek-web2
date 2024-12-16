@@ -1,12 +1,9 @@
 'use server';
 
-import path from 'node:path';
-
 // @ts-ignore
 import { InferenceSession, Tensor } from 'onnxruntime-node';
 
 import { getOnnxModel, OnnxModel } from '@/constants/OnnxModel';
-import { getFileType } from '@/utils/common';
 import { getSplitContents } from '@/utils/langchain/splitter';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -147,9 +144,9 @@ export async function saveEmbeddings(segments: LSegment[]) {
     return false;
 }
 
-export async function parseAndSaveContentEmbedding(filePath: string): Promise<ParsedResult> {
+export async function parseAndSaveContentEmbedding(filePath: string, type: string): Promise<ParsedResult> {
     try {
-        const segments = await getSplitContents(getFileType(path.parse(filePath).ext), filePath);
+        const segments = await getSplitContents(filePath, type);
 
         if (Array.isArray(segments) && segments.length > 0) {
             const ret = await saveEmbeddings(segments as LSegment[]);

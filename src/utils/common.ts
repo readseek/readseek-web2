@@ -55,11 +55,19 @@ export function validFileSize(size: number): string {
     return `${size.toFixed(0)}${units[i]}`;
 }
 
+/**
+ * e.g. getFileType('.md') ==> MARKDOWN
+ * @param ext fileExt
+ * @returns DocumentType KEY
+ */
 export function getFileType(ext: string): DocumentType {
-    if (!ext || ext.split('.').length === 0) {
-        return DocumentType.UNKNOWN;
+    const type = ext.replace(/\./g, '');
+    for (const [key, value] of Object.entries(DocumentType)) {
+        if (value === type) {
+            return key as DocumentType;
+        }
     }
-    return ext.split('.').pop()! as DocumentType;
+    return type as never;
 }
 
 export function debounce<T extends (...args: any[]) => any>(func: T, delay: number): T {

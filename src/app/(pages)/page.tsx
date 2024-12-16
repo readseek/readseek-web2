@@ -38,18 +38,16 @@ function renderDocList(data: any[]) {
 export default async function HomePage() {
     const ret: any = await getServerData('/api/web/fileList');
 
-    if (!ret || ret?.code) {
+    if (!Array.isArray(ret?.data.list) || !ret.data.list.length) {
         return (
             <div className="main-content">
                 <NodataImage />
             </div>
         );
     }
-
-    const dataSource = Array.isArray(ret?.data.list) ? ret.data.list : [];
     return (
         <div className="flex flex-col">
-            {renderDocList(dataSource)}
+            {renderDocList(ret.data.list)}
             {ret?.data?.total > 10 ?? (
                 <footer className="center h-20">
                     <Pagination>

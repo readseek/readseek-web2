@@ -47,13 +47,13 @@ export function getDocumentLoader(fileType: DocumentType, filePath: string): Doc
             break;
         default:
             // for markdown and html
-            loader = getOptimizedUnstructuredLoader(fileType, filePath);
+            loader = getOptimizedUnstructuredLoader(filePath, fileType);
             break;
     }
     return loader;
 }
 
-export function getOptimizedUnstructuredLoader(fileType: DocumentType, filePath: string): DocumentLoader {
+export function getOptimizedUnstructuredLoader(filePath: string, type: string): DocumentLoader {
     const fileSize = statSync(filePath || '').size / (1024 * 1024);
     const strategies: Record<string, UnstructuredLoaderStrategy> = {
         md: 'fast',
@@ -75,7 +75,7 @@ export function getOptimizedUnstructuredLoader(fileType: DocumentType, filePath:
         encoding: 'utf8',
 
         // Performance and Extraction Strategy
-        strategy: strategies[fileType] || 'auto',
+        strategy: strategies[type] || 'auto',
 
         // Parsing Optimization
         chunkingStrategy: 'by_similarity', // Intelligent section-based chunking

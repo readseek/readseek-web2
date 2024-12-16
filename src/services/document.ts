@@ -1,11 +1,11 @@
 import type { NextRequest } from 'next/server';
 
-import { createWriteStream, existsSync } from 'node:fs';
+import { createWriteStream, existsSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
-import { getFileHash } from '@/utils/common';
+import { getFileHash, getFileType } from '@/utils/common';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 import { logError, logInfo } from '@/utils/logger';
 
@@ -100,7 +100,7 @@ export default class DocumentService {
             }
 
             logInfo('💪🔥🏆 file is ready, start parsing and embedding...');
-            const ret = await DBService.saveOrUpdateDocument({ fileHash, filePath, cateId, tags });
+            const ret = await DBService.saveOrUpdateDocument({ fileHash, filePath, cateId, tags, type: getFileType(path.parse(filePath).ext) });
             if (ret) {
                 return {
                     code: 0,
@@ -124,11 +124,23 @@ export default class DocumentService {
     @LogAPIRoute
     @CheckLogin
     static async delete(req: NextRequest): Promise<APIRet> {
-        const params = await req.json();
-        logInfo('start delete...', params);
+        const jsonData = await req.json();
+        if (!jsonData || !jsonData?.id) {
+            return ErrorRet('no file id found');
+        }
 
-        // const ret = await deleteEmbeddings('');
-        return { code: 0, data: null, message: 'ok' };
+        const { id, type } = jsonData;
+        // 清理数据库
+        const ret = await DBService.deleteFileStorage(id);
+        if (ret) {
+            // 清理已上传的文件
+            const fileServerPath = path.join(UPLOAD_PATH, `${id}.${type}`);
+            if (existsSync(fileServerPath)) {
+                rmSync(fileServerPath);
+            }
+            return { code: 0, data: null, message: 'ok' };
+        }
+        return { code: -1, data: null, message: 'delete failed' };
     }
 
     @LogAPIRoute
