@@ -2,14 +2,14 @@
 
 import type { Document } from '@/types';
 
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useMutation } from '@tanstack/react-query';
 import { PaginationState } from '@tanstack/react-table';
 import { useEffect, useState } from 'react';
 
 import { LoadingImage, ErrorImage } from '@/components/ImageView';
 import { GET_URI, POST_URI } from '@/constants/Application';
-import { getData } from '@/utils/http/client';
-import { logInfo } from '@/utils/logger';
+import { getData, postJson } from '@/utils/http/client';
+import { logInfo, logWarn } from '@/utils/logger';
 
 import { DataTable } from './data-table';
 
@@ -27,25 +27,38 @@ export default function FileListPage() {
         pageSize: 10,
     });
 
-    const { isPending, isError, error, data, isPlaceholderData } = useQuery({
+    const { isPending, isError, error, data } = useQuery({
         queryKey: [GET_URI.userFiles, pagination],
         placeholderData: keepPreviousData,
         queryFn: async () => {
             const ret = await getData(`/api/web/userFiles?page=${pagination.pageIndex}&size=${pagination.pageSize}`);
-            if (ret && Array.isArray(ret.list)) {
-                return ret.list;
+            if (!ret || ret?.code) {
+                return null;
             }
-            return null;
+            return ret?.data?.list ?? [];
+        },
+    });
+
+    const mutationDelete = useMutation({
+        mutationKey: [POST_URI.fileDelete],
+        mutationFn: async (id?: string) => {
+            const ret = await postJson('/api/web/fileDelete', { id });
+            return ret?.code === 0;
+        },
+        onSuccess: (data: any) => {
+            logInfo('handleDelete onSuccess: ', data);
+            if (data) {
+                // TODO: refresh
+            }
+        },
+        onError: (e: any) => {
+            logWarn('handleDelete onError: ', e);
         },
     });
 
     function handlePagination(pagination: PaginationState) {
         logInfo('handlePagination', pagination);
         setPagination(pagination);
-    }
-
-    function handleDelete(id: string) {
-        logInfo('handleDelete', id);
     }
 
     function handleChatWith(id: string) {
@@ -70,7 +83,14 @@ export default function FileListPage() {
 
     return (
         <div className="container flex flex-col">
-            <DataTable data={data} onPaginationChanged={handlePagination} onDelete={handleDelete} onChatWith={handleChatWith} />
+            <DataTable
+                data={data}
+                onChatWith={handleChatWith}
+                onPaginationChanged={handlePagination}
+                onDelete={(id: string) => {
+                    mutationDelete.mutate(id);
+                }}
+            />
         </div>
     );
 }

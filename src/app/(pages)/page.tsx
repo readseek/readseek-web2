@@ -36,46 +36,48 @@ function renderDocList(data: any[]) {
 }
 
 export default async function HomePage() {
-    const data: any = await getServerData('/api/web/fileList');
+    const ret: any = await getServerData('/api/web/fileList');
 
-    if (data && Array.isArray(data.list)) {
+    if (!ret || ret?.code) {
         return (
-            <div className="flex flex-col">
-                {renderDocList(data.list)}
-                {data.total > 10 ?? (
-                    <footer className="center h-20">
-                        <Pagination>
-                            <PaginationContent>
-                                <PaginationItem>
-                                    <PaginationPrevious href="#" />
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <PaginationLink href="#">1</PaginationLink>
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <PaginationLink href="#" isActive>
-                                        2
-                                    </PaginationLink>
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <PaginationLink href="#">3</PaginationLink>
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <PaginationEllipsis />
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <PaginationNext href="#" />
-                                </PaginationItem>
-                            </PaginationContent>
-                        </Pagination>
-                    </footer>
-                )}
+            <div className="main-content">
+                <NodataImage />
             </div>
         );
     }
+
+    const dataSource = Array.isArray(ret?.data.list) ? ret.data.list : [];
     return (
-        <div className="flex items-center justify-center">
-            <NodataImage />
+        <div className="flex flex-col">
+            {renderDocList(dataSource)}
+            {ret?.data?.total > 10 ?? (
+                <footer className="center h-20">
+                    <Pagination>
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious href="#" />
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationLink href="#">1</PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationLink href="#" isActive>
+                                    2
+                                </PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationLink href="#">3</PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationEllipsis />
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationNext href="#" />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+                </footer>
+            )}
         </div>
     );
 }

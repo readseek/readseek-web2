@@ -6,6 +6,7 @@ import { ColumnFiltersState, PaginationState, SortingState, VisibilityState, fle
 import { ChevronDown, MoreHorizontal } from 'lucide-react';
 import { useState, useMemo, useCallback } from 'react';
 
+import { AlertDialog, AlertDialogDescription, AlertDialogCancel, AlertDialogAction, AlertDialogFooter, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
@@ -17,10 +18,21 @@ interface DataTableProps {
     data: Document[];
     onDelete: (id: string) => void;
     onChatWith: (id: string) => void;
-    onPaginationChanged: (pagination: PaginationState) => void;
+    onPaginationChanged?: (pagination: PaginationState) => void;
 }
 
-export function DataTable({ data, onPaginationChanged, onDelete, onChatWith }: DataTableProps) {
+export function DataTable({ data, onDelete, onChatWith, onPaginationChanged }: DataTableProps) {
+    const [showAlertDialog, setShowAlertDialog] = useState(false);
+    const [docToDelete, setDocToDelete] = useState<Document | null>(null);
+    const [sorting, setSorting] = useState<SortingState>([]);
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+    const [rowSelection, setRowSelection] = useState({});
+    const [pagination, setPagination] = useState<PaginationState>({
+        pageIndex: 0,
+        pageSize: 10,
+    });
+
     const columns = useMemo(
         () =>
             tableColumns.map(column => {
@@ -41,11 +53,16 @@ export function DataTable({ data, onPaginationChanged, onDelete, onChatWith }: D
                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                         <DropdownMenuItem onClick={() => navigator.clipboard.writeText(doc.title)}>复制名称</DropdownMenuItem>
                                         <DropdownMenuSeparator />
-                                        <DropdownMenuItem className="text-red-600" onClick={() => onDelete(doc.id)}>
-                                            删除该项
-                                        </DropdownMenuItem>
                                         <DropdownMenuItem className="text-green-600" onClick={() => onChatWith(doc.id)}>
                                             开启对话
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className="text-red-600"
+                                            onClick={() => {
+                                                setDocToDelete(doc);
+                                                setShowAlertDialog(true);
+                                            }}>
+                                            删除该项
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
@@ -55,17 +72,8 @@ export function DataTable({ data, onPaginationChanged, onDelete, onChatWith }: D
                 }
                 return column;
             }),
-        [onChatWith, onDelete],
+        [onChatWith],
     );
-
-    const [sorting, setSorting] = useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-    const [rowSelection, setRowSelection] = useState({});
-    const [pagination, setPagination] = useState<PaginationState>({
-        pageIndex: 0,
-        pageSize: 10,
-    });
 
     const table = useReactTable({
         data,
@@ -186,6 +194,24 @@ export function DataTable({ data, onPaginationChanged, onDelete, onChatWith }: D
                     </Button>
                 </div>
             </div>
+            <AlertDialog open={showAlertDialog} onOpenChange={setShowAlertDialog}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{'确定要删除吗？'}</AlertDialogTitle>
+                        <AlertDialogDescription>{'该操作不能回撤，删除此项会删除所有相关信息，请确认是否继续...'}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>{'取消'}</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() => {
+                                onDelete(docToDelete?.id || '');
+                                setShowAlertDialog(false);
+                            }}>
+                            {'继续'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

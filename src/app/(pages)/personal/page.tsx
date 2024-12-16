@@ -14,17 +14,20 @@ export const metadata: Metadata = {
 };
 
 export default async function PersonalPage() {
-    const data: User = await getServerData('/api/web/userProfile?uid=1');
+    const ret: any = await getServerData('/api/web/userProfile?uid=1');
+    const user: User = ret?.data as User;
     return (
         <div className="main-content">
-            {data && data.email ? (
+            {!ret || ret?.code ? (
+                <NodataImage />
+            ) : (
                 <ul className="grid w-1/2 grid-rows-4 gap-4">
                     <li className="flex items-center justify-between">
                         <Label className="w-28">名称</Label>
                         <div className="flex items-center justify-end">
-                            <span className="text-slate-800s">{data.name}</span>
+                            <span className="text-slate-800s">{user.name}</span>
                             <Avatar className="ml-4">
-                                <AvatarImage src={data.avatar} alt={`@${data.avatar}`} />
+                                <AvatarImage src={user.avatar} alt={`@${user.avatar}`} />
                                 <AvatarFallback>avatar</AvatarFallback>
                             </Avatar>
                         </div>
@@ -33,17 +36,17 @@ export default async function PersonalPage() {
                         <Label htmlFor="email" className="w-28">
                             电邮
                         </Label>
-                        <Input id="email" type="email" placeholder={data.email} disabled />
+                        <Input id="email" type="email" placeholder={user.email} disabled />
                     </li>
                     <li className="flex items-center justify-between">
                         <Label htmlFor="bio" className="w-28">
                             简介
                         </Label>
-                        <Textarea id="bio" placeholder="个人简介" rows={4} className="resize-none" defaultValue={data.bio} />
+                        <Textarea id="bio" placeholder="个人简介" rows={4} className="resize-none" defaultValue={user.bio} />
                     </li>
                     <li className="flex items-center justify-between">
                         <Label className="w-28">创建时间</Label>
-                        <span className="text-slate-800s">{new Date(data.createdAt!).toUTCString()}</span>
+                        <span className="text-slate-800s">{new Date(user.createdAt!).toUTCString()}</span>
                     </li>
                     <li className="flex items-center justify-evenly">
                         <Button variant="default" type="submit" disabled>
@@ -54,8 +57,6 @@ export default async function PersonalPage() {
                         </Button>
                     </li>
                 </ul>
-            ) : (
-                <NodataImage />
             )}
         </div>
     );

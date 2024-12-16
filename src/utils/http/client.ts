@@ -17,13 +17,9 @@ async function respDataHandler(res: Response) {
         }
 
         if (res.status === 200) {
-            const ret: any = await res.json();
-            if (ret && ret.code === 0) {
-                return ret.data || {};
-            }
-            return ret;
+            return await res.json();
         }
-        return false;
+        return null;
     } catch (error) {
         logError(error);
         throw error;

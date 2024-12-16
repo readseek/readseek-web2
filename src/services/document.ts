@@ -123,14 +123,17 @@ export default class DocumentService {
 
     @LogAPIRoute
     @CheckLogin
-    static async chat(req: NextRequest): Promise<APIRet> {
-        return { code: 0, data: {}, message: 'ok' };
+    static async delete(req: NextRequest): Promise<APIRet> {
+        const params = await req.json();
+        logInfo('start delete...', params);
+
+        // const ret = await deleteEmbeddings('');
+        return { code: 0, data: null, message: 'ok' };
     }
 
     @LogAPIRoute
     @CheckLogin
-    static async delete(req: NextRequest): Promise<APIRet> {
-        // const ret = await deleteEmbeddings('');
-        return { code: 0, data: null, message: 'ok' };
+    static async chat(req: NextRequest): Promise<APIRet> {
+        return { code: 0, data: {}, message: 'ok' };
     }
 }

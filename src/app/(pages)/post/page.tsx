@@ -54,9 +54,10 @@ export default function PostContentPage() {
         if (isUploading) return;
 
         const rets: any[] = await Promise.all(['/api/web/fileCategories', '/api/web/fileTags'].map(uri => getData(uri)));
-
-        setCategories(rets[0]?.list || []);
-        setTags(rets[1]?.list || []);
+        if (Array.isArray(rets[0].data?.list) && Array.isArray(rets[1].data?.list)) {
+            setCategories(rets[0].data.list);
+            setTags(rets[1].data.list);
+        }
     }, [isUploading]);
 
     useEffect(() => {
@@ -83,18 +84,18 @@ export default function PostContentPage() {
         try {
             setIsUploading(true);
             const ret: any = await postForm('/api/web/fileUpload', data);
-            if (ret && ret.originalFilename === data.file.name) {
-                resetForm();
-                // upload success, then jump to user fileList
-                router.push(`/list`);
+            if (!ret || ret?.code) {
+                toast({
+                    variant: 'destructive',
+                    title: '提交失败',
+                    description: `${ret?.message || '网络服务异常~'}`,
+                    action: <ToastAction altText="Try again">再来一次</ToastAction>,
+                });
                 return;
             }
-            toast({
-                variant: 'destructive',
-                title: '提交失败',
-                description: `${ret?.message || '网络服务异常~'}`,
-                action: <ToastAction altText="Try again">再来一次</ToastAction>,
-            });
+            resetForm();
+            // upload success, then jump to user fileList
+            router.push(`/list`);
         } catch (error) {
             logWarn(error);
         } finally {

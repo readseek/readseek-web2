@@ -17,16 +17,13 @@ async function respDataHandler(res: Response) {
         }
 
         if (res.status === 200) {
-            const ret: any = await res.json();
-            if (ret && ret.code === 0) {
-                return ret.data || {};
-            }
-            return ret;
+            return await res.json();
         }
+        return null;
     } catch (error) {
         logError(error);
+        throw error;
     }
-    return false;
 }
 
 export async function getServerData(path: string) {
@@ -42,8 +39,8 @@ export async function getServerData(path: string) {
         return respDataHandler(res);
     } catch (error) {
         logError(error, url);
+        throw error;
     }
-    return null;
 }
 
 export async function postServerJson(path: string, data: Record<string, any>) {
@@ -60,6 +57,6 @@ export async function postServerJson(path: string, data: Record<string, any>) {
         return respDataHandler(res);
     } catch (error) {
         logError(error, url);
+        throw error;
     }
-    return null;
 }
