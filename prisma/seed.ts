@@ -52,6 +52,7 @@ const AnyModel = {
         title: 'Insert test tags',
         description: 'Milvus Guildline,What is Milvus?,Everything you need to know about Milvus in less than 10 minutes.',
         keywords: ['Milvus', 'Guildline'],
+        type: 'PDF',
         categoryId: 1,
         userId: 1,
         authors: ['thomas', 'kevin'],
@@ -125,12 +126,23 @@ async function queryAll() {
     console.log('queryAll: ', ret);
 }
 
+async function deleteData(id?: string) {
+    const ret: any = await prisma.document.deleteMany({
+        where: {
+            id,
+        },
+    });
+    console.log('deleteData: ', ret);
+}
+
 (async () => {
     try {
-        await seedMetaData();
+        // await seedMetaData();
 
         // await seedData();
         // await queryAll();
+
+        await deleteData('116897deb02eb7808caec6919da913824d933dc548763443be5653cdbe7a46c4');
     } catch (error) {
         console.error(error);
     } finally {

@@ -2,7 +2,7 @@
 
 import { DocumentType, Category, Tag, Document, User } from '@/types';
 import LevelDB from '@/utils/database/leveldb';
-import { RecordData, PrismaDBMethod, saveOrUpdate, find } from '@/utils/database/postgresql';
+import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove } from '@/utils/database/postgresql';
 import { deleteEmbeddings, parseAndSaveContentEmbedding } from '@/utils/embeddings';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -191,8 +191,20 @@ export default class DBService {
     }
 
     static async deleteFileStorage(id: string): Promise<boolean> {
-        const ret = await deleteEmbeddings('');
-
-        return true;
+        const rets = await Promise.all([
+            LevelDB.getSharedDB.delete(id),
+            deleteEmbeddings(id),
+            DBService.deleteFileStorage(id),
+            remove({
+                model: 'Document',
+                method: PrismaDBMethod.deleteMany,
+                condition: {
+                    where: {
+                        id,
+                    },
+                },
+            }),
+        ]);
+        return rets.filter(ret => ret === true).length === 3;
     }
 }

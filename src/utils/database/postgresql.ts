@@ -75,10 +75,11 @@ const parseRealCondition = (data?: object): OPCondition => {
                 return p;
             }, {});
         }
+        return {};
     } catch (error) {
-        logError(`error on parseRealCondition, input is: ${data}`, error);
+        logWarn(error);
+        throw new Error('exception during condition data parsing');
     }
-    return {};
 };
 
 export async function count(param: OPParams): Promise<number> {
@@ -178,12 +179,12 @@ export async function saveOrUpdate(param: OPParams): Promise<RecordData> {
 }
 
 /**
- * 根据id删除一项或多项数据
- * @param {OPParams} 当前仅支持根据id删除
+ * 多表的删除，支持删除一条记录和多条记录。具体条件由业务自定义
+ * @param {OPCondition} 自定义条件
  * @returns {boolean}
  */
 export async function remove(param: OPParams): Promise<boolean> {
-    const { model, method, data } = param;
+    const { model, method, condition } = param;
 
     const prismaModel: any = prisma[model.toLowerCase()];
     if (!prismaModel) {
@@ -194,13 +195,19 @@ export async function remove(param: OPParams): Promise<boolean> {
         throw new Error(`Invalid method: ${method}`);
     }
 
-    const args: any = {
-        where: {
-            // @ts-ignore
-            id: data && data[0] ? data[0].id : undefined,
-        },
-    };
+    if (!condition) {
+        throw new Error(`Invalid condition: ${condition}`);
+    }
 
-    const ret = await prismaModel.deleteMany(args);
-    return ret && ret.count > 0;
+    try {
+        const cond: OPCondition = parseRealCondition(condition);
+
+        logInfo('remove condition: \n', cond);
+
+        const ret = await prismaModel.deleteMany(cond);
+        return ret?.count > 0;
+    } catch (error) {
+        logError('error on remove: ', error);
+    }
+    return false;
 }

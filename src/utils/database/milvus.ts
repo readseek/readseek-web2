@@ -6,14 +6,12 @@ import { DataType, MilvusClient } from '@zilliz/milvus2-sdk-node';
 
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
-import { isDevModel } from '../common';
-
 /**
  * https://milvus.io/docs/manage-collections.md
  * Collection and entity are similar to tables and records in relational databases.
  * In this project, every stand-alone file has its own Collection.
  */
-const CollectionWithFileName = (name: string) => {
+const CollectionWithFileName = (name: string): string => {
     return `RS_DOC_${name.toLocaleUpperCase()}`;
 };
 
@@ -47,13 +45,18 @@ export default class MilvusDB {
         return this._milvusClient;
     }
 
-    public static async checkHealth() {
+    public static async closeConnection(): Promise<void> {
+        const res = await this.milvusClient?.closeConnection();
+        logWarn('milvusClient closed: ', res);
+    }
+
+    public static async checkHealth(): Promise<boolean | undefined> {
         const res = await this.milvusClient?.checkHealth();
         logWarn('Checking MilvusDB Health: ', res || 'failed');
         return res?.isHealthy;
     }
 
-    private static async checkCollection(collectionName: string, dim: number) {
+    private static async checkCollection(collectionName: string, dim: number): Promise<boolean> {
         try {
             const ret = await this.milvusClient?.hasCollection({
                 collection_name: collectionName,
@@ -109,7 +112,7 @@ export default class MilvusDB {
         return false;
     }
 
-    public static async saveDocument(data: any) {
+    public static async saveDocument(data: any): Promise<boolean> {
         if (!(await this.checkHealth())) {
             return false;
         }
@@ -147,6 +150,25 @@ export default class MilvusDB {
         return false;
     }
 
+    public static async deleteDocument(fileName: string): Promise<boolean> {
+        if (!(await this.checkHealth())) {
+            return false;
+        }
+        try {
+            const collectionName = CollectionWithFileName(fileName);
+
+            const ret = await this.milvusClient?.dropCollection({
+                collection_name: collectionName,
+                timeout: 15,
+            });
+            logWarn(`previous collection ${collectionName} was dropped, error_code: `, ret?.error_code);
+            return ret?.code === 0;
+        } catch (error) {
+            logError('error on deleteDocument: ', error);
+        }
+        return false;
+    }
+
     public static async searchDocument(embeddings: Array<number>, fileName: string) {
         if (!(await this.checkHealth())) {
             return false;
@@ -156,29 +178,5 @@ export default class MilvusDB {
         logInfo(`searchingDocument ${collectionName}, fileName is: `, fileName);
 
         return true;
-    }
-
-    public static async deleteDocument(fileName: string) {
-        if (!(await this.checkHealth())) {
-            return false;
-        }
-
-        const collectionName = CollectionWithFileName(fileName);
-
-        // Drop collection on prod was not permitted
-        if (isDevModel()) {
-            const ret = await this.milvusClient?.dropCollection({
-                collection_name: collectionName,
-                timeout: 15,
-            });
-            logWarn(`previous collection ${collectionName} was dropped`, ret);
-        }
-
-        return true;
-    }
-
-    public static async closeConnection() {
-        const res = await this.milvusClient?.closeConnection();
-        logWarn('milvusClient closed: ', res);
     }
 }

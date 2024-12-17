@@ -51,7 +51,7 @@ export function DataTable({ data, onDelete, onChatWith, onPaginationChanged }: D
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(doc.title)}>复制名称</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(doc.id)}>复制ID</DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem className="text-green-600" onClick={() => onChatWith(doc.id)}>
                                             开启对话

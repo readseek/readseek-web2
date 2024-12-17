@@ -129,16 +129,20 @@ export default class DocumentService {
             return ErrorRet('no file id found');
         }
 
-        const { id, type } = jsonData;
-        // 清理数据库
-        const ret = await DBService.deleteFileStorage(id);
-        if (ret) {
-            // 清理已上传的文件
-            const fileServerPath = path.join(UPLOAD_PATH, `${id}.${type}`);
-            if (existsSync(fileServerPath)) {
-                rmSync(fileServerPath);
+        try {
+            const { id, type } = jsonData;
+            // 清理数据库
+            const ret = await DBService.deleteFileStorage(id);
+            if (ret) {
+                // 清理已上传的文件
+                const fileServerPath = path.join(UPLOAD_PATH, `${id}.${type}`).toLowerCase() || '';
+                if (existsSync(fileServerPath)) {
+                    rmSync(fileServerPath);
+                }
+                return { code: 0, data: null, message: 'ok' };
             }
-            return { code: 0, data: null, message: 'ok' };
+        } catch (error) {
+            logError('fileDelete service: ', error);
         }
         return { code: -1, data: null, message: 'delete failed' };
     }
