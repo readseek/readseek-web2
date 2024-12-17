@@ -12,7 +12,7 @@ import { logError, logInfo, logWarn } from '@/utils/logger';
 export default class DBService {
     static async saveOrUpdateDocument(data: any): Promise<boolean> {
         try {
-            console.time('ParseAndSaveContent Costs:');
+            console.time('🔥 ParseAndSaveContent Costs:');
             const { fileHash, filePath, cateId, tags, type } = data;
             // TODO: 耗时操作，后续改成移步执行、成功后通过消息通知
             const parsedResult = await parseAndSaveContentEmbedding(filePath, DocumentType[type]);
@@ -57,7 +57,7 @@ export default class DBService {
         } catch (error) {
             logError(error);
         } finally {
-            console.timeEnd('ParseAndSaveContent Costs:');
+            console.timeEnd('🔥 ParseAndSaveContent Costs:');
         }
         return false;
     }

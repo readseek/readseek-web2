@@ -10,7 +10,7 @@ import { getOptimizedUnstructuredLoader } from './documentLoader';
 
 export async function getSplitContents(filepath: string, fileType: string) {
     try {
-        console.time('Document Loading&splitting:');
+        console.time('🏆 Document Loading&splitting:');
         const docs: Document[] = await getOptimizedUnstructuredLoader(filepath, fileType).load();
         const processedDocuments = docs.filter(doc => doc.pageContent.trim().length > 0);
 
@@ -21,7 +21,7 @@ export async function getSplitContents(filepath: string, fileType: string) {
     } catch (error) {
         logError('getSplitContents', error);
     } finally {
-        console.timeEnd('Document Loading&splitting:');
+        console.timeEnd('🏆 Document Loading&splitting:');
     }
     return null;
 }
