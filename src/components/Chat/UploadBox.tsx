@@ -11,11 +11,12 @@ import { logInfo, logWarn } from '@/utils/logger';
 interface Props {
     field?: any;
     formState?: FormState<FieldValues>;
+    disabled?: boolean;
 }
 
 const supportFileType = ['txt', 'md', 'pdf', 'epub', 'csv', 'tsv', 'doc', 'docx'];
 
-export const UploadBox = ({ field, formState }: Props) => {
+export const UploadBox = ({ field, formState, disabled = false }: Props) => {
     const [uploadFile, setUploadFile] = useState<File>();
 
     useEffect(() => {
@@ -86,7 +87,7 @@ export const UploadBox = ({ field, formState }: Props) => {
                     <p className="text-xs text-gray-500 dark:text-gray-400">{`支持的文件类型: ${supportFileType.join(',')}`}</p>
                 </div>
                 {uploadFile ? <p className="text-md italic text-gray-600">{`File: ${uploadFile.name}, lastModified: ${new Date(uploadFile.lastModified).toLocaleString()}`}</p> : null}
-                <input id="dropzone-file" name={field?.name || 'file'} type="file" className="hidden" {...getInputProps()} />
+                <input id="dropzone-file" name={field?.name || 'file'} type="file" className="hidden" {...getInputProps()} disabled={disabled} />
             </label>
         </div>
     );

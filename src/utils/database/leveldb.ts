@@ -43,8 +43,6 @@ class LevelDBWrapper {
             }
         } catch (err: any) {
             logWarn(`LevelDB no key '${key}' found, code is:`, err?.code);
-        } finally {
-            await this.close();
         }
         return null;
     }
@@ -61,8 +59,6 @@ class LevelDBWrapper {
             }
         } catch (err: any) {
             logError(`LevelDB put [key: ${key}] error`, err?.code);
-        } finally {
-            await this.close();
         }
         return false;
     }
@@ -81,14 +77,12 @@ class LevelDBWrapper {
             }
         } catch (err: any) {
             logError(`LevelDB delete error`, err?.code);
-        } finally {
-            await this.close();
         }
         return false;
     }
 
     public async checkStatus(): Promise<boolean> {
-        if (this.db.status !== 'open') {
+        if (this.db.status === 'closed') {
             try {
                 await this.db.open({ createIfMissing: true, multithreading: true, compression: true });
             } catch (err) {

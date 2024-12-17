@@ -13,6 +13,8 @@ import { TextLoader } from 'langchain/document_loaders/fs/text';
 
 import { DocumentType } from '@/types';
 
+import { logInfo } from '../logger';
+
 const UNSTRUCTURED_API_KEY = process.env.__RSN_UNSTRUCTURED_API_KEY as string;
 const UNSTRUCTURED_API_URL = process.env.__RSN_UNSTRUCTURED_API_URL as string;
 
@@ -63,8 +65,8 @@ export function getOptimizedUnstructuredLoader(filePath: string, type: string): 
         doc: 'fast',
         docx: 'fast',
         html: 'fast',
-        pdf: fileSize > 15 ? 'hi_res' : 'fast',
-        epub: fileSize > 15 ? 'hi_res' : 'fast',
+        pdf: fileSize > 20 ? 'hi_res' : 'fast',
+        epub: fileSize > 20 ? 'hi_res' : 'fast',
         jpg: 'ocr_only',
         png: 'ocr_only',
     };
@@ -88,7 +90,7 @@ export function getOptimizedUnstructuredLoader(filePath: string, type: string): 
         // // File Type Specific Optimizations
         coordinates: false, // Disable positional data
         pdfInferTableStructure: true,
-        skipInferTableTypes: ['doc', 'docx', 'xls', 'xlsx', 'txt', 'md'],
+        skipInferTableTypes: ['doc', 'docx', 'xls', 'xlsx', 'txt'],
 
         // // Advanced Parsing Controls
         xmlKeepTags: false, // Simplify XML parsing
@@ -98,5 +100,8 @@ export function getOptimizedUnstructuredLoader(filePath: string, type: string): 
         // OCR and Language Configuration
         ocrLanguages: ['en', 'zh-Hans'], // Only required languages
     };
+
+    logInfo('🤖 loaderOptions:\n', loaderOptions);
+
     return new UnstructuredLoader(filePath, loaderOptions);
 }

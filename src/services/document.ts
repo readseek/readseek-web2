@@ -1,13 +1,13 @@
 import type { NextRequest } from 'next/server';
 
-import { createWriteStream, existsSync, rmSync } from 'node:fs';
+import { createWriteStream, existsSync, unlink } from 'node:fs';
 import path from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
 import { getFileHash, getFileType } from '@/utils/common';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
-import { logError, logInfo } from '@/utils/logger';
+import { logError, logInfo, logWarn } from '@/utils/logger';
 
 import DBService from './db';
 
@@ -20,6 +20,19 @@ const ErrorRet = (msg: string) => {
 
 export default class DocumentService {
     static isFileUploading: boolean = false;
+
+    static async removeUploadedFile(fpath: string): Promise<void> {
+        try {
+            if (existsSync(fpath || '')) {
+                promisify(unlink)(fpath);
+                logInfo('uploaded file has been deleted');
+                return;
+            }
+            logWarn('file delete failed, wrong file path or file not exists:', fpath);
+        } catch (error) {
+            logError('removeUploadedFile:', error);
+        }
+    }
 
     @LogAPIRoute
     static async categoryList(req: NextRequest): Promise<APIRet> {
@@ -56,6 +69,12 @@ export default class DocumentService {
     @LogAPIRoute
     @CheckLogin
     static async upload(req: NextRequest): Promise<APIRet> {
+        let cateId,
+            tags,
+            file,
+            fileHash = '',
+            fileName = '',
+            filePath = '';
         try {
             // TODO: 暂时简单限制并发
             if (this.isFileUploading) {
@@ -63,13 +82,6 @@ export default class DocumentService {
             }
 
             this.isFileUploading = true;
-
-            let cateId,
-                tags,
-                file,
-                fileHash = '',
-                fileName = '',
-                filePath = '';
 
             const formData = await req.formData();
             if (!formData || !formData.has('file')) {
@@ -93,9 +105,9 @@ export default class DocumentService {
             filePath = path.join(UPLOAD_PATH, fileName);
 
             if (!existsSync(filePath)) {
-                console.time('FileUploading Costs:');
+                console.time('📤 FileUploading Costs:');
                 await pipelineAsync(Readable.fromWeb(file.stream()), createWriteStream(filePath));
-                console.timeEnd('FileUploading Costs:');
+                console.timeEnd('📤 FileUploading Costs:');
                 logInfo('file has been uploaded: ', filePath);
             }
 
@@ -115,6 +127,7 @@ export default class DocumentService {
             }
         } catch (error: any) {
             logError('fileUpload service: ', error);
+            this.removeUploadedFile(filePath);
         } finally {
             this.isFileUploading = false;
         }
@@ -135,10 +148,7 @@ export default class DocumentService {
             const ret = await DBService.deleteFileStorage(id);
             if (ret) {
                 // 清理已上传的文件
-                const fileServerPath = path.join(UPLOAD_PATH, `${id}.${type}`).toLowerCase() || '';
-                if (existsSync(fileServerPath)) {
-                    rmSync(fileServerPath);
-                }
+                this.removeUploadedFile(path.join(UPLOAD_PATH, `${id}.${type}`).toLowerCase() || '');
                 return { code: 0, data: null, message: 'ok' };
             }
         } catch (error) {

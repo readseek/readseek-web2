@@ -129,7 +129,7 @@ export default function PostContentPage() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormControl>
-                                    <UploadBox field={field} formState={form.formState} />
+                                    <UploadBox field={field} formState={form.formState} disabled={mutationUpload.isPending} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

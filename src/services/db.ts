@@ -194,7 +194,6 @@ export default class DBService {
         const rets = await Promise.all([
             LevelDB.getSharedDB.delete(id),
             deleteEmbeddings(id),
-            DBService.deleteFileStorage(id),
             remove({
                 model: 'Document',
                 method: PrismaDBMethod.deleteMany,
