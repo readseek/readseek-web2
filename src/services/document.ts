@@ -5,6 +5,7 @@ import path from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
+import { DocumentType } from '@/types';
 import { getFileHash, getFileType } from '@/utils/common';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
@@ -148,7 +149,7 @@ export default class DocumentService {
             const ret = await DBService.deleteFileStorage(id);
             if (ret) {
                 // 清理已上传的文件
-                this.removeUploadedFile(path.join(UPLOAD_PATH, `${id}.${type}`).toLowerCase() || '');
+                this.removeUploadedFile(path.join(UPLOAD_PATH, `${id}.${DocumentType[type]}`) || '');
                 return { code: 0, data: null, message: 'ok' };
             }
         } catch (error) {
