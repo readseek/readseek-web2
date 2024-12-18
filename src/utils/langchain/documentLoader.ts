@@ -77,28 +77,22 @@ export function getOptimizedUnstructuredLoader(filePath: string, type: string): 
         encoding: 'utf8',
 
         // Performance and Extraction Strategy
-        strategy: strategies[type] || 'auto',
+        strategy: 'auto',
+        // strategy: strategies[type] || 'auto',
 
         // Parsing Optimization
-        chunkingStrategy: 'by_similarity', // Intelligent section-based chunking
+        //chunkingStrategy: 'by_similarity', // Intelligent section-based chunking
         overlap: 200, // Slight overlap between chunks for context
         overlapAll: false, // Prevent excessive overlapping
         newAfterNChars: 4000, // Create new chunks after 3000 characters
         combineUnderNChars: 500, // Combine small chunks
         maxCharacters: 20000, // Limit chunk size
-
-        // // File Type Specific Optimizations
         coordinates: false, // Disable positional data
-        pdfInferTableStructure: true,
-        skipInferTableTypes: ['doc', 'docx', 'xls', 'xlsx', 'txt'],
 
         // // Advanced Parsing Controls
         xmlKeepTags: false, // Simplify XML parsing
         includePageBreaks: false, // Disable page break tracking
         multiPageSections: true, // Allow section spanning multiple pages
-
-        // OCR and Language Configuration
-        ocrLanguages: ['en', 'zh-Hans'], // Only required languages
     };
 
     logInfo('🤖 loaderOptions:\n', loaderOptions);
