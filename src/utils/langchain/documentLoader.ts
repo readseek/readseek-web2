@@ -58,43 +58,42 @@ export function getDocumentLoader(fileType: DocumentType, filePath: string): Doc
 export function getOptimizedUnstructuredLoader(filePath: string, type: string): DocumentLoader {
     const fileSize = statSync(filePath || '').size / (1024 * 1024);
     const strategies: Record<string, UnstructuredLoaderStrategy> = {
-        md: 'fast',
-        txt: 'fast',
-        csv: 'fast',
-        tsv: 'fast',
-        doc: 'fast',
-        docx: 'fast',
-        html: 'fast',
-        pdf: fileSize > 20 ? 'hi_res' : 'fast',
-        epub: fileSize > 20 ? 'hi_res' : 'fast',
+        md: 'hi_res',
+        txt: 'hi_res',
+        csv: 'hi_res',
+        tsv: 'hi_res',
+        doc: 'hi_res',
+        docx: 'hi_res',
+        html: 'hi_res',
         jpg: 'ocr_only',
         png: 'ocr_only',
+        pdf: fileSize > 50 ? 'fast' : 'hi_res',
+        epub: fileSize > 50 ? 'fast' : 'hi_res',
     };
 
     const loaderOptions: UnstructuredLoaderOptions = {
         apiKey: UNSTRUCTURED_API_KEY,
         apiUrl: UNSTRUCTURED_API_URL,
-        encoding: 'utf8',
 
         // Performance and Extraction Strategy
-        strategy: 'auto',
-        // strategy: strategies[type] || 'auto',
+        strategy: strategies[type] || 'auto',
+        hiResModelName: 'chipper',
+        xmlKeepTags: false, // Simplify XML parsing
+        includePageBreaks: true, // Disable page break tracking
+        skipInferTableTypes: ['jpg', 'jpeg', 'xls', 'xlsx'],
 
-        // Parsing Optimization
-        //chunkingStrategy: 'by_similarity', // Intelligent section-based chunking
+        // @ts-ignore
+        languages: ['eng', 'chi_sim', 'chi_tra'],
+
+        // Chunking Elements
+        chunkingStrategy: 'by_title', // Intelligent section-based chunking
         overlap: 200, // Slight overlap between chunks for context
         overlapAll: false, // Prevent excessive overlapping
-        newAfterNChars: 4000, // Create new chunks after 3000 characters
-        combineUnderNChars: 500, // Combine small chunks
         maxCharacters: 20000, // Limit chunk size
-        coordinates: false, // Disable positional data
-
-        // // Advanced Parsing Controls
-        xmlKeepTags: false, // Simplify XML parsing
-        includePageBreaks: false, // Disable page break tracking
+        newAfterNChars: 4000, // Create new chunks after 3000 characters
+        // Only operative for the "by_title" strategy.
+        combineUnderNChars: 200, // Combine small chunks
         multiPageSections: true, // Allow section spanning multiple pages
-
-        ocrLanguages: ['eng', 'chi_sim'],
     };
 
     logInfo('🤖 loaderOptions:\n', loaderOptions);
