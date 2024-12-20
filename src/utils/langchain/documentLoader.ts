@@ -77,7 +77,6 @@ export function getOptimizedUnstructuredLoader(filePath: string, type: string): 
 
         // Performance and Extraction Strategy
         strategy: strategies[type] || 'auto',
-        hiResModelName: 'chipper',
         xmlKeepTags: false, // Simplify XML parsing
         includePageBreaks: true, // Disable page break tracking
         skipInferTableTypes: ['jpg', 'jpeg', 'xls', 'xlsx'],
