@@ -113,26 +113,25 @@ export default class DocumentService {
             }
 
             logInfo('💪 file is ready, start parsing and embedding...');
-            const ret = await DBService.saveOrUpdateDocument({ fileHash, filePath, cateId, tags, type: getFileType(path.parse(filePath).ext) });
-            if (ret) {
-                return {
-                    code: 0,
-                    data: {
-                        fileName,
-                        originalFilename: file?.name,
-                        mimetype: file.type,
-                        size: file.size,
-                    },
-                    message: 'save ok',
-                };
-            }
+            console.time('🔥 ParseAndSaveContent Costs:');
+            const { state, message } = await DBService.saveOrUpdateDocument({ fileHash, filePath, cateId, tags, type: getFileType(path.parse(filePath).ext) });
+            console.timeEnd('🔥 ParseAndSaveContent Costs:');
+            return {
+                code: state ? 0 : -1,
+                message: message ?? 'upload success',
+                data: {
+                    fileHash,
+                    fileName: file?.name,
+                    fileSize: file.size,
+                },
+            };
         } catch (error: any) {
             logError('fileUpload service: ', error);
             this.removeUploadedFile(filePath);
+            return ErrorRet(error || 'upload failed');
         } finally {
             this.isFileUploading = false;
         }
-        return ErrorRet('upload failed');
     }
 
     @LogAPIRoute

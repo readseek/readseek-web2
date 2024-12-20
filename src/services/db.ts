@@ -10,56 +10,60 @@ import { logError, logInfo, logWarn } from '@/utils/logger';
  * Not opened for API
  */
 export default class DBService {
-    static async saveOrUpdateDocument(data: any): Promise<boolean> {
+    static async saveOrUpdateDocument(data: any): Promise<{ state: boolean; message?: string }> {
         try {
-            console.time('🔥 ParseAndSaveContent Costs:');
             const { fileHash, filePath, cateId, tags, type } = data;
-            // TODO: 耗时操作，后续改成移步执行、成功后通过消息通知
-            const parsedResult = await parseAndSaveContentEmbedding(filePath, DocumentType[type]);
-            if (parsedResult.state) {
-                const modeData = {
-                    id: fileHash,
-                    userId: 1,
-                    type,
-                    categoryId: cateId,
-                    tags: tags.reduce((p: any, c: Tag) => {
-                        if (!p.hasOwnProperty('connectOrCreate')) {
-                            p['connectOrCreate'] = [];
-                        }
-                        p['connectOrCreate'].push({
-                            where: { id: c.id },
-                            create: { name: c.name, alias: c.alias },
-                        });
-                        return p;
-                    }, {}),
-                    ...parsedResult.meta,
-                };
-
-                logInfo('on saveOrUpdateDocument, modeData is: ', modeData);
-
-                const [ret1, ret2] = await Promise.all([
-                    // save local mappings
-                    LevelDB.getSharedDB.put(fileHash, filePath),
-                    // save supabase postgresql
-                    saveOrUpdate({
-                        model: 'Document',
-                        method: PrismaDBMethod.upsert,
-                        data: [modeData],
-                    }),
-                ]);
-                if (!ret1 || !ret2) {
-                    logError(`error on saving to db: [${ret1} -- ${ret2}]`);
-                    return false;
-                }
-                return true;
+            if (await LevelDB.getSharedDB.has(fileHash)) {
+                logWarn('Same file has already been stored in database: ', fileHash, type);
+                return { state: false, message: 'same file content' };
             }
-            logWarn('parseAndSaveContent result: ', parsedResult);
+
+            // TODO: 耗时操作，后续改成移步执行、成功后通过消息通知
+            const { state, meta } = await parseAndSaveContentEmbedding(filePath, DocumentType[type]);
+            if (!state || !meta) {
+                logWarn('parseAndSaveContent result: ', state, meta);
+                return { state: false, message: 'file parsing failed' };
+            }
+
+            const modeData = {
+                id: fileHash,
+                userId: 1,
+                type,
+                categoryId: cateId,
+                tags: tags.reduce((p: any, c: Tag) => {
+                    if (!p.hasOwnProperty('connectOrCreate')) {
+                        p['connectOrCreate'] = [];
+                    }
+                    p['connectOrCreate'].push({
+                        where: { id: c.id },
+                        create: { name: c.name, alias: c.alias },
+                    });
+                    return p;
+                }, {}),
+                ...meta,
+            };
+
+            logInfo('on saveOrUpdateDocument, modeData is: ', modeData);
+
+            const [ret1, ret2] = await Promise.all([
+                // save local mappings
+                LevelDB.getSharedDB.put(fileHash, filePath),
+                // save supabase postgresql
+                saveOrUpdate({
+                    model: 'Document',
+                    method: PrismaDBMethod.upsert,
+                    data: [modeData],
+                }),
+            ]);
+
+            logInfo(`results with saveOrUpdateDocument: [${ret1} -- ${ret2}]`);
+            if (ret1 && ret2) {
+                return { state: true };
+            }
         } catch (error) {
             logError(error);
-        } finally {
-            console.timeEnd('🔥 ParseAndSaveContent Costs:');
         }
-        return false;
+        return { state: false, message: 'error on saving to db' };
     }
 
     static async getFiles(data: any): Promise<RecordData> {

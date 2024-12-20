@@ -105,7 +105,8 @@ export default function PostContentPage() {
             return true;
         },
         onSuccess: (data: any) => {
-            if (data) {
+            logInfo('onSuccess', data);
+            if (data?.fileHash) {
                 resetForm();
                 router.push(`/list`);
             }
