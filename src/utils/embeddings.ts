@@ -151,13 +151,16 @@ export async function parseAndSaveContentEmbedding(filePath: string, type: strin
         if (Array.isArray(segments) && segments.length > 0) {
             const ret = await saveEmbeddings(segments as LSegment[]);
             // 从第一段内容截取
-            const title = segments[0].pageContent.trim().replace(/\n+/g, '.').substring(0, 128);
+            const title = segments[0].pageContent
+                .trim()
+                .replace(/(-{2,}|\n+|\s)/g, '')
+                .substring(0, 128);
             // 从前三段内容截取
             const description = segments
                 .slice(0, 3)
                 .map(item => item.pageContent)
                 .join(',')
-                .replace(/\n+/g, '.')
+                .replace(/(-{2,}|\n+|\s)/g, '')
                 .substring(0, 255);
 
             // 返回实际的内容数据落库
