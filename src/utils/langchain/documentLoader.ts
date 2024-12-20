@@ -93,6 +93,8 @@ export function getOptimizedUnstructuredLoader(filePath: string, type: string): 
         xmlKeepTags: false, // Simplify XML parsing
         includePageBreaks: false, // Disable page break tracking
         multiPageSections: true, // Allow section spanning multiple pages
+
+        ocrLanguages: ['eng', 'chi_sim'],
     };
 
     logInfo('🤖 loaderOptions:\n', loaderOptions);
