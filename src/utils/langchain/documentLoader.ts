@@ -83,7 +83,8 @@ export function getOptimizedUnstructuredLoader(filePath: string, type: string): 
         skipInferTableTypes: ['jpg', 'jpeg', 'xls', 'xlsx'],
 
         // @ts-ignore
-        languages: ['eng', 'chi_sim', 'chi_tra'],
+        languages: ['eng', 'chi_sim', 'chi_tra'], //languages is preferred. ocr_languages is marked for deprecation.
+        ocrLanguages: ['eng', 'chi_sim', 'chi_tra'],
 
         // Chunking Elements
         chunkingStrategy: 'by_title', // Intelligent section-based chunking
@@ -91,8 +92,6 @@ export function getOptimizedUnstructuredLoader(filePath: string, type: string): 
         overlapAll: false, // Prevent excessive overlapping
         maxCharacters: 20000, // Limit chunk size
         newAfterNChars: 4000, // Create new chunks after 3000 characters
-        // Only operative for the "by_title" strategy.
-        combineUnderNChars: 200, // Combine small chunks
         multiPageSections: true, // Allow section spanning multiple pages
     };
 
