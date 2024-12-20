@@ -91,8 +91,8 @@ export default function PostContentPage() {
     const mutationUpload = useMutation({
         mutationKey: [POST_URI.fileUpload],
         mutationFn: async (data: z.infer<typeof FormSchema>) => {
-            // logInfo('mutationUpload:', data);
             const ret = await postForm('/api/web/fileUpload', data);
+            logInfo('upload ret:', ret);
             if (!ret || ret?.code) {
                 toast({
                     variant: 'destructive',
@@ -104,9 +104,8 @@ export default function PostContentPage() {
             }
             return true;
         },
-        onSuccess: (data: any) => {
-            logInfo('onSuccess', data);
-            if (data?.fileHash) {
+        onSuccess: (flag: boolean) => {
+            if (flag) {
                 resetForm();
                 router.push(`/list`);
             }

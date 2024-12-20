@@ -86,12 +86,13 @@ export function getOptimizedUnstructuredLoader(filePath: string, type: string): 
         ocrLanguages: ['eng', 'chi_sim', 'chi_tra'],
 
         // Chunking Elements
-        chunkingStrategy: 'by_title', // Intelligent section-based chunking
+        chunkingStrategy: 'by_title',
         overlap: 200, // Slight overlap between chunks for context
         overlapAll: false, // Prevent excessive overlapping
         maxCharacters: 20000, // Limit chunk size
         newAfterNChars: 4000, // Create new chunks after 3000 characters
         multiPageSections: true, // Allow section spanning multiple pages
+        combineUnderNChars: 200,
     };
 
     logInfo('🤖 loaderOptions:\n', loaderOptions);
