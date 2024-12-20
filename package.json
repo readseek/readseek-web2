@@ -13,7 +13,9 @@
         "build": "next build",
         "start": "next start -p 4455",
         "lint:fix": "next lint --fix",
-        "format:write": "prettier --write \"src/**/*.{ts,tsx,css,json}\" --cache"
+        "format:write": "prettier --write \"src/**/*.{ts,tsx,css,json}\" --cache",
+        "run:prisma-studio": "nlx prisma studio &",
+        "run:unstructured-api": "cdt && cd unstructured/unstructured-api && make run-web-app &"
     },
     "prisma": {
         "seed": "ts-node --project tsconfig.json --pretty prisma/seed.ts"
