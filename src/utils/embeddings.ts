@@ -1,10 +1,11 @@
 'use server';
 
+import type { LSegment } from './langchain/parser';
+
 // @ts-ignore
 import { InferenceSession, Tensor } from 'onnxruntime-node';
 
-import { getOnnxModel, OnnxModel } from '@/constants/OnnxModel';
-import { getSplitContents } from '@/utils/langchain/splitter';
+import { getOnnxModel, OnnxModel } from '@/constants/onnx-model';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
 import MilvusDB from './database/milvus';
@@ -18,35 +19,6 @@ export type EmbeddingTextItem = {
     number: number;
     text: string;
     embedding: Array<number>;
-};
-
-// Langchain Document real types, for per text segment
-export type LSegment = {
-    metadata: {
-        category: string;
-        filename: string;
-        filetype: string;
-        languages: string[];
-        loc: object;
-        orig_elements: string;
-        emphasized_text_contents?: string[];
-        emphasized_text_tags?: string[];
-    };
-    pageContent: string;
-};
-
-export type DocumentMeta = {
-    title?: string;
-    description?: string;
-    keywords?: string[];
-    authors?: string[]; //original authors
-    coverUrl?: string;
-    content?: object;
-};
-
-export type ParsedResult = {
-    meta?: DocumentMeta;
-    state: boolean; // parsed success or not
 };
 
 async function initialize() {
@@ -142,43 +114,6 @@ export async function saveEmbeddings(segments: LSegment[]) {
         logError('saveEmbeddings', error);
     }
     return false;
-}
-
-export async function parseAndSaveContentEmbedding(filePath: string, type: string): Promise<ParsedResult> {
-    try {
-        const segments = await getSplitContents(filePath, type);
-
-        if (Array.isArray(segments) && segments.length > 0) {
-            const ret = await saveEmbeddings(segments as LSegment[]);
-            // 从第一段内容截取
-            const title = segments[0].pageContent
-                .trim()
-                .replace(/(\n+|#|\*|%|@|\$|&|-{2,})/g, '')
-                .substring(0, 128);
-            // 从前三段内容截取
-            const description = segments
-                .slice(0, 3)
-                .map(item => item.pageContent)
-                .join(',')
-                .replace(/(\n+|#|\*|%|@|\$|&|-{2,})/g, '')
-                .substring(0, 255);
-
-            // 返回实际的内容数据落库
-            return {
-                state: ret,
-                meta: {
-                    title,
-                    description,
-                    keywords: title.split('.'),
-                    authors: ['tomartisan'], // 先写死，后面从前端传过来
-                    coverUrl: process.env.__RSN_DEFAULT_COVER, // 后边从网络抓取，或随机
-                },
-            };
-        }
-    } catch (error) {
-        logError('parseAndSaveContentEmbedding', error);
-    }
-    return { state: false };
 }
 
 export async function deleteEmbeddings(name: string) {

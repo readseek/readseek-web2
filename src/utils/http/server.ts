@@ -3,7 +3,7 @@
 import { headers } from 'next/headers';
 import { Response } from 'node-fetch';
 
-import { LOGIN_URL, API_URL } from '@/constants/Application';
+import { LOGIN_URL, API_URL } from '@/constants/application';
 
 import { isDevModel } from '../common';
 import { logError } from '../logger';

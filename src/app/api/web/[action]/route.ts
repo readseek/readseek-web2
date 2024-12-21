@@ -3,7 +3,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 
-import { GET_URI, POST_URI } from '@/constants/Application';
+import { GET_URI, POST_URI } from '@/constants/application';
 import DocumentService from '@/services/document';
 import SystemService from '@/services/system';
 import UserService from '@/services/user';

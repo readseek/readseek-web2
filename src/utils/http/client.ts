@@ -1,6 +1,6 @@
 'use client';
 
-import { LOGIN_URL, API_URL } from '@/constants/Application';
+import { LOGIN_URL, API_URL } from '@/constants/application';
 
 import { logError } from '../logger';
 

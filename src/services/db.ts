@@ -1,9 +1,9 @@
 'use server';
 
-import { DocumentType, Category, Tag, Document, User } from '@/types';
-import LevelDB from '@/utils/database/leveldb';
+import { DocumentType, Tag, Document } from '@/types';
 import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove } from '@/utils/database/postgresql';
-import { deleteEmbeddings, parseAndSaveContentEmbedding } from '@/utils/embeddings';
+import { deleteEmbeddings, saveEmbeddings } from '@/utils/embeddings';
+import { parseFileContent } from '@/utils/langchain/parser';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
 /**
@@ -13,15 +13,26 @@ export default class DBService {
     static async saveOrUpdateDocument(data: any): Promise<{ state: boolean; message?: string }> {
         try {
             const { fileHash, filePath, cateId, tags, type } = data;
-            if (await LevelDB.getSharedDB.has(fileHash)) {
+            const doc = (await find({
+                model: 'Document',
+                method: PrismaDBMethod.findUnique,
+                condition: {
+                    select: {
+                        id: true,
+                    },
+                    where: { id: fileHash },
+                },
+            })) as Document;
+            logInfo('Has document record ==> ', doc);
+            if (doc && doc?.id) {
                 logWarn('Same file has already been stored in database: ', fileHash, type);
                 return { state: false, message: 'same file content' };
             }
 
             // TODO: 耗时操作，后续改成移步执行、成功后通过消息通知
-            const { state, meta } = await parseAndSaveContentEmbedding(filePath, DocumentType[type]);
-            if (!state || !meta) {
-                logWarn('parseAndSaveContent result: ', state, meta);
+            const { state, meta, segments } = await parseFileContent(filePath, DocumentType[type]);
+            if (!state || !meta || !segments) {
+                logWarn('parseFileContent result: ', state, meta);
                 return { state: false, message: 'file parsing failed' };
             }
 
@@ -46,8 +57,8 @@ export default class DBService {
             logInfo('on saveOrUpdateDocument, modeData is: ', modeData);
 
             const [ret1, ret2] = await Promise.all([
-                // save local mappings
-                LevelDB.getSharedDB.put(fileHash, filePath),
+                // save content embeddings
+                saveEmbeddings(segments),
                 // save supabase postgresql
                 saveOrUpdate({
                     model: 'Document',
@@ -196,7 +207,6 @@ export default class DBService {
 
     static async deleteFileStorage(id: string): Promise<boolean> {
         const rets = await Promise.all([
-            LevelDB.getSharedDB.delete(id),
             deleteEmbeddings(id),
             remove({
                 model: 'Document',

@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 
 import { LoadingImage, ErrorImage } from '@/components/ImageView';
 import { useToast } from '@/components/ui/hooks/use-toast';
-import { GET_URI, POST_URI } from '@/constants/Application';
+import { GET_URI, POST_URI } from '@/constants/application';
 import { getData, postJson } from '@/utils/http/client';
 import { logInfo, logWarn } from '@/utils/logger';
 

@@ -16,7 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/components/ui/hooks/use-toast';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToastAction } from '@/components/ui/toast';
-import { GET_URI, POST_URI } from '@/constants/Application';
+import { GET_URI, POST_URI } from '@/constants/application';
 import { getData, postForm } from '@/utils/http/client';
 import { logInfo, logWarn } from '@/utils/logger';
 
