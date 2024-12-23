@@ -56,46 +56,48 @@ export function getDocumentLoader(fileType: DocumentType, filePath: string): Doc
 }
 
 export function getOptimizedUnstructuredLoader(filePath: string, type: string): DocumentLoader {
-    const fileSize = statSync(filePath || '').size / (1024 * 1024);
-    const strategies: Record<string, UnstructuredLoaderStrategy> = {
-        md: 'hi_res',
-        txt: 'hi_res',
-        csv: 'hi_res',
-        tsv: 'hi_res',
-        doc: 'hi_res',
-        docx: 'hi_res',
-        html: 'hi_res',
-        jpg: 'ocr_only',
-        png: 'ocr_only',
-        pdf: fileSize > 50 ? 'fast' : 'hi_res',
-        epub: fileSize > 50 ? 'fast' : 'hi_res',
-    };
+    // const fileSize = statSync(filePath || '').size / (1024 * 1024);
+    // const strategies: Record<string, UnstructuredLoaderStrategy> = {
+    //     md: 'hi_res',
+    //     txt: 'hi_res',
+    //     csv: 'hi_res',
+    //     tsv: 'hi_res',
+    //     doc: 'hi_res',
+    //     docx: 'hi_res',
+    //     html: 'hi_res',
+    //     jpg: 'ocr_only',
+    //     png: 'ocr_only',
+    //     pdf: fileSize > 50 ? 'fast' : 'hi_res',
+    //     epub: fileSize > 50 ? 'fast' : 'hi_res',
+    // };
 
     const loaderOptions: UnstructuredLoaderOptions = {
         apiKey: UNSTRUCTURED_API_KEY,
         apiUrl: UNSTRUCTURED_API_URL,
 
         // Performance and Extraction Strategy
-        strategy: strategies[type] || 'auto',
-        xmlKeepTags: false, // Simplify XML parsing
-        includePageBreaks: true, // Disable page break tracking
-        skipInferTableTypes: ['jpg', 'jpeg', 'xls', 'xlsx'],
-
-        // @ts-ignore
-        languages: ['eng', 'chi_sim', 'chi_tra'], //languages is preferred. ocr_languages is marked for deprecation.
-        ocrLanguages: ['eng', 'chi_sim', 'chi_tra'],
+        // strategy: strategies[type] || 'auto',
+        strategy: 'auto',
 
         // Chunking Elements
-        chunkingStrategy: 'by_title',
+        // chunkingStrategy: 'basic', // https://docs.unstructured.io/api-reference/api-services/chunking#basic-chunking-strategy
+        hiResModelName: 'yolox_quantized', // chipper | detectron2_onnx | yolox | yolox_quantized
+        xmlKeepTags: false, // Simplify XML parsing
+        includePageBreaks: true, // Disable page break tracking
+        skipInferTableTypes: ['jpg', 'jpeg', 'png', 'xls', 'xlsx'],
         overlap: 200, // Slight overlap between chunks for context
         overlapAll: false, // Prevent excessive overlapping
         maxCharacters: 20000, // Limit chunk size
         newAfterNChars: 4000, // Create new chunks after 3000 characters
         multiPageSections: true, // Allow section spanning multiple pages
         combineUnderNChars: 200,
+
+        // @ts-ignore
+        languages: ['eng', 'chi_sim', 'chi_tra'], //languages is preferred. ocr_languages is marked for deprecation.
+        ocrLanguages: ['eng', 'chi_sim', 'chi_tra'],
     };
 
-    logInfo('🤖 loaderOptions:\n', loaderOptions);
+    logInfo('🤖 loaderOptions:\n', type, loaderOptions);
 
     return new UnstructuredLoader(filePath, loaderOptions);
 }
