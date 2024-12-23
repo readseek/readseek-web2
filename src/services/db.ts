@@ -206,7 +206,7 @@ export default class DBService {
     }
 
     static async deleteFileStorage(id: string): Promise<boolean> {
-        const rets = await Promise.all([
+        const [det1, det2] = await Promise.all([
             deleteEmbeddings(id),
             remove({
                 model: 'Document',
@@ -218,6 +218,12 @@ export default class DBService {
                 },
             }),
         ]);
-        return rets.filter(ret => ret === true).length === 3;
+        if (!det1) {
+            logWarn('Embeddings clear failed', det1);
+        }
+        if (!det2) {
+            logWarn('SQL DB clear failed', det2);
+        }
+        return det1 && det2;
     }
 }

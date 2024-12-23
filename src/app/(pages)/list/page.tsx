@@ -49,14 +49,19 @@ export default function FileListPage() {
             return ret?.code === 0;
         },
         onSuccess: (data: any) => {
-            if (data) {
-                refetch();
+            if (!data) {
+                toast({
+                    title: '啊噢~',
+                    description: '删除失败，请稍后再一次~',
+                });
+                return;
             }
+            refetch();
         },
         onError: (e: any) => {
             logWarn('handleDelete onError: ', e);
             toast({
-                title: '啊噢，失败了',
+                title: '啊噢~',
                 description: '操作失败，请稍后再试试~',
             });
         },
