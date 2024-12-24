@@ -33,7 +33,7 @@ export async function getServerData(path: string) {
             headers: headers(),
             method: 'GET',
             next: {
-                revalidate: isDevModel() ? 10 : 60 * 60 * 2,
+                revalidate: isDevModel() ? 5 : 1800, // 5sec in dev and 30min in prod
             },
         });
         return respDataHandler(res);

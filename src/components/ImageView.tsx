@@ -30,7 +30,7 @@ export function RemoteImage({ src, alt = undefined, fill = false }: RemoteImageP
             <Image
                 src={src}
                 alt={defaultAlt}
-                loading="lazy"
+                priority={true}
                 decoding="auto"
                 sizes="(max-width: 768px) 100vw, (max-width: 1440px) 50vw, 33vw"
                 className={`transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}

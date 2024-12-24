@@ -11,9 +11,8 @@ function getQueryClient() {
         return new QueryClient({
             defaultOptions: {
                 queries: {
-                    staleTime: 60 * 1000 * 30,
-                    gcTime: 1000 * 60 * 30,
-                    refetchOnReconnect: true,
+                    staleTime: 60 * 1000 * 10,
+                    gcTime: 1000 * 60 * 60,
                 },
             },
         });
@@ -27,8 +26,8 @@ function getQueryClient() {
                 defaultOptions: {
                     queries: {
                         networkMode: 'online',
-                        staleTime: 1000 * 60 * 45, // 45 minutes
-                        gcTime: 1000 * 60 * 45,
+                        staleTime: 1000 * 60 * 10, // 10 minutes
+                        gcTime: 1000 * 60 * 30,
                         refetchOnMount: true,
                         refetchOnReconnect: true,
                         refetchOnWindowFocus: true,
