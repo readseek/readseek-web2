@@ -20,7 +20,7 @@ function renderDocList(data: any[]) {
                                     </a>
                                 </h2>
                                 {'作者: '}
-                                <b className="m-0 px-1">{doc.authors?.join(', ')}</b>
+                                <b className="m-0 px-1">{doc.authors?.join('|')}</b>
                                 {'简介: '}
                                 <h3 id="desc" className="no-scrollbar hidden overflow-auto p-1 italic group-hover:block">
                                     {doc.description}

@@ -6,7 +6,7 @@ import type { LSegment } from './langchain/parser';
 import { InferenceSession, Tensor } from 'onnxruntime-node';
 
 import { getOnnxModel, OnnxModel } from '@/constants/onnx-model';
-import { logError, logInfo, logWarn } from '@/utils/logger';
+import { logError, logInfo } from '@/utils/logger';
 
 import MilvusDB from './database/milvus';
 import OptimizedTokenizer, { TokenizeResult } from './tokenizer';
@@ -41,16 +41,6 @@ async function initialize() {
                 // 0 means use all available threads
                 interOpNumThreads: 0,
                 intraOpNumThreads: 0,
-            });
-
-            logWarn('Inputs:');
-            session.inputNames.forEach(name => {
-                logInfo(`  ${name}:`);
-            });
-
-            logWarn('Outputs:');
-            session.outputNames.forEach(name => {
-                logInfo(`  ${name}:`);
             });
 
             if (!tokenizer && localTokenizerPath) {
