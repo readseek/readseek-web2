@@ -16,12 +16,11 @@ export async function getPosts() {
     return { total: ret.data.total, posts: ret.data.list };
 }
 
-export function DocumentPosts(props: any) {
-    console.log('DocumentPosts props: ', props);
-
+export function DocumentPosts() {
     const { data, isError, isPending } = useQuery({
         queryKey: ['fileList'],
         queryFn: getPosts,
+        //initialdata, // no use initialdata: https://tanstack.com/query/latest/docs/framework/react/guides/ssr#get-started-fast-with-initialdata
     });
 
     if (isPending) {
