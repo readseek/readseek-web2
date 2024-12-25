@@ -71,8 +71,6 @@ export function getOptimizedUnstructuredLoader(filePath: string, type: string): 
         xmlKeepTags: false, // Simplify XML parsing
         includePageBreaks: true, // Disable page break tracking
         multiPageSections: true, // Allow section spanning multiple pages
-        pdfInferTableStructure: false,
-        extractImageBlockTypes: undefined,
         skipInferTableTypes: ['jpg', 'jpeg', 'png', 'xls', 'xlsx', 'pdf'],
         ocrLanguages: ['eng', 'chi_sim', 'chi_tra'], //languages is preferred. ocr_languages is marked for deprecation.
     };

@@ -57,7 +57,7 @@ export function DocumentPosts() {
                             <div id="info" className="absolute bottom-0 left-0 z-10 flex h-14 w-full flex-col items-start bg-neutral-600 bg-opacity-35 p-1 text-white transition-all duration-300 group-hover:h-[85%] group-hover:bg-opacity-90">
                                 {'标题: '}
                                 <h2 className="m-0 underline hover:italic hover:no-underline">
-                                    <a href={`/chat?id=${doc.id}`} target="_blank">
+                                    <a href={`/chat/${doc.id}`} target="_blank">
                                         {doc.title}
                                     </a>
                                 </h2>

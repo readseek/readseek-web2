@@ -4,6 +4,7 @@ import type { Document } from '@/types';
 
 import { keepPreviousData, useQuery, useMutation } from '@tanstack/react-query';
 import { PaginationState } from '@tanstack/react-table';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { LoadingImage, ErrorImage } from '@/components/ImageView';
@@ -19,6 +20,7 @@ const metadata = {
 };
 
 export default function FileListPage() {
+    const router = useRouter();
     const { toast } = useToast();
 
     useEffect(() => {
@@ -73,7 +75,7 @@ export default function FileListPage() {
     }
 
     function handleChatWith(id: string) {
-        logInfo('handleChatWith', id);
+        router.push(`/chat/${id}`);
     }
 
     if (isPending) {
