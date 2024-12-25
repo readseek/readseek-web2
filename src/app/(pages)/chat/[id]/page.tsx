@@ -1,6 +1,6 @@
 'use client';
 
-import type { Document, Tag, Category } from '@/types';
+import type { Document } from '@/types';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { keepPreviousData, useQuery, useMutation } from '@tanstack/react-query';
@@ -13,11 +13,10 @@ import { ErrorImage, LoadingImage } from '@/components/ImageView';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/components/ui/hooks/use-toast';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ToastAction } from '@/components/ui/toast';
 import { GET_URI, POST_URI } from '@/constants/application';
-import { getData } from '@/utils/http/client';
+import { getData, postJson } from '@/utils/http/client';
 import { logInfo, logWarn } from '@/utils/logger';
 
 const FormSchema = z.object({
@@ -38,12 +37,19 @@ export default function ChatPage({ params }: { params: { id: string } }) {
     });
     const { toast } = useToast();
     const [doc, setDocument] = useState<Document>();
+    const [message, setMessage] = useState<Array<string>>(['']);
 
     useEffect(() => {
         if (doc) {
             document.title = `${doc?.title} | 开启交互式内容精读 | 搜读`;
         }
     }, [doc]);
+
+    const resetForm = () => {
+        form.reset({
+            input: '',
+        });
+    };
 
     const { data, isError, isPending } = useQuery({
         queryKey: [GET_URI.prepareChat, params.id],
@@ -73,16 +79,36 @@ export default function ChatPage({ params }: { params: { id: string } }) {
         },
     });
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        toast({
-            title: '你提交了以下内容：',
-            description: (
-                <pre className="mt-2 w-[480px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-        });
-    }
+    const queryMutation = useMutation({
+        mutationKey: [POST_URI.fileChat, params.id],
+        mutationFn: async (data: z.infer<typeof FormSchema>) => {
+            const ret = await postJson('/api/web/fileChat', { input: data.input });
+            if (!ret || ret?.code) {
+                toast({
+                    variant: 'destructive',
+                    title: '响应失败',
+                    description: `${ret?.message || '网络异常~'}`,
+                    action: <ToastAction altText="Try again">再来一次</ToastAction>,
+                });
+                return false;
+            }
+            return true;
+        },
+        onSuccess: (flag: boolean) => {
+            if (flag) {
+                resetForm();
+                // TODO: 更新界面
+                setMessage(message.concat(['new message']));
+            }
+        },
+        onError: (e: any) => {
+            logWarn('handleUpload onError: ', e);
+            toast({
+                title: '啊噢，失败了',
+                description: '操作失败，请稍后再试试~',
+            });
+        },
+    });
 
     if (isPending) {
         return (
@@ -103,10 +129,14 @@ export default function ChatPage({ params }: { params: { id: string } }) {
     return (
         <div className="main-content !justify-between">
             <div className="no-scrollbar my-5 w-[80%] overflow-y-scroll rounded-md bg-gray-100 p-4">
-                <code className="text-black">{JSON.stringify(data, null, 2)}</code>
+                {message.map((m: string, i: number) => (
+                    <code className="text-black" key={`chat_msg_${i}`}>
+                        {m}
+                    </code>
+                ))}
             </div>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="mb-12 w-2/3 space-y-6">
+                <form onSubmit={form.handleSubmit((data: any) => queryMutation.mutate(data))} onReset={resetForm} className="mb-12 w-2/3 space-y-6">
                     <FormField
                         control={form.control}
                         name="input"
@@ -115,8 +145,20 @@ export default function ChatPage({ params }: { params: { id: string } }) {
                                 <FormLabel>请在下方回复你想要了解的信息：</FormLabel>
                                 <FormControl>
                                     <div className="flex items-center">
-                                        <Textarea placeholder="单次最大长度不要超过500字" className="mr-4 resize-none" {...field} />
-                                        <Button type="submit">发送</Button>
+                                        <Textarea
+                                            placeholder="单次最大长度不要超过500字"
+                                            className="mr-4 resize-none"
+                                            {...field}
+                                            onKeyDown={e => {
+                                                if (e.key === 'Enter' && !e.shiftKey) {
+                                                    e.preventDefault();
+                                                    form.handleSubmit((data: any) => queryMutation.mutate(data))();
+                                                }
+                                            }}
+                                        />
+                                        <Button type="submit" disabled={queryMutation.isPending}>
+                                            发送
+                                        </Button>
                                     </div>
                                 </FormControl>
                                 <FormDescription>
