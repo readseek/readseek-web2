@@ -38,8 +38,8 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         case GET_URI.fileList:
             ret = await DocumentService.list(req);
             break;
-        case GET_URI.fileChat:
-            ret = await DocumentService.chat(req);
+        case GET_URI.prepareChat:
+            ret = await DocumentService.startChat(req);
             break;
         case GET_URI.userFiles:
             ret = await UserService.files(req);
@@ -70,6 +70,9 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     switch (action as POST_URI) {
         case POST_URI.fileUpload:
             ret = await DocumentService.upload(req);
+            break;
+        case POST_URI.fileChat:
+            ret = await DocumentService.chatting(req);
             break;
         case POST_URI.fileDelete:
             ret = await DocumentService.delete(req);

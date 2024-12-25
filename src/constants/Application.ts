@@ -4,7 +4,7 @@ export const enum GET_URI {
     fileCategories = 'fileCategories',
     fileTags = 'fileTags',
     fileList = 'fileList',
-    fileChat = 'fileChat',
+    prepareChat = 'prepareChat',
     // user's info
     userFiles = 'userFiles',
     userProfile = 'userProfile',
@@ -17,6 +17,7 @@ export const enum GET_URI {
 export const enum POST_URI {
     fileUpload = 'fileUpload',
     fileDelete = 'fileDelete',
+    fileChat = 'fileChat',
     userLogin = 'userLogin',
     userUpdate = 'userUpdate',
     userCancellation = 'userCancellation',

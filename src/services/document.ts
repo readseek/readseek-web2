@@ -20,8 +20,6 @@ const ErrorRet = (msg: string) => {
 };
 
 export default class DocumentService {
-    static isFileUploading: boolean = false;
-
     static async removeUploadedFile(fpath: string): Promise<void> {
         try {
             if (existsSync(fpath || '')) {
@@ -77,13 +75,6 @@ export default class DocumentService {
             fileName = '',
             filePath = '';
         try {
-            // TODO: 暂时简单限制并发
-            if (this.isFileUploading) {
-                return ErrorRet('file is already in processing');
-            }
-
-            this.isFileUploading = true;
-
             const formData = await req.formData();
             if (!formData || !formData.has('file')) {
                 return ErrorRet('no parameter file upload');
@@ -126,11 +117,9 @@ export default class DocumentService {
                 },
             };
         } catch (error: any) {
-            logError('fileUpload service: ', error);
+            logError('fileUpload: ', error);
             this.removeUploadedFile(filePath);
             return ErrorRet(error || 'upload failed');
-        } finally {
-            this.isFileUploading = false;
         }
     }
 
@@ -152,14 +141,14 @@ export default class DocumentService {
                 return { code: 0, data: null, message: 'ok' };
             }
         } catch (error) {
-            logError('fileDelete service: ', error);
+            logError('fileDelete: ', error);
         }
         return { code: -1, data: null, message: 'delete failed' };
     }
 
     @LogAPIRoute
     @CheckLogin
-    static async chat(req: NextRequest): Promise<APIRet> {
+    static async startChat(req: NextRequest): Promise<APIRet> {
         try {
             const docId = req.nextUrl.searchParams.get('id') as string;
             if (!docId || docId.trim().length !== 64) {
@@ -169,8 +158,21 @@ export default class DocumentService {
             const doc = (await DBService.getDocumentInfo(docId)) as Document;
             return { code: 0, data: doc, message: 'ok' };
         } catch (error) {
-            logError('chat service: ', error);
+            logError('startChat: ', error);
         }
         return { code: -1, data: null, message: 'chat start failed' };
+    }
+
+    @LogAPIRoute
+    @CheckLogin
+    static async chatting(req: NextRequest): Promise<APIRet> {
+        try {
+            const params = await req.json();
+            logInfo('chatting params: ', params);
+            return { code: 0, data: {}, message: 'ok' };
+        } catch (error) {
+            logError('chatting service: ', error);
+        }
+        return { code: -1, data: null, message: 'chatting failed' };
     }
 }

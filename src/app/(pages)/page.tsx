@@ -9,10 +9,8 @@ export default async function HomePage() {
         queryFn: getPosts,
     });
     return (
-        <div className="flex flex-col">
-            <HydrationBoundary state={dehydrate(queryClient)}>
-                <DocumentPosts />
-            </HydrationBoundary>
-        </div>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <DocumentPosts />
+        </HydrationBoundary>
     );
 }

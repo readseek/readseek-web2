@@ -48,7 +48,7 @@ export function DocumentPosts() {
     }
 
     return (
-        <>
+        <div className="flex flex-col">
             <div className="no-scrollbar grid flex-1 gap-4 overflow-y-scroll p-6 sm:grid-cols-3 xl:grid-cols-5">
                 {data?.posts.map((doc: Document, index: number) => {
                     return (
@@ -100,6 +100,6 @@ export function DocumentPosts() {
                     </Pagination>
                 </footer>
             )}
-        </>
+        </div>
     );
 }
