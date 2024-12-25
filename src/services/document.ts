@@ -5,7 +5,7 @@ import path from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
-import { DocumentType } from '@/types';
+import { DocumentType, Document } from '@/types';
 import { getFileHash, getFileType } from '@/utils/common';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
@@ -160,6 +160,17 @@ export default class DocumentService {
     @LogAPIRoute
     @CheckLogin
     static async chat(req: NextRequest): Promise<APIRet> {
-        return { code: 0, data: {}, message: 'ok' };
+        try {
+            const docId = req.nextUrl.searchParams.get('id') as string;
+            if (!docId || docId.trim().length !== 64) {
+                return ErrorRet('id is missing or incorrect');
+            }
+
+            const doc = (await DBService.getDocumentInfo(docId)) as Document;
+            return { code: 0, data: doc, message: 'ok' };
+        } catch (error) {
+            logError('chat service: ', error);
+        }
+        return { code: -1, data: null, message: 'chat start failed' };
     }
 }

@@ -44,7 +44,7 @@ export function RemoteImage({ src, alt = undefined, fill = false }: RemoteImageP
 export function LocalImage({ file, ext = 'svg' }: { file: string; ext?: string }) {
     return (
         <div className="relative h-full w-full">
-            <Image src={`assets/${file}.${ext}`} alt={file} fill={true} priority={true} unoptimized={true} className="object-scale-down" sizes="(max-width: 768px) 100vw, (max-width: 1440px) 50vw, 33vw" />
+            <Image src={`/assets/${file}.${ext}`} alt={file} fill={true} priority={true} unoptimized={true} className="object-scale-down" sizes="(max-width: 768px) 100vw, (max-width: 1440px) 50vw, 33vw" />
         </div>
     );
 }

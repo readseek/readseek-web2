@@ -226,4 +226,43 @@ export default class DBService {
         }
         return det1 && det2;
     }
+
+    static async getDocumentInfo(id: string): Promise<RecordData> {
+        return await find({
+            model: 'Document',
+            method: PrismaDBMethod.findUnique,
+            condition: {
+                select: {
+                    title: true,
+                    description: true,
+                    keywords: true,
+                    authors: true,
+                    coverUrl: true,
+                    viewCount: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    category: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                    tags: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                    user: {
+                        select: {
+                            name: true,
+                            email: true,
+                            avatar: true,
+                            bio: true,
+                            createdAt: true,
+                        },
+                    },
+                },
+                where: { id },
+            },
+        });
+    }
 }

@@ -135,14 +135,51 @@ async function deleteData(id?: string) {
     console.log('deleteData: ', ret);
 }
 
+async function queryOneData(id: string) {
+    const ret: any = await prisma.document.findUnique({
+        select: {
+            title: true,
+            description: true,
+            keywords: true,
+            authors: true,
+            coverUrl: true,
+            viewCount: true,
+            createdAt: true,
+            updatedAt: true,
+            category: {
+                select: {
+                    name: true,
+                },
+            },
+            tags: {
+                select: {
+                    name: true,
+                },
+            },
+            user: {
+                select: {
+                    name: true,
+                    email: true,
+                    avatar: true,
+                    bio: true,
+                    createdAt: true,
+                },
+            },
+        },
+        where: { id },
+    });
+    console.log('deleteData: ', ret);
+}
+
 (async () => {
     try {
         // await seedMetaData();
 
         // await seedData();
         // await queryAll();
+        // await deleteData('116897deb02eb7808caec6919da913824d933dc548763443be5653cdbe7a46c4');
 
-        await deleteData('116897deb02eb7808caec6919da913824d933dc548763443be5653cdbe7a46c4');
+        await queryOneData('ec20069fa25bd07537eae8559fde792dff9d944288bc3c2ecbc8785ea98bc5c8');
     } catch (error) {
         console.error(error);
     } finally {
