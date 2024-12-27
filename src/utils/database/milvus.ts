@@ -7,8 +7,9 @@ import { DataType, MilvusClient } from '@zilliz/milvus2-sdk-node';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
 export default class MilvusDB {
-    private static readonly MILVUS_ADDRESS = process.env.__RSN_MILVUS_ADDRESS || '127.0.0.1:19530';
+    private static readonly MILVUS_DBNAME = process.env.__RSN_MILVUS_DBName || 'default';
     private static readonly MILVUS_USERNAME = process.env.__RSN_MILVUS_USERNAME || 'root';
+    private static readonly MILVUS_ADDRESS = process.env.__RSN_MILVUS_ADDRESS || '127.0.0.1:19530';
 
     private static _milvusClient: MilvusClient;
 
@@ -17,9 +18,11 @@ export default class MilvusDB {
             logInfo('MilvusClient sdkInfo: ', MilvusClient.sdkInfo);
             try {
                 this._milvusClient = new MilvusClient({
-                    address: this.MILVUS_ADDRESS,
+                    database: this.MILVUS_DBNAME,
                     username: this.MILVUS_USERNAME,
+                    address: this.MILVUS_ADDRESS,
                     timeout: 120,
+                    maxRetries: 5,
                     logLevel: 'warn',
                     pool: {
                         max: 5,
@@ -29,7 +32,7 @@ export default class MilvusDB {
                     },
                 });
             } catch (error) {
-                logError(`Failed to connect Milvus with address ${this.MILVUS_ADDRESS} and username ${this.MILVUS_USERNAME}`, error);
+                logError(`Failed to connect milvus with db ${this.MILVUS_DBNAME} and username ${this.MILVUS_USERNAME}`, error);
                 return null;
             }
         }
@@ -41,10 +44,20 @@ export default class MilvusDB {
         logWarn('milvusClient closed: ', res);
     }
 
-    public static async checkHealth(): Promise<boolean | undefined> {
+    public static async checkHealth(): Promise<boolean> {
         const res = await this.milvusClient?.checkHealth();
-        logWarn('Checking MilvusDB Health: ', res || 'failed');
-        return res?.isHealthy;
+        if (!res?.isHealthy) {
+            logWarn('Checking MilvusDB Health: ', res || 'failed');
+            return false;
+        }
+
+        const listResp = await this.milvusClient?.listDatabases();
+        if (!listResp?.db_names.includes(this.MILVUS_DBNAME)) {
+            await this.milvusClient?.createDatabase({ db_name: this.MILVUS_DBNAME });
+            await this.milvusClient?.useDatabase({ db_name: this.MILVUS_DBNAME });
+            logInfo(`Database ${this.MILVUS_DBNAME} has been created`);
+        }
+        return true;
     }
 
     private static async checkCollection(collectionName: string, dim: number): Promise<boolean> {
