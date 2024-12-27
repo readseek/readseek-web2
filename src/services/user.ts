@@ -1,11 +1,9 @@
 import type { User } from '@/types';
-import type { OPCondition } from '@/utils/database/postgresql';
 import type { NextRequest } from 'next/server';
 
+import { getUserFiles, getUserInfo } from '@/utils/db';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
-
-import DBService from './db';
 
 export default class UserService {
     @LogAPIRoute
@@ -37,7 +35,7 @@ export default class UserService {
     static async profile(req: NextRequest): Promise<APIRet> {
         // TODO: 正式情况下，从拦截器中存放的变量获取
         const uid = Number(req.nextUrl.searchParams.get('uid'));
-        const user = (await DBService.getUserInfo(uid)) as User;
+        const user = (await getUserInfo(uid)) as User;
         if (user) {
             return { code: 0, data: user, message: 'ok' };
         }
@@ -61,7 +59,7 @@ export default class UserService {
             });
         }
 
-        const list = await DBService.getUserFiles({ title, pageSize, pageNum });
+        const list = await getUserFiles({ title, pageSize, pageNum });
         if (list) {
             return { code: 0, data: list, message: 'ok' };
         }

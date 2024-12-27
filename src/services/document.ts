@@ -7,10 +7,9 @@ import { promisify } from 'util';
 
 import { DocumentType, Document } from '@/types';
 import { getFileHash, getFileType } from '@/utils/common';
+import { deleteFileStorage, getCategories, getDocumentInfo, getFiles, getTags, saveOrUpdateDocument } from '@/utils/db';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
-
-import DBService from './db';
 
 const pipelineAsync = promisify(pipeline);
 const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH ?? 'public/uploads');
@@ -35,7 +34,7 @@ export default class DocumentService {
 
     @LogAPIRoute
     static async categoryList(req: NextRequest): Promise<APIRet> {
-        const list = await DBService.getCategories();
+        const list = await getCategories();
         if (list) {
             return { code: 0, data: list, message: 'ok' };
         }
@@ -44,7 +43,7 @@ export default class DocumentService {
 
     @LogAPIRoute
     static async tagList(req: NextRequest): Promise<APIRet> {
-        const list = await DBService.getTags();
+        const list = await getTags();
         if (list) {
             return { code: 0, data: list, message: 'ok' };
         }
@@ -58,7 +57,7 @@ export default class DocumentService {
         const pageSize = Number(searchParams.get('size')) || 10;
         const pageNum = Number(searchParams.get('page')) || 1;
 
-        const list = await DBService.getFiles({ pageSize, pageNum });
+        const list = await getFiles({ pageSize, pageNum });
         if (list) {
             return { code: 0, data: list, message: 'ok' };
         }
@@ -105,7 +104,7 @@ export default class DocumentService {
 
             logInfo('💪 file is ready, start parsing and embedding...');
             console.time('🔥 ParseAndSaveContent Costs:');
-            const { state, message } = await DBService.saveOrUpdateDocument({ fileHash, filePath, cateId, tags, type: getFileType(path.parse(filePath).ext) });
+            const { state, message } = await saveOrUpdateDocument({ fileHash, filePath, cateId, tags, type: getFileType(path.parse(filePath).ext) });
             console.timeEnd('🔥 ParseAndSaveContent Costs:');
             return {
                 code: state ? 0 : -1,
@@ -134,7 +133,7 @@ export default class DocumentService {
         try {
             const { id, type } = jsonData;
             // 清理数据库
-            const ret = await DBService.deleteFileStorage(id);
+            const ret = await deleteFileStorage(id);
             if (ret) {
                 // 清理已上传的文件
                 this.removeUploadedFile(path.join(UPLOAD_PATH, `${id}.${DocumentType[type]}`) || '');
@@ -155,7 +154,7 @@ export default class DocumentService {
                 return ErrorRet('id is missing or incorrect');
             }
 
-            const doc = (await DBService.getDocumentInfo(docId)) as Document;
+            const doc = (await getDocumentInfo(docId)) as Document;
             return { code: 0, data: doc, message: 'ok' };
         } catch (error) {
             logError('startChat: ', error);
