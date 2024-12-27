@@ -31,10 +31,10 @@ export default class MilvusDB {
                     timeout: 120,
                     logLevel: 'warn',
                     pool: {
-                        max: 10,
-                        min: 2,
+                        max: 5,
+                        min: 1,
                         autostart: true,
-                        idleTimeoutMillis: 1000 * 60 * 5,
+                        idleTimeoutMillis: 1000 * 60 * 5, // 5min
                     },
                 });
             } catch (error) {
