@@ -53,9 +53,11 @@ async function initialize() {
     }
 }
 
-async function createEmbeddings(texts: string[]): Promise<Array<EmbeddingTextItem>> {
+export async function createEmbeddings(text: string | string[]): Promise<Array<EmbeddingTextItem>> {
     try {
         await initialize();
+
+        const texts = Array.isArray(text) ? text : [text];
 
         // Tokenize the texts
         const tokenizers: TokenizeResult[] = await tokenizer.batchTokenizeWithoutCache(texts);
@@ -87,7 +89,7 @@ async function createEmbeddings(texts: string[]): Promise<Array<EmbeddingTextIte
     return [];
 }
 
-export async function saveEmbeddings(segments: LSegment[]) {
+export async function saveEmbeddings(segments: LSegment[], collectionName: string) {
     try {
         const contents: string[] = segments.map(segment => segment.pageContent);
         const textItems = await createEmbeddings(contents);
@@ -95,10 +97,9 @@ export async function saveEmbeddings(segments: LSegment[]) {
             const params = {
                 textItems,
                 dim: model.outputDimension,
-                fileName: segments[0].metadata.filename.split('.')[0],
                 metas: segments.map(segment => segment.metadata),
             };
-            return await MilvusDB.saveDocument(params);
+            return await MilvusDB.saveCollection(params, collectionName);
         }
     } catch (error) {
         logError('saveEmbeddings', error);
@@ -106,6 +107,10 @@ export async function saveEmbeddings(segments: LSegment[]) {
     return false;
 }
 
-export async function deleteEmbeddings(name: string) {
-    return MilvusDB.deleteDocument(name);
+export async function deleteEmbeddings(collection: string) {
+    return MilvusDB.deleteCollection(collection);
+}
+
+export async function queryEmbeddings(searchParams: any) {
+    return MilvusDB.searchCollection(searchParams);
 }

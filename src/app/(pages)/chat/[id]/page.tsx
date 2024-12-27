@@ -82,7 +82,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
     const queryMutation = useMutation({
         mutationKey: [POST_URI.fileChat, params.id],
         mutationFn: async (data: z.infer<typeof FormSchema>) => {
-            const ret = await postJson('/api/web/fileChat', { input: data.input });
+            const ret = await postJson('/api/web/fileChat', { input: data.input, id: params.id });
             if (!ret || ret?.code) {
                 toast({
                     variant: 'destructive',

@@ -7,7 +7,7 @@ import { promisify } from 'util';
 
 import { DocumentType, Document } from '@/types';
 import { getFileHash, getFileType } from '@/utils/common';
-import { deleteFileStorage, getCategories, getDocumentInfo, getFiles, getTags, saveOrUpdateDocument } from '@/utils/db';
+import { deleteFileStorage, getCategories, getDocumentInfo, getFiles, getTags, saveOrUpdateDocument, queryChat } from '@/utils/db';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -166,9 +166,11 @@ export default class DocumentService {
     @CheckLogin
     static async chatting(req: NextRequest): Promise<APIRet> {
         try {
-            const params = await req.json();
-            logInfo('chatting params: ', params);
-            return { code: 0, data: {}, message: 'ok' };
+            const { input, id } = await req.json();
+            if (input && id) {
+                const data = await queryChat(input, id);
+                return { code: 0, data, message: 'ok' };
+            }
         } catch (error) {
             logError('chatting service: ', error);
         }

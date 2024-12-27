@@ -2,9 +2,18 @@
 
 import { DocumentType, Tag, Document } from '@/types';
 import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove } from '@/utils/database/postgresql';
-import { deleteEmbeddings, saveEmbeddings } from '@/utils/embeddings';
+import { createEmbeddings, deleteEmbeddings, saveEmbeddings, queryEmbeddings } from '@/utils/embeddings';
 import { parseFileContent } from '@/utils/langchain/parser';
 import { logError, logInfo, logWarn } from '@/utils/logger';
+
+/**
+ * https://milvus.io/docs/manage-collections.md
+ * Collection and entity are similar to tables and records in relational databases.
+ * In this project, every stand-alone file has its own Collection.
+ */
+function collectionNameWithId(fileId: string): string {
+    return `RS_DOC_${fileId.toLocaleUpperCase()}`;
+}
 
 export async function saveOrUpdateDocument(data: any): Promise<{ state: boolean; message?: string }> {
     try {
@@ -54,7 +63,7 @@ export async function saveOrUpdateDocument(data: any): Promise<{ state: boolean;
 
         const [ret1, ret2] = await Promise.all([
             // save content embeddings
-            saveEmbeddings(segments),
+            saveEmbeddings(segments, collectionNameWithId(fileHash)),
             // save supabase postgresql
             saveOrUpdate({
                 model: 'Document',
@@ -203,7 +212,7 @@ export async function getTags(): Promise<RecordData> {
 
 export async function deleteFileStorage(id: string): Promise<boolean> {
     const [det1, det2] = await Promise.all([
-        deleteEmbeddings(id),
+        deleteEmbeddings(collectionNameWithId(id)),
         remove({
             model: 'Document',
             method: PrismaDBMethod.deleteMany,
@@ -260,4 +269,22 @@ export async function getDocumentInfo(id: string): Promise<RecordData> {
             where: { id },
         },
     });
+}
+
+export async function queryChat(input: string, id: string): Promise<string> {
+    logInfo('🔍 queryChat input: ', input);
+
+    const queryEmbedding = createEmbeddings(input);
+    const searchParams = {
+        collection_name: collectionNameWithId(id),
+        vector: queryEmbedding,
+        output_fields: ['content'],
+        limit: 5, // Number of results to return
+        metric_type: 'L2', // or "IP" for Inner Product, depending on your preference
+    };
+    const rets = await queryEmbeddings(searchParams);
+
+    logInfo('queryEmbeddings rets: ', rets);
+
+    return '';
 }
