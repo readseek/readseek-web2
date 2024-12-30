@@ -8,7 +8,7 @@ import { InferenceSession, Tensor } from 'onnxruntime-node';
 import { getOnnxModel, OnnxModel } from '@/constants/onnx-model';
 import { logError, logInfo } from '@/utils/logger';
 
-import MilvusDB from './database/milvus';
+import MilvusDB, { CollectionSearchParams, CollectionQueryParams } from './database/milvus';
 import OptimizedTokenizer, { TokenizeResult } from './tokenizer';
 
 let model: OnnxModel;
@@ -53,7 +53,7 @@ async function initialize() {
     }
 }
 
-export async function createEmbeddings(text: string | string[]): Promise<Array<EmbeddingTextItem>> {
+export async function createEmbeddings(text: string | string[]): Promise<Array<EmbeddingTextItem> | null> {
     try {
         await initialize();
 
@@ -63,30 +63,24 @@ export async function createEmbeddings(text: string | string[]): Promise<Array<E
         const tokenizers: TokenizeResult[] = await tokenizer.batchTokenizeWithoutCache(texts);
 
         // Run local inference
-        const embeddings = await Promise.all(
+        return await Promise.all(
             tokenizers.map(async (cV: TokenizeResult, index: number) => {
                 const inputFeeds = {
                     input_ids: new Tensor('int64', cV.inputIds, [1, cV.inputIds.length]),
                     attention_mask: new Tensor('int64', cV.attentionMask, [1, cV.attentionMask.length]),
                 };
                 const outputs = await session.run(inputFeeds);
-                if (outputs && outputs.sentence_embedding?.cpuData) {
-                    return {
-                        number: index + 1,
-                        text: texts[index],
-                        embedding: Array.from(outputs.sentence_embedding.cpuData) as Array<number>,
-                    };
-                }
-                return null;
+                return {
+                    number: index + 1,
+                    text: texts[index],
+                    embedding: Array.from(outputs?.sentence_embedding?.cpuData) as Array<number>,
+                };
             }),
         );
-
-        // Filter out any null results
-        return embeddings.filter(embedding => embedding !== null);
     } catch (error) {
         logError('createEmbeddings', error);
     }
-    return [];
+    return null;
 }
 
 export async function saveEmbeddings(segments: LSegment[], collectionName: string) {
@@ -111,6 +105,10 @@ export async function deleteEmbeddings(collection: string) {
     return MilvusDB.deleteCollection(collection);
 }
 
-export async function queryEmbeddings(searchParams: any) {
+export async function searchEmbeddings(searchParams: CollectionSearchParams) {
     return MilvusDB.searchCollection(searchParams);
+}
+
+export async function queryEmbeddings(queryParams: CollectionQueryParams) {
+    return MilvusDB.queryCollection(queryParams);
 }

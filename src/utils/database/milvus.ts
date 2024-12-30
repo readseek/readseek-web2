@@ -6,18 +6,9 @@ import { DataType, MilvusClient, QueryReq, SearchSimpleReq, LoadState, FieldType
 
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
-export const INDEX_TYPE = IndexType.IVF_FLAT;
-export const METRIC_TYPE = MetricType.COSINE;
+export type CollectionSearchParams = SearchReq | SearchSimpleReq;
 
-export type CollectionSearchParams = {
-    collectionName: string;
-    params: SearchReq | SearchSimpleReq;
-};
-
-export type CollectionQueryParams = {
-    collectionName: string;
-    params: QueryReq;
-};
+export type CollectionQueryParams = QueryReq;
 
 export default class MilvusDB {
     private static readonly MILVUS_DBNAME = process.env.__RSN_MILVUS_DBName || 'default';
@@ -73,12 +64,13 @@ export default class MilvusDB {
     private static async loadCollection(name: string): Promise<boolean> {
         try {
             const resp = await this.milvusClient?.getLoadState({ collection_name: name });
-            if (resp?.state !== LoadState.LoadStateLoaded) {
-                const loadResp = await this.milvusClient?.loadCollection({ collection_name: name });
-                return loadResp?.code === 0;
+            if (resp?.state === LoadState.LoadStateLoaded) {
+                return true;
             }
+            const loadResp = await this.milvusClient?.loadCollection({ collection_name: name });
+            return loadResp?.code === 0;
         } catch (error) {
-            logError('loadCollection error: ', error);
+            logError('Collection load error: ', error);
         }
         return false;
     }
@@ -136,8 +128,8 @@ export default class MilvusDB {
                     const indexParams = [
                         {
                             field_name: 'embedding',
-                            index_type: INDEX_TYPE,
-                            metric_type: METRIC_TYPE,
+                            index_type: IndexType.IVF_FLAT,
+                            metric_type: MetricType.COSINE,
                             params: { nlist: 1024 },
                         },
                     ];
@@ -211,13 +203,14 @@ export default class MilvusDB {
      */
     public static async searchCollection(searchParams: CollectionSearchParams): Promise<SearchResults | null> {
         try {
-            const { collectionName, params } = searchParams;
-            if (!(await this.loadCollection(collectionName))) {
+            logInfo('searchCollection params:\n', searchParams);
+            if (!(await this.loadCollection(searchParams.collection_name))) {
+                logWarn('Collection load failed, searching break...');
                 return null;
             }
-            logInfo('searchCollection params:\n', params);
-            const rets = await this.milvusClient?.search(params);
-            logInfo('searchCollection rets:\n', params);
+
+            const rets = await this.milvusClient?.search(searchParams);
+            logInfo('searchCollection rets:\n', rets);
             return rets ?? null;
         } catch (error) {
             logError('error on searchCollection: ', error);
@@ -232,13 +225,14 @@ export default class MilvusDB {
      */
     public static async queryCollection(queryParams: CollectionQueryParams): Promise<QueryResults | null> {
         try {
-            const { collectionName, params } = queryParams;
-            if (!(await this.loadCollection(collectionName))) {
+            logInfo('queryCollection params:\n', queryParams);
+            if (!(await this.loadCollection(queryParams.collection_name))) {
+                logWarn('Collection load failed, querying break...');
                 return null;
             }
-            logInfo('queryCollection params:\n', params);
-            const rets = await this.milvusClient?.query(params);
-            logInfo('queryCollection rets:\n', params);
+
+            const rets = await this.milvusClient?.query(queryParams);
+            logInfo('queryCollection rets:\n', rets);
             return rets ?? null;
         } catch (error) {
             logError('error on queryCollection: ', error);

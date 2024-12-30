@@ -1,8 +1,12 @@
 'use server';
 
+import type { CollectionSearchParams } from './database/milvus';
+
+import { DataType, QueryReq, SearchSimpleReq, MetricType, SearchReq, SearchResults, QueryResults } from '@zilliz/milvus2-sdk-node';
+
 import { DocumentType, Tag, Document } from '@/types';
 import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove } from '@/utils/database/postgresql';
-import { createEmbeddings, deleteEmbeddings, saveEmbeddings, queryEmbeddings } from '@/utils/embeddings';
+import { EmbeddingTextItem, createEmbeddings, deleteEmbeddings, saveEmbeddings, searchEmbeddings } from '@/utils/embeddings';
 import { parseFileContent } from '@/utils/langchain/parser';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -266,19 +270,20 @@ export async function getDocumentInfo(id: string): Promise<RecordData> {
 }
 
 export async function queryChat(input: string, id: string): Promise<string> {
-    logInfo('🔍 queryChat input: ', input);
-
-    const queryEmbedding = createEmbeddings(input);
-    const searchParams = {
-        collection_name: collectionNameWithId(id),
-        vector: queryEmbedding,
-        output_fields: ['content'],
-        limit: 5, // Number of results to return
-        metric_type: 'L2', // or "IP" for Inner Product, depending on your preference
-    };
-    const rets = await queryEmbeddings(searchParams);
-
-    logInfo('queryEmbeddings rets: ', rets);
-
+    const textItems = await createEmbeddings(input);
+    if (Array.isArray(textItems) && textItems.length) {
+        const searchParams: CollectionSearchParams = {
+            topk: 5,
+            limit: 10,
+            collection_name: collectionNameWithId(id),
+            metric_type: MetricType.COSINE,
+            anns_field: 'embedding',
+            output_fields: ['text', 'meta'],
+            vector: textItems[0].embedding,
+        };
+        const rets = await searchEmbeddings(searchParams);
+        logInfo('queryEmbeddings rets: ', rets);
+        return '';
+    }
     return '';
 }
