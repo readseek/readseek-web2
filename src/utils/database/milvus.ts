@@ -2,18 +2,32 @@
 
 import type { EmbeddingTextItem } from '../embeddings';
 
-import { DataType, MilvusClient } from '@zilliz/milvus2-sdk-node';
+import { DataType, MilvusClient, QueryReq, SearchSimpleReq, LoadState, FieldType, IndexType, MetricType, SearchReq, SearchResults, QueryResults } from '@zilliz/milvus2-sdk-node';
 
 import { logError, logInfo, logWarn } from '@/utils/logger';
+
+export const INDEX_TYPE = IndexType.IVF_FLAT;
+export const METRIC_TYPE = MetricType.COSINE;
+
+export type CollectionSearchParams = {
+    collectionName: string;
+    params: SearchReq | SearchSimpleReq;
+};
+
+export type CollectionQueryParams = {
+    collectionName: string;
+    params: QueryReq;
+};
 
 export default class MilvusDB {
     private static readonly MILVUS_DBNAME = process.env.__RSN_MILVUS_DBName || 'default';
     private static readonly MILVUS_USERNAME = process.env.__RSN_MILVUS_USERNAME || 'root';
     private static readonly MILVUS_ADDRESS = process.env.__RSN_MILVUS_ADDRESS || '127.0.0.1:19530';
 
-    private static _milvusClient: MilvusClient;
+    private static LoadedCollnections = [];
 
-    public static get milvusClient(): MilvusClient | null {
+    private static _milvusClient: MilvusClient;
+    private static get milvusClient(): MilvusClient | null {
         if (!this._milvusClient) {
             logInfo('MilvusClient sdkInfo: ', MilvusClient.sdkInfo);
             try {
@@ -21,7 +35,7 @@ export default class MilvusDB {
                     database: this.MILVUS_DBNAME,
                     username: this.MILVUS_USERNAME,
                     address: this.MILVUS_ADDRESS,
-                    timeout: 120,
+                    timeout: 90,
                     maxRetries: 5,
                     logLevel: 'warn',
                     pool: {
@@ -39,12 +53,37 @@ export default class MilvusDB {
         return this._milvusClient;
     }
 
-    public static async closeConnection(): Promise<void> {
-        const res = await this.milvusClient?.closeConnection();
-        logWarn('milvusClient closed: ', res);
+    private static async releaseCollection(collectionName?: string): Promise<void> {
+        const release = async (name: string) => {
+            const resp = await this.milvusClient?.getLoadState({ collection_name: name });
+            if (resp?.state === LoadState.LoadStateLoaded) {
+                const status = await this.milvusClient?.releaseCollection({ collection_name: name });
+                logWarn(`Collection ${name} was release: `, status);
+            }
+        };
+        if (collectionName) {
+            release(collectionName);
+        } else {
+            this.LoadedCollnections.forEach((colName: string) => {
+                release(colName);
+            });
+        }
     }
 
-    public static async checkHealth(): Promise<boolean> {
+    private static async loadCollection(name: string): Promise<boolean> {
+        try {
+            const resp = await this.milvusClient?.getLoadState({ collection_name: name });
+            if (resp?.state !== LoadState.LoadStateLoaded) {
+                const loadResp = await this.milvusClient?.loadCollection({ collection_name: name });
+                return loadResp?.code === 0;
+            }
+        } catch (error) {
+            logError('loadCollection error: ', error);
+        }
+        return false;
+    }
+
+    private static async checkAndCreateDB(): Promise<boolean> {
         const res = await this.milvusClient?.checkHealth();
         if (!res?.isHealthy) {
             logWarn('Checking MilvusDB Health: ', res || 'failed');
@@ -60,127 +99,149 @@ export default class MilvusDB {
         return true;
     }
 
-    private static async checkCollection(collectionName: string, dim: number): Promise<boolean> {
+    private static async checkAndCreateCollection(collectionName: string, dim: number): Promise<boolean> {
         try {
-            const ret = await this.milvusClient?.hasCollection({
-                collection_name: collectionName,
-            });
-            if (!ret?.value) {
-                logInfo(`No collection found, ${collectionName} will be created soon...`);
-                const params = {
+            if (await this.checkAndCreateDB()) {
+                const ret = await this.milvusClient?.hasCollection({
                     collection_name: collectionName,
-                    fields: [
+                });
+                if (!ret?.value) {
+                    logInfo(`No collection found, ${collectionName} will be created soon...`);
+                    const collectionFields: FieldType[] = [
                         {
                             name: 'id',
-                            description: 'primary key',
+                            description: 'segment id',
                             data_type: DataType.Int64,
                             is_primary_key: true,
                             autoID: true,
                         },
                         {
-                            name: 'number',
-                            description: 'tokenizer number in full document',
-                            data_type: DataType.Int32,
+                            name: 'meta',
+                            description: 'meta data for current document',
+                            data_type: DataType.JSON,
                         },
                         {
                             name: 'text',
-                            description: 'original text',
+                            description: 'segment original text',
                             data_type: DataType.VarChar,
                             max_length: 8192,
                         },
                         {
                             name: 'embedding',
-                            description: 'sentence embedding vector',
+                            description: 'segment embedding vector',
                             data_type: DataType.FloatVector,
-                            type_params: {
-                                dim,
-                            },
+                            dim,
                         },
+                    ];
+                    const indexParams = [
                         {
-                            name: 'metadata',
-                            data_type: DataType.JSON,
+                            field_name: 'embedding',
+                            index_type: INDEX_TYPE,
+                            metric_type: METRIC_TYPE,
+                            params: { nlist: 1024 },
                         },
-                    ],
-                };
-
-                const res = await this.milvusClient?.createCollection(params);
-                if (res?.code !== 0) {
-                    logError('Failed to create collection', res?.reason);
-                    return false;
+                    ];
+                    const res = await this.milvusClient?.createCollection({
+                        fields: collectionFields,
+                        index_params: indexParams,
+                        collection_name: collectionName,
+                        description: `Text search with file ${collectionName}`,
+                    });
+                    if (res?.code !== 0) {
+                        logError('Failed to create collection', res?.reason);
+                        return false;
+                    }
                 }
-            }
-            return true;
-        } catch (error) {
-            logError('checkCollection error', error);
-        }
-        return false;
-    }
-
-    public static async saveCollection(data: any, collectionName: string): Promise<boolean> {
-        if (!(await this.checkHealth())) {
-            return false;
-        }
-
-        const { textItems, dim, metas } = data;
-        // one type doc one collection
-        logInfo('Using collection: ', collectionName);
-
-        if (!(await this.checkCollection(collectionName, dim))) {
-            return false;
-        }
-
-        let res: any;
-        try {
-            // Insert the embedding
-            res = await this.milvusClient?.insert({
-                collection_name: collectionName,
-                fields_data: textItems.map((item: EmbeddingTextItem, index: number) => {
-                    return {
-                        number: item.number,
-                        text: item.text,
-                        embedding: item.embedding,
-                        metadata: metas[index],
-                    };
-                }),
-            });
-            if (res?.status?.code === 0) {
                 return true;
             }
         } catch (error) {
-            logError('error on saveCollection: ', res, error);
+            logError('checkAndCreateCollection error', error);
         }
         return false;
     }
 
     public static async deleteCollection(collectionName: string): Promise<boolean> {
-        if (!(await this.checkHealth())) {
-            return false;
-        }
         try {
             const ret = await this.milvusClient?.dropCollection({
                 collection_name: collectionName,
-                timeout: 15,
             });
-            logWarn(`previous collection ${collectionName} was dropped, error_code: `, ret?.error_code);
+            logWarn(`Collection ${collectionName} was dropped, error_code: `, ret?.error_code);
             return ret?.code === 0;
         } catch (error) {
             logError('error on deleteCollection: ', error);
+        } finally {
+            this.releaseCollection();
         }
         return false;
     }
 
-    public static async searchCollection(searchParams: any) {
-        if (!(await this.checkHealth())) {
-            return null;
+    public static async saveCollection(data: any, collectionName: string): Promise<boolean> {
+        const { textItems, dim, metas } = data;
+
+        if (!textItems || textItems.length === 0 || dim === 0) {
+            throw new Error('textItems or dim can not be empty');
         }
 
         try {
-            logInfo('searchCollection searchParams: ', searchParams);
-            const ret = await this.milvusClient?.search(searchParams);
-            // const ret1 = await this.milvusClient?.hybridSearch(searchParams)
-            return ret;
+            if (!(await this.checkAndCreateCollection(collectionName, dim))) {
+                return false;
+            }
+            // Batch Insert the embeddings
+            const res = await this.milvusClient?.insert({
+                collection_name: collectionName,
+                fields_data: textItems.map((item: EmbeddingTextItem, index: number) => {
+                    return {
+                        text: item.text,
+                        meta: metas[index],
+                        embedding: item.embedding,
+                    };
+                }),
+            });
+            return res?.status?.code === 0;
+        } catch (error) {
+            logError('error on saveCollection: ', error);
+        }
+        return false;
+    }
+
+    /**
+     * Find similar vectors based on embeddings.
+     * @param {CollectionSearchParams}
+     * @returns {SearchResults}
+     */
+    public static async searchCollection(searchParams: CollectionSearchParams): Promise<SearchResults | null> {
+        try {
+            const { collectionName, params } = searchParams;
+            if (!(await this.loadCollection(collectionName))) {
+                return null;
+            }
+            logInfo('searchCollection params:\n', params);
+            const rets = await this.milvusClient?.search(params);
+            logInfo('searchCollection rets:\n', params);
+            return rets ?? null;
         } catch (error) {
             logError('error on searchCollection: ', error);
+        }
+        return null;
+    }
+
+    /**
+     * Retrieve scalar data based on structured filters only.
+     * @param {CollectionQueryParams}
+     * @returns {QueryResults}
+     */
+    public static async queryCollection(queryParams: CollectionQueryParams): Promise<QueryResults | null> {
+        try {
+            const { collectionName, params } = queryParams;
+            if (!(await this.loadCollection(collectionName))) {
+                return null;
+            }
+            logInfo('queryCollection params:\n', params);
+            const rets = await this.milvusClient?.query(params);
+            logInfo('queryCollection rets:\n', params);
+            return rets ?? null;
+        } catch (error) {
+            logError('error on queryCollection: ', error);
         }
         return null;
     }
