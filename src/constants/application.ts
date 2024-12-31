@@ -12,6 +12,8 @@ export const enum GET_URI {
     sys_env = 'sys_env',
     sys_files = 'sys_files',
     sys_users = 'sys_users',
+    // for conversation
+    historyList = 'historyList',
 }
 
 export const enum POST_URI {
@@ -22,6 +24,7 @@ export const enum POST_URI {
     userLogin = 'userLogin',
     userUpdate = 'userUpdate',
     userCancellation = 'userCancellation',
+    syncMessage = 'syncMessage',
 }
 
 export const API_HOST = 'https://api.readseek.com';

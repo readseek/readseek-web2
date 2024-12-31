@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { GET_URI, POST_URI } from '@/constants/application';
+import ConversationService from '@/services/conversation';
 import FileService from '@/services/file';
 import SystemService from '@/services/system';
 import UserService from '@/services/user';
@@ -47,6 +48,9 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         case GET_URI.userProfile:
             ret = await UserService.profile(req);
             break;
+        case GET_URI.historyList:
+            ret = await ConversationService.history(req);
+            break;
         case GET_URI.sys_env:
             ret = await SystemService.devEnvs(req);
             break;
@@ -76,6 +80,9 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
             break;
         case POST_URI.userCancellation:
             ret = await UserService.cancel(req);
+            break;
+        case POST_URI.syncMessage:
+            ret = await ConversationService.syncMessage(req);
             break;
         case POST_URI.fileSearch:
             ret = await FileService.fileSearch(req);
