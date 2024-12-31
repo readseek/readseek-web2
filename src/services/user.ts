@@ -1,4 +1,4 @@
-import type { User } from '@/types';
+import type { User } from '@/models/User';
 import type { NextRequest } from 'next/server';
 
 import { getUserFiles, getUserInfo } from '@/utils/db';

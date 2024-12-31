@@ -4,7 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { GET_URI, POST_URI } from '@/constants/application';
-import DocumentService from '@/services/document';
+import FileService from '@/services/file';
 import SystemService from '@/services/system';
 import UserService from '@/services/user';
 
@@ -30,16 +30,16 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     let ret: APIRet;
     switch (action as GET_URI) {
         case GET_URI.fileCategories:
-            ret = await DocumentService.categoryList(req);
+            ret = await FileService.categoryList(req);
             break;
         case GET_URI.fileTags:
-            ret = await DocumentService.tagList(req);
+            ret = await FileService.tagList(req);
             break;
         case GET_URI.fileList:
-            ret = await DocumentService.list(req);
+            ret = await FileService.list(req);
             break;
         case GET_URI.initChat:
-            ret = await DocumentService.initChat(req);
+            ret = await FileService.initChat(req);
             break;
         case GET_URI.userFiles:
             ret = await UserService.files(req);
@@ -78,16 +78,16 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
             ret = await UserService.cancel(req);
             break;
         case POST_URI.fileSearch:
-            ret = await DocumentService.fileSearch(req);
+            ret = await FileService.fileSearch(req);
             break;
         case POST_URI.fileQuery:
-            ret = await DocumentService.fileQuery(req);
+            ret = await FileService.fileQuery(req);
             break;
         case POST_URI.fileUpload:
-            ret = await DocumentService.upload(req);
+            ret = await FileService.upload(req);
             break;
         case POST_URI.fileDelete:
-            ret = await DocumentService.delete(req);
+            ret = await FileService.delete(req);
             break;
         default:
             return NextResponse.json({ code: -1, message: 'Notfound post' }, { status: 404 });

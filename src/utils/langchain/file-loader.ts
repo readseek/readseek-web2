@@ -9,7 +9,7 @@ import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { UnstructuredLoader, UnstructuredLoaderOptions } from '@langchain/community/document_loaders/fs/unstructured';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 
-import { DocumentType } from '@/types';
+import { DocumentType } from '@/models/Document';
 
 import { logInfo } from '../logger';
 

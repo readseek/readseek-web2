@@ -1,6 +1,6 @@
 'use client';
 
-import type { Document } from '@/types';
+import type { Document } from '@/models/Document';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { keepPreviousData, useQuery, useMutation } from '@tanstack/react-query';

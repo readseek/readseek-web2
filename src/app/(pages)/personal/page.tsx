@@ -1,4 +1,4 @@
-import type { User } from '@/types';
+import type { User } from '@/models/User';
 import type { Metadata } from 'next';
 
 import { NodataImage } from '@/components/ImageView';

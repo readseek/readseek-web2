@@ -1,3 +1,5 @@
+import type { Tag } from './Tag';
+
 export enum DocumentType {
     TXT = 'txt',
     PDF = 'pdf',
@@ -18,19 +20,7 @@ export enum DocumentState {
     PROCESSING = 'PROCESSING',
 }
 
-export type Category = {
-    id?: number;
-    name: string;
-    alias?: string;
-};
-
-export type Tag = {
-    id?: number;
-    name: string;
-    alias?: string;
-};
-
-export type Document = {
+export interface Document {
     id: string;
     title: string;
     description: string;
@@ -46,16 +36,4 @@ export type Document = {
     state?: DocumentState;
     createdAt?: Date;
     updatedAt?: Date;
-};
-
-export type User = {
-    id?: number;
-    name?: string;
-    age?: number;
-    email?: string;
-    avatar?: string;
-    bio?: string;
-    posts?: Document[];
-    createdAt?: Date;
-    updatedAt?: Date;
-};
+}

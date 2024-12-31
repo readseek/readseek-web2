@@ -1,6 +1,8 @@
 'use server';
 
-import type { Category, Tag, Document, User } from '@/types';
+import type { Category } from '@/models/Category';
+import type { Document } from '@/models/Document';
+import type { User } from '@/models/User';
 
 import { isDevModel } from '@/utils/common';
 import prisma from '@/utils/database/prisma';

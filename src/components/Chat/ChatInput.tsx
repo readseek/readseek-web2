@@ -1,7 +1,7 @@
+import type { Message } from '@/models/Message';
+
 import { IconPlayerStop, IconRepeat, IconSend } from '@tabler/icons-react';
 import { FC, KeyboardEvent, MutableRefObject, useEffect, useState } from 'react';
-
-import { Message } from '@/types';
 
 interface Props {
     messageIsStreaming: boolean;

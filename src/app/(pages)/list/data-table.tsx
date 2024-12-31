@@ -1,6 +1,6 @@
 'use client';
 
-import type { Document } from '@/types';
+import type { Document } from '@/models/Document';
 
 import { ColumnFiltersState, PaginationState, SortingState, VisibilityState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 import { ChevronDown, MoreHorizontal } from 'lucide-react';

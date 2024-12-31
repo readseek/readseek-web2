@@ -1,6 +1,7 @@
 'use client';
 
-import type { Category, Tag } from '@/types';
+import type { Category } from '@/models/Category';
+import type { Tag } from '@/models/Tag';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { keepPreviousData, useQuery, useMutation } from '@tanstack/react-query';

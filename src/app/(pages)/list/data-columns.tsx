@@ -1,6 +1,6 @@
 'use client';
 
-import type { Document } from '@/types';
+import type { Document } from '@/models/Document';
 
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';

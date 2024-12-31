@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 
-import { DocumentType } from '@/types';
+import { DocumentType } from '@/models/Document';
 import { logError } from '@/utils/logger';
 
 export const isBrowserModel = ((): boolean => {

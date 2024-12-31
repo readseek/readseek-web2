@@ -2,7 +2,8 @@
 
 import type { SearchResults, QueryResults } from '@zilliz/milvus2-sdk-node';
 
-import { DocumentType, Tag, Document } from '@/types';
+import { DocumentType, Document } from '@/models/Document';
+import { Tag } from '@/models/Tag';
 import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove } from '@/utils/database/postgresql';
 import { createEmbeddings, deleteEmbeddings, queryEmbeddings, saveEmbeddings, searchEmbeddings } from '@/utils/embeddings';
 import { parseFileContent } from '@/utils/langchain/parser';

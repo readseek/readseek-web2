@@ -1,6 +1,6 @@
 'use client';
 
-import type { Document } from '@/types';
+import type { Document } from '@/models/Document';
 
 import { keepPreviousData, useQuery, useMutation } from '@tanstack/react-query';
 import { PaginationState } from '@tanstack/react-table';

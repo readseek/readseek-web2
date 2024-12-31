@@ -1,6 +1,6 @@
 'use client';
 
-import type { Document } from '@/types';
+import type { Document } from '@/models/Document';
 
 import { useQuery } from '@tanstack/react-query';
 
