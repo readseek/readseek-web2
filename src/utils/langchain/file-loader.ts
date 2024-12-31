@@ -75,7 +75,7 @@ export function getOptimizedUnstructuredLoader(filePath: string, type: string): 
         ocrLanguages: ['eng', 'chi_sim', 'chi_tra'], //languages is preferred. ocr_languages is marked for deprecation.
     };
 
-    logInfo('🤖 loaderOptions:\n', type, loaderOptions);
+    // logInfo('🤖 loaderOptions:\n', type, loaderOptions);
 
     return new UnstructuredLoader(filePath, loaderOptions);
 }
