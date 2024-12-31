@@ -51,11 +51,11 @@ export default function ChatPage({ params }: { params: { id: string } }) {
         });
     };
 
-    const { data, isError, isPending } = useQuery({
-        queryKey: [GET_URI.prepareChat, params.id],
+    const { isError, isPending } = useQuery({
+        queryKey: [GET_URI.initChat, params.id],
         placeholderData: keepPreviousData,
         queryFn: async () => {
-            const ret = await getData(`/api/web/prepareChat?id=${params.id}`);
+            const ret = await getData(`/api/web/initChat?id=${params.id}`);
             if (!ret || ret?.code) {
                 toast({
                     variant: 'destructive',
@@ -79,10 +79,10 @@ export default function ChatPage({ params }: { params: { id: string } }) {
         },
     });
 
-    const queryMutation = useMutation({
-        mutationKey: [POST_URI.fileChat, params.id],
+    const searchMutation = useMutation({
+        mutationKey: [POST_URI.fileSearch, params.id],
         mutationFn: async (data: z.infer<typeof FormSchema>) => {
-            const ret = await postJson('/api/web/fileChat', { input: data.input, id: params.id });
+            const ret = await postJson('/api/web/fileSearch', { input: data.input, id: params.id });
             if (!ret || ret?.code) {
                 toast({
                     variant: 'destructive',
@@ -90,19 +90,18 @@ export default function ChatPage({ params }: { params: { id: string } }) {
                     description: `${ret?.message || '网络异常~'}`,
                     action: <ToastAction altText="Try again">再来一次</ToastAction>,
                 });
-                return false;
+                return [];
             }
-            return true;
+            return ret?.data;
         },
-        onSuccess: (flag: boolean) => {
-            if (flag) {
+        onSuccess: (resp: Array<string>) => {
+            if (resp.length) {
                 resetForm();
-                // TODO: 更新界面
-                setMessage(message.concat(['new message']));
+                setMessage(message.concat(resp[0]));
             }
         },
         onError: (e: any) => {
-            logWarn('handleUpload onError: ', e);
+            logWarn('error on file search: ', e);
             toast({
                 title: '啊噢，失败了',
                 description: '操作失败，请稍后再试试~',
@@ -136,7 +135,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
                 ))}
             </div>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit((data: any) => queryMutation.mutate(data))} onReset={resetForm} className="mb-12 w-2/3 space-y-6">
+                <form onSubmit={form.handleSubmit((data: any) => searchMutation.mutate(data))} onReset={resetForm} className="mb-12 w-2/3 space-y-6">
                     <FormField
                         control={form.control}
                         name="input"
@@ -152,11 +151,11 @@ export default function ChatPage({ params }: { params: { id: string } }) {
                                             onKeyDown={e => {
                                                 if (e.key === 'Enter' && !e.shiftKey) {
                                                     e.preventDefault();
-                                                    form.handleSubmit((data: any) => queryMutation.mutate(data))();
+                                                    form.handleSubmit((data: any) => searchMutation.mutate(data))();
                                                 }
                                             }}
                                         />
-                                        <Button type="submit" disabled={queryMutation.isPending}>
+                                        <Button type="submit" disabled={searchMutation.isPending}>
                                             发送
                                         </Button>
                                     </div>

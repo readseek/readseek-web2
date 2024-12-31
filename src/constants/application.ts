@@ -1,10 +1,10 @@
 import { isDevModel } from '@/utils/common';
 
 export const enum GET_URI {
-    fileCategories = 'fileCategories',
+    initChat = 'initChat',
     fileTags = 'fileTags',
+    fileCategories = 'fileCategories',
     fileList = 'fileList',
-    prepareChat = 'prepareChat',
     // user's info
     userFiles = 'userFiles',
     userProfile = 'userProfile',
@@ -17,7 +17,8 @@ export const enum GET_URI {
 export const enum POST_URI {
     fileUpload = 'fileUpload',
     fileDelete = 'fileDelete',
-    fileChat = 'fileChat',
+    fileSearch = 'fileSearch',
+    fileQuery = 'fileQuery',
     userLogin = 'userLogin',
     userUpdate = 'userUpdate',
     userCancellation = 'userCancellation',

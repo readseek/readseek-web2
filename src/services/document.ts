@@ -1,3 +1,4 @@
+import type { SearchResults, QueryResults } from '@zilliz/milvus2-sdk-node';
 import type { NextRequest } from 'next/server';
 
 import { createWriteStream, existsSync, unlink } from 'node:fs';
@@ -7,7 +8,7 @@ import { promisify } from 'util';
 
 import { DocumentType, Document } from '@/types';
 import { getFileHash, getFileType } from '@/utils/common';
-import { deleteFileStorage, getCategories, getDocumentInfo, getFiles, getTags, saveOrUpdateDocument, queryChat } from '@/utils/db';
+import { deleteFileStorage, getCategories, getDocumentInfo, getFiles, getTags, chatQuery, saveOrUpdateDocument, chatSearch } from '@/utils/db';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -147,7 +148,7 @@ export default class DocumentService {
 
     @LogAPIRoute
     @CheckLogin
-    static async startChat(req: NextRequest): Promise<APIRet> {
+    static async initChat(req: NextRequest): Promise<APIRet> {
         try {
             const docId = req.nextUrl.searchParams.get('id') as string;
             if (!docId || docId.trim().length !== 64) {
@@ -157,23 +158,50 @@ export default class DocumentService {
             const doc = (await getDocumentInfo(docId)) as Document;
             return { code: 0, data: doc, message: 'ok' };
         } catch (error) {
-            logError('startChat: ', error);
+            logError('initChat: ', error);
         }
         return { code: -1, data: null, message: 'chat start failed' };
     }
 
     @LogAPIRoute
     @CheckLogin
-    static async chatting(req: NextRequest): Promise<APIRet> {
+    static async fileSearch(req: NextRequest): Promise<APIRet> {
         try {
             const { input, id } = await req.json();
             if (input && id) {
-                const data = await queryChat(input, id);
-                return { code: 0, data, message: 'ok' };
+                const rets: SearchResults = await chatSearch(input, id);
+                if (rets.status.code === 0) {
+                    const validTexts = rets.results.filter(r => r.score > 0.35).map(r => r.text);
+                    if (validTexts.length > 0) {
+                        return { code: 0, data: validTexts, message: 'ok' };
+                    }
+                    logWarn(
+                        `Matched #${input}# scores: `,
+                        rets.results.map(r => r.score),
+                    );
+                    return { code: 0, data: ['抱歉，暂未匹配到相关内容'], message: 'ok' };
+                }
+                logWarn('chatSearch failed: \n', rets.status);
+                return { code: -1, data: [], message: rets.status.reason };
             }
         } catch (error) {
-            logError('chatting service: ', error);
+            logError('fileSearch service: ', error);
         }
-        return { code: -1, data: null, message: 'chatting failed' };
+        return { code: -1, data: null, message: 'fileSearch failed' };
+    }
+
+    @LogAPIRoute
+    @CheckLogin
+    static async fileQuery(req: NextRequest): Promise<APIRet> {
+        try {
+            const { input, id } = await req.json();
+            if (input && id) {
+                const rets: QueryResults = await chatQuery(input, id);
+                return { code: 0, data: rets, message: 'ok' };
+            }
+        } catch (error) {
+            logError('fileQuery service: ', error);
+        }
+        return { code: -1, data: null, message: 'fileQuery failed' };
     }
 }

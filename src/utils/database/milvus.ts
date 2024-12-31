@@ -6,9 +6,9 @@ import { DataType, MilvusClient, QueryReq, SearchSimpleReq, LoadState, FieldType
 
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
-export type CollectionSearchParams = SearchReq | SearchSimpleReq;
+type CollectionSearchParams = SearchReq | SearchSimpleReq;
 
-export type CollectionQueryParams = QueryReq;
+type CollectionQueryParams = QueryReq;
 
 export default class MilvusDB {
     private static readonly MILVUS_DBNAME = process.env.__RSN_MILVUS_DBName || 'default';
@@ -198,45 +198,44 @@ export default class MilvusDB {
 
     /**
      * Find similar vectors based on embeddings.
-     * @param {CollectionSearchParams}
+     * @param {colName, vector, outPuts}
      * @returns {SearchResults}
      */
-    public static async searchCollection(searchParams: CollectionSearchParams): Promise<SearchResults | null> {
-        try {
-            logInfo('searchCollection params:\n', searchParams);
-            if (!(await this.loadCollection(searchParams.collection_name))) {
-                logWarn('Collection load failed, searching break...');
-                return null;
-            }
-
-            const rets = await this.milvusClient?.search(searchParams);
-            logInfo('searchCollection rets:\n', rets);
-            return rets ?? null;
-        } catch (error) {
-            logError('error on searchCollection: ', error);
+    public static async searchCollection(params: Record<string, any>): Promise<SearchResults> {
+        const { colName, vector, outPuts } = params;
+        if (!(await this.loadCollection(colName))) {
+            throw new Error('Collection load failed, searching break...');
         }
-        return null;
+        return (await this.milvusClient?.search({
+            topk: 3,
+            limit: 5,
+            collection_name: colName,
+            metric_type: MetricType.COSINE,
+            anns_field: 'embedding',
+            output_fields: outPuts,
+            vector,
+        } as CollectionSearchParams)) as SearchResults;
     }
 
     /**
      * Retrieve scalar data based on structured filters only.
-     * @param {CollectionQueryParams}
+     * @param {colName, vector, outPuts}
      * @returns {QueryResults}
      */
-    public static async queryCollection(queryParams: CollectionQueryParams): Promise<QueryResults | null> {
-        try {
-            logInfo('queryCollection params:\n', queryParams);
-            if (!(await this.loadCollection(queryParams.collection_name))) {
-                logWarn('Collection load failed, querying break...');
-                return null;
-            }
-
-            const rets = await this.milvusClient?.query(queryParams);
-            logInfo('queryCollection rets:\n', rets);
-            return rets ?? null;
-        } catch (error) {
-            logError('error on queryCollection: ', error);
+    public static async queryCollection(params: Record<string, any>): Promise<QueryResults> {
+        const { colName, vector, outPuts } = params;
+        if (!(await this.loadCollection(colName))) {
+            throw new Error('Collection load failed, querying break...');
         }
-        return null;
+        // TODO: 没有针对query场景进行适配！
+        return (await this.milvusClient?.query({
+            topk: 3,
+            limit: 5,
+            collection_name: colName,
+            metric_type: MetricType.COSINE,
+            anns_field: 'embedding',
+            output_fields: outPuts,
+            vector,
+        } as CollectionQueryParams)) as QueryResults;
     }
 }

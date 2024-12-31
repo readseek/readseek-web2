@@ -8,7 +8,7 @@ import { InferenceSession, Tensor } from 'onnxruntime-node';
 import { getOnnxModel, OnnxModel } from '@/constants/onnx-model';
 import { logError, logInfo } from '@/utils/logger';
 
-import MilvusDB, { CollectionSearchParams, CollectionQueryParams } from './database/milvus';
+import MilvusDB from './database/milvus';
 import OptimizedTokenizer, { TokenizeResult } from './tokenizer';
 
 let model: OnnxModel;
@@ -105,10 +105,10 @@ export async function deleteEmbeddings(collection: string) {
     return MilvusDB.deleteCollection(collection);
 }
 
-export async function searchEmbeddings(searchParams: CollectionSearchParams) {
-    return MilvusDB.searchCollection(searchParams);
+export async function searchEmbeddings(params: Record<string, any>) {
+    return MilvusDB.searchCollection(params);
 }
 
-export async function queryEmbeddings(queryParams: CollectionQueryParams) {
-    return MilvusDB.queryCollection(queryParams);
+export async function queryEmbeddings(params: Record<string, any>) {
+    return MilvusDB.queryCollection(params);
 }

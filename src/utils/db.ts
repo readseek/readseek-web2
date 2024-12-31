@@ -1,12 +1,10 @@
 'use server';
 
-import type { CollectionSearchParams } from './database/milvus';
-
-import { DataType, QueryReq, SearchSimpleReq, MetricType, SearchReq, SearchResults, QueryResults } from '@zilliz/milvus2-sdk-node';
+import type { SearchResults, QueryResults } from '@zilliz/milvus2-sdk-node';
 
 import { DocumentType, Tag, Document } from '@/types';
 import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove } from '@/utils/database/postgresql';
-import { EmbeddingTextItem, createEmbeddings, deleteEmbeddings, saveEmbeddings, searchEmbeddings } from '@/utils/embeddings';
+import { createEmbeddings, deleteEmbeddings, queryEmbeddings, saveEmbeddings, searchEmbeddings } from '@/utils/embeddings';
 import { parseFileContent } from '@/utils/langchain/parser';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -269,21 +267,26 @@ export async function getDocumentInfo(id: string): Promise<RecordData> {
     });
 }
 
-export async function queryChat(input: string, id: string): Promise<string> {
+export async function chatSearch(input: string, id: string): Promise<SearchResults> {
     const textItems = await createEmbeddings(input);
     if (Array.isArray(textItems) && textItems.length) {
-        const searchParams: CollectionSearchParams = {
-            topk: 5,
-            limit: 10,
-            collection_name: collectionNameWithId(id),
-            metric_type: MetricType.COSINE,
-            anns_field: 'embedding',
-            output_fields: ['text', 'meta'],
+        return await searchEmbeddings({
+            colName: collectionNameWithId(id),
             vector: textItems[0].embedding,
-        };
-        const rets = await searchEmbeddings(searchParams);
-        logInfo('queryEmbeddings rets: ', rets);
-        return '';
+            outPuts: ['text'],
+        });
     }
-    return '';
+    throw new Error(`invalid data while create embedding with input: ${input}`);
+}
+
+export async function chatQuery(input: string, id: string): Promise<QueryResults> {
+    const textItems = await createEmbeddings(input);
+    if (Array.isArray(textItems) && textItems.length) {
+        return await queryEmbeddings({
+            colName: collectionNameWithId(id),
+            vector: textItems[0].embedding,
+            outPuts: ['text', 'meta'],
+        });
+    }
+    throw new Error(`invalid data while create embedding with input: ${input}`);
 }

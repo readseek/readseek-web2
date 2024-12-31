@@ -38,8 +38,8 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         case GET_URI.fileList:
             ret = await DocumentService.list(req);
             break;
-        case GET_URI.prepareChat:
-            ret = await DocumentService.startChat(req);
+        case GET_URI.initChat:
+            ret = await DocumentService.initChat(req);
             break;
         case GET_URI.userFiles:
             ret = await UserService.files(req);
@@ -68,15 +68,6 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
 
     let ret: APIRet;
     switch (action as POST_URI) {
-        case POST_URI.fileUpload:
-            ret = await DocumentService.upload(req);
-            break;
-        case POST_URI.fileChat:
-            ret = await DocumentService.chatting(req);
-            break;
-        case POST_URI.fileDelete:
-            ret = await DocumentService.delete(req);
-            break;
         case POST_URI.userLogin:
             ret = await UserService.login(req);
             break;
@@ -85,6 +76,18 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
             break;
         case POST_URI.userCancellation:
             ret = await UserService.cancel(req);
+            break;
+        case POST_URI.fileSearch:
+            ret = await DocumentService.fileSearch(req);
+            break;
+        case POST_URI.fileQuery:
+            ret = await DocumentService.fileQuery(req);
+            break;
+        case POST_URI.fileUpload:
+            ret = await DocumentService.upload(req);
+            break;
+        case POST_URI.fileDelete:
+            ret = await DocumentService.delete(req);
             break;
         default:
             return NextResponse.json({ code: -1, message: 'Notfound post' }, { status: 404 });
