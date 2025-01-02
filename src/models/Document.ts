@@ -1,5 +1,6 @@
 import type { Tag } from './Tag';
 
+// UpperCase File Type and its Extension(LowerCase)
 export enum DocumentType {
     TXT = 'txt',
     PDF = 'pdf',
@@ -10,7 +11,7 @@ export enum DocumentType {
     TSV = 'tsv',
     MARKDOWN = 'md',
     HTML = 'html',
-    UNKNOWN = 'UnKnown',
+    UNKNOWN = 'unknown',
 }
 
 export enum DocumentState {

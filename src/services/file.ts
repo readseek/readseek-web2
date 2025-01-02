@@ -7,7 +7,7 @@ import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
 import { DocumentType, Document } from '@/models/Document';
-import { getFileHash, getFileType } from '@/utils/common';
+import { getFileHash } from '@/utils/common';
 import { deleteFileStorage, getCategories, getDocumentInfo, getFiles, getTags, chatQuery, saveOrUpdateDocument, chatSearch } from '@/utils/db';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';

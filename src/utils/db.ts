@@ -4,7 +4,7 @@ import type { SearchResults, QueryResults } from '@zilliz/milvus2-sdk-node';
 
 import path from 'node:path';
 
-import { DocumentType, Document } from '@/models/Document';
+import { Document } from '@/models/Document';
 import { Tag } from '@/models/Tag';
 import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove } from '@/utils/database/postgresql';
 import { createEmbeddings, deleteEmbeddings, queryEmbeddings, saveEmbeddings, searchEmbeddings } from '@/utils/embeddings';
@@ -176,8 +176,9 @@ export async function saveOrUpdateDocument(data: SOUDocParam): Promise<{ state: 
             return { state: false, message: 'same file content' };
         }
 
+        const ext = path.parse(filePath).ext;
         // TODO: 耗时操作，后续改成移步执行、成功后通过消息通知
-        const { state, meta, segments } = await parseFileContent(filePath);
+        const { state, meta, segments } = await parseFileContent(filePath, ext.substring(1).toLowerCase());
         if (!state || !meta || !segments) {
             logWarn('parseFileContent result: ', state, meta);
             return { state: false, message: 'file parsing failed' };
@@ -186,7 +187,7 @@ export async function saveOrUpdateDocument(data: SOUDocParam): Promise<{ state: 
         const modeData = {
             id: fileHash,
             userId: 1,
-            type: getFileType(path.parse(filePath).ext),
+            type: getFileType(ext),
             categoryId: cateId,
             tags: tags.reduce((p: any, c: Tag) => {
                 if (!p.hasOwnProperty('connectOrCreate')) {

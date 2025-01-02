@@ -1,37 +1,13 @@
 'use server';
 
+import type { DocumentType } from '@/models/Document';
 import type { Document } from 'langchain/document';
 
 import { TokenTextSplitter } from 'langchain/text_splitter';
-import { Agent } from 'undici';
 
 import { logError, logInfo } from '@/utils/logger';
 
-import { getOptimizedUnstructuredLoader } from './file-loader';
-
-/**
- * 以下hack解决：
- * 1、UND_ERR_HEADERS_TIMEOUT: https://github.com/langchain-ai/langchainjs/issues/1856
- * 2、对于较大文件，仍然有响应超时的问题（TODO:）
- code: 'UND_ERR_SOCKET',
-    socket: {
-      localAddress: '127.0.0.1',
-      localPort: 64589,
-      remoteAddress: '127.0.0.1',
-      remotePort: 8000,
-      remoteFamily: 'IPv4',
-      timeout: undefined,
-      bytesWritten: 58178047,
-      bytesRead: 0
-} 
- */
-const __timeout = 1000 * 60 * 60 * 12; // 12h
-globalThis[Symbol.for('undici.globalDispatcher.1')] = new Agent({
-    allowH2: true,
-    headersTimeout: __timeout,
-    bodyTimeout: 0,
-    keepAliveMaxTimeout: __timeout,
-});
+import { getDocumentLoader } from './file-loader';
 
 // Langchain Document real types, for per text segment
 export type LSegment = {
@@ -63,11 +39,10 @@ export type ParsedResult = {
     segments?: LSegment[];
 };
 
-export async function getSplitContents(filepath: string) {
+export async function getSplitContents(filepath: string, extName: string) {
     try {
         console.time('🏆 Document Loading&splitting:');
-        const docs: Document[] = await getOptimizedUnstructuredLoader(filepath).load();
-        logInfo('Doc length from UnstructuredLoader: ', docs.length);
+        const docs: Document[] = await getDocumentLoader(filepath, extName).load();
 
         return new TokenTextSplitter({
             chunkSize: 4096, // 4k
@@ -81,8 +56,8 @@ export async function getSplitContents(filepath: string) {
     }
 }
 
-export async function parseFileContent(filePath: string): Promise<ParsedResult> {
-    const segments = (await getSplitContents(filePath)) as LSegment[];
+export async function parseFileContent(filePath: string, extName: string): Promise<ParsedResult> {
+    const segments = (await getSplitContents(filePath, extName)) as LSegment[];
     if (Array.isArray(segments) && segments.length > 0) {
         // 标题和描述暂时均从第一节内容截取
         const firstParts = segments[0].pageContent.split('\n\n');
