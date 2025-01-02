@@ -1,10 +1,10 @@
 'use server';
 
+import type { Document } from '@/models/Document';
 import type { SearchResults, QueryResults } from '@zilliz/milvus2-sdk-node';
 
 import path from 'node:path';
 
-import { Document } from '@/models/Document';
 import { Tag } from '@/models/Tag';
 import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove } from '@/utils/database/postgresql';
 import { createEmbeddings, deleteEmbeddings, queryEmbeddings, saveEmbeddings, searchEmbeddings } from '@/utils/embeddings';
@@ -184,35 +184,39 @@ export async function saveOrUpdateDocument(data: SOUDocParam): Promise<{ state: 
             return { state: false, message: 'file parsing failed' };
         }
 
-        const modeData = {
-            id: fileHash,
-            userId: 1,
-            type: getFileType(ext),
-            categoryId: cateId,
-            tags: tags.reduce((p: any, c: Tag) => {
-                if (!p.hasOwnProperty('connectOrCreate')) {
-                    p['connectOrCreate'] = [];
-                }
-                p['connectOrCreate'].push({
-                    where: { id: c.id },
-                    create: { name: c.name, alias: c.alias },
-                });
-                return p;
-            }, {}),
-            ...meta,
-        };
+        logInfo('Start inserting data to database...');
+        console.time('🔱 Saving db costs:');
 
-        // save content embeddings
-        const emb_ret = await saveEmbeddings(segments, collectionNameWithId(fileHash));
-        if (emb_ret) {
+        let saveRet: any = false;
+        if (await saveEmbeddings(segments, collectionNameWithId(fileHash))) {
             // save supabase postgresql
-            const pgs_ret = await saveOrUpdate({
+            saveRet = await saveOrUpdate({
                 model: 'Document',
                 method: PrismaDBMethod.upsert,
-                data: [modeData],
+                data: [
+                    {
+                        id: fileHash,
+                        userId: 1,
+                        type: getFileType(ext),
+                        categoryId: cateId,
+                        tags: tags.reduce((p: any, c: Tag) => {
+                            if (!p.hasOwnProperty('connectOrCreate')) {
+                                p['connectOrCreate'] = [];
+                            }
+                            p['connectOrCreate'].push({
+                                where: { id: c.id },
+                                create: { name: c.name, alias: c.alias },
+                            });
+                            return p;
+                        }, {}),
+                        ...meta,
+                    } as Document,
+                ],
             });
-            return { state: Boolean(pgs_ret) };
         }
+        console.timeEnd('🔱 Saving db costs:');
+
+        return { state: Boolean(saveRet) };
     } catch (error) {
         logError(error);
     }

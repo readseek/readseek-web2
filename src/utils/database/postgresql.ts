@@ -2,6 +2,7 @@
 
 import type { Category } from '@/models/Category';
 import type { Document } from '@/models/Document';
+import type { Tag } from '@/models/Tag';
 import type { User } from '@/models/User';
 
 import { isDevModel } from '@/utils/common';

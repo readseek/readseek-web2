@@ -54,6 +54,7 @@ export async function parseFileContent(filePath: string, extName: string): Promi
     try {
         console.time('🕰 parseFileContent costs:');
         const segments = (await getSplitContents(filePath, extName)) as LSegment[];
+        logInfo('Segments length:', segments.length);
         if (Array.isArray(segments) && segments.length > 0) {
             // 标题和描述暂时均从第一节内容截取
             const firstParts = segments[0].pageContent.split('\n\n');
