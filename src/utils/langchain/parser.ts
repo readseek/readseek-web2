@@ -63,10 +63,10 @@ export type ParsedResult = {
     segments?: LSegment[];
 };
 
-export async function getSplitContents(filepath: string, fileType: string) {
+export async function getSplitContents(filepath: string) {
     try {
         console.time('🏆 Document Loading&splitting:');
-        const docs: Document[] = await getOptimizedUnstructuredLoader(filepath, fileType).load();
+        const docs: Document[] = await getOptimizedUnstructuredLoader(filepath).load();
         logInfo('Doc length from UnstructuredLoader: ', docs.length);
 
         return new TokenTextSplitter({
@@ -81,8 +81,8 @@ export async function getSplitContents(filepath: string, fileType: string) {
     }
 }
 
-export async function parseFileContent(filePath: string, type: string): Promise<ParsedResult> {
-    const segments = (await getSplitContents(filePath, type)) as LSegment[];
+export async function parseFileContent(filePath: string): Promise<ParsedResult> {
+    const segments = (await getSplitContents(filePath)) as LSegment[];
     if (Array.isArray(segments) && segments.length > 0) {
         // 标题和描述暂时均从第一节内容截取
         const firstParts = segments[0].pageContent.split('\n\n');

@@ -2,12 +2,23 @@
 
 import type { SearchResults, QueryResults } from '@zilliz/milvus2-sdk-node';
 
+import path from 'node:path';
+
 import { DocumentType, Document } from '@/models/Document';
 import { Tag } from '@/models/Tag';
 import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove } from '@/utils/database/postgresql';
 import { createEmbeddings, deleteEmbeddings, queryEmbeddings, saveEmbeddings, searchEmbeddings } from '@/utils/embeddings';
 import { parseFileContent } from '@/utils/langchain/parser';
 import { logError, logInfo, logWarn } from '@/utils/logger';
+
+import { getFileType } from './common';
+
+export type SOUDocParam = {
+    fileHash: string;
+    filePath: string;
+    cateId: number;
+    tags: any[];
+};
 
 /**
  * https://milvus.io/docs/manage-collections.md
@@ -146,9 +157,9 @@ export async function getTags(): Promise<RecordData> {
     });
 }
 
-export async function saveOrUpdateDocument(data: any): Promise<{ state: boolean; message?: string }> {
+export async function saveOrUpdateDocument(data: SOUDocParam): Promise<{ state: boolean; message?: string }> {
     try {
-        const { fileHash, filePath, cateId, tags, type } = data;
+        const { fileHash, filePath, cateId, tags } = data;
         const doc = (await find({
             model: 'Document',
             method: PrismaDBMethod.findUnique,
@@ -161,12 +172,12 @@ export async function saveOrUpdateDocument(data: any): Promise<{ state: boolean;
         })) as Document;
         logInfo('Has document record ==> ', doc);
         if (doc && doc?.id) {
-            logWarn('Same file has already been stored in database: ', fileHash, type);
+            logWarn('Same file has already been stored in database: ', fileHash);
             return { state: false, message: 'same file content' };
         }
 
         // TODO: 耗时操作，后续改成移步执行、成功后通过消息通知
-        const { state, meta, segments } = await parseFileContent(filePath, DocumentType[type]);
+        const { state, meta, segments } = await parseFileContent(filePath);
         if (!state || !meta || !segments) {
             logWarn('parseFileContent result: ', state, meta);
             return { state: false, message: 'file parsing failed' };
@@ -175,7 +186,7 @@ export async function saveOrUpdateDocument(data: any): Promise<{ state: boolean;
         const modeData = {
             id: fileHash,
             userId: 1,
-            type,
+            type: getFileType(path.parse(filePath).ext),
             categoryId: cateId,
             tags: tags.reduce((p: any, c: Tag) => {
                 if (!p.hasOwnProperty('connectOrCreate')) {

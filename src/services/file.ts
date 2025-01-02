@@ -68,22 +68,22 @@ export default class DocumentService {
     @LogAPIRoute
     @CheckLogin
     static async upload(req: NextRequest): Promise<APIRet> {
-        let cateId,
-            tags,
-            file,
-            fileHash = '',
-            fileName = '',
-            filePath = '';
         try {
+            let file,
+                fileHash = '',
+                fileName = '',
+                filePath = '',
+                cateId: number,
+                tags = [];
+
             const formData = await req.formData();
             if (!formData || !formData.has('file')) {
                 return ErrorRet('no parameter file upload');
             }
 
             cateId = Number(formData.get('category'));
-            tags = formData.get('tags');
-            if (tags) {
-                tags = JSON.parse(tags).map((tag: any) => {
+            if (formData.has('tags')) {
+                tags = JSON.parse(formData.get('tags') as string).map((tag: any) => {
                     if (typeof tag === 'object') {
                         return { id: Number(tag.id), name: tag.name, alias: tag.alias };
                     }
@@ -105,7 +105,7 @@ export default class DocumentService {
 
             logInfo('💪 file is ready, start parsing and embedding...');
             console.time('🔥 ParseAndSaveContent Costs:');
-            const { state, message } = await saveOrUpdateDocument({ fileHash, filePath, cateId, tags, type: getFileType(path.parse(filePath).ext) });
+            const { state, message } = await saveOrUpdateDocument({ fileHash, filePath, cateId, tags });
             console.timeEnd('🔥 ParseAndSaveContent Costs:');
             return {
                 code: state ? 0 : -1,
@@ -118,7 +118,6 @@ export default class DocumentService {
             };
         } catch (error: any) {
             logError('fileUpload: ', error);
-            this.removeUploadedFile(filePath);
             return ErrorRet(error || 'upload failed');
         }
     }
