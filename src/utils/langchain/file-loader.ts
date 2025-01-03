@@ -101,13 +101,13 @@ export function getDocumentLoader(filePath: string, extName: string): DocumentLo
             break;
         case DocumentType.PDF:
             loader = new PDFLoader(filePath, {
-                splitPages: true, // one document per file
+                splitPages: true, // setting false:  one document per file
                 parsedItemSeparator: '', // eliminating extra spaces
             });
             break;
         case DocumentType.EPUB:
             loader = new EPubLoader(filePath, {
-                splitChapters: true, // // one document per file
+                splitChapters: true, // // setting false: one document per file
             });
             break;
         case DocumentType.DOC:
