@@ -6,6 +6,8 @@ import { TokenTextSplitter, RecursiveCharacterTextSplitter } from 'langchain/tex
 
 import { logError, logInfo } from '@/utils/logger';
 
+import { writeToFile } from '../filewriter';
+
 import { getDocumentLoader } from './file-loader';
 
 // Langchain Document real types, for per text segment
@@ -42,10 +44,9 @@ export async function getSplitContents(filepath: string, extName: string) {
     console.time('📊 loadAndTokenTextSplit costs:');
     const docs: Document[] = await getDocumentLoader(filepath, extName).load();
     const splitDocs = new RecursiveCharacterTextSplitter({
-        chunkSize: 2048,
-        chunkOverlap: 100,
+        chunkSize: 3072,
+        chunkOverlap: 200,
         separators: ['|', '##', '>', '-'],
-        keepSeparator: false,
     }).splitDocuments(docs);
     console.timeEnd('📊 loadAndTokenTextSplit costs:');
     return splitDocs;
@@ -55,7 +56,10 @@ export async function parseFileContent(filePath: string, extName: string): Promi
     try {
         console.time('🕰 parseFileContent costs:');
         const segments = (await getSplitContents(filePath, extName)) as LSegment[];
-        logInfo('Segments length:', segments.length);
+
+        // test file pare
+        // writeToFile(segments);
+
         if (Array.isArray(segments) && segments.length > 0) {
             // 标题和描述暂时均从第一节内容截取
             const firstParts = segments[0].pageContent.split('\n\n');

@@ -77,9 +77,8 @@ export function getOptimizedUnstructuredLoader(filePath: string, extName: string
         strategy,
         hiResModelName: 'yolox_quantized', // chipper | detectron2_onnx | yolox | yolox_quantized
         chunkingStrategy: 'by_title', // for self-hosting api, only by_title supported or null
-        combineUnderNChars: 512,
-        newAfterNChars: 4096,
-        maxCharacters: 8192,
+        combineUnderNChars: 256,
+        newAfterNChars: 3072, // 3k
         overlap: 0,
         overlapAll: false,
         coordinates: false,
@@ -102,13 +101,13 @@ export function getDocumentLoader(filePath: string, extName: string): DocumentLo
             break;
         case DocumentType.PDF:
             loader = new PDFLoader(filePath, {
-                splitPages: false, // one document per file
+                splitPages: true, // one document per file
                 parsedItemSeparator: '', // eliminating extra spaces
             });
             break;
         case DocumentType.EPUB:
             loader = new EPubLoader(filePath, {
-                splitChapters: false, // // one document per file
+                splitChapters: true, // // one document per file
             });
             break;
         case DocumentType.DOC:
