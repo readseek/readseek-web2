@@ -97,31 +97,31 @@ export function getOptimizedUnstructuredLoader(filePath: string, extName: string
 export function getDocumentLoader(filePath: string, extName: string): DocumentLoader {
     let loader;
     switch (extName) {
+        case DocumentType.TXT:
+            loader = new TextLoader(filePath);
+            break;
         case DocumentType.PDF:
             loader = new PDFLoader(filePath, {
-                splitPages: false,
-                parsedItemSeparator: '',
+                splitPages: false, // one document per file
+                parsedItemSeparator: '', // eliminating extra spaces
             });
             break;
         case DocumentType.EPUB:
             loader = new EPubLoader(filePath, {
-                splitChapters: false,
+                splitChapters: false, // // one document per file
             });
             break;
         case DocumentType.DOC:
         case DocumentType.DOCX:
-            loader = new DocxLoader(filePath);
-            break;
-        case DocumentType.CSV:
-            loader = new CSVLoader(filePath);
-            break;
-        case DocumentType.TSV:
-            loader = new CSVLoader(filePath, {
-                separator: '\t',
+            loader = new DocxLoader(filePath, {
+                type: extName,
             });
             break;
-        case DocumentType.TXT:
-            loader = new TextLoader(filePath);
+        case DocumentType.CSV:
+        case DocumentType.TSV:
+            loader = new CSVLoader(filePath, {
+                separator: extName === 'tsv' ? '\t' : ',',
+            });
             break;
         default:
             // for markdown and html

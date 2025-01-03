@@ -1,9 +1,8 @@
 'use server';
 
-import type { DocumentType } from '@/models/Document';
 import type { Document } from 'langchain/document';
 
-import { TokenTextSplitter } from 'langchain/text_splitter';
+import { TokenTextSplitter, RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 
 import { logError, logInfo } from '@/utils/logger';
 
@@ -42,9 +41,11 @@ export type ParsedResult = {
 export async function getSplitContents(filepath: string, extName: string) {
     console.time('📊 loadAndTokenTextSplit costs:');
     const docs: Document[] = await getDocumentLoader(filepath, extName).load();
-    const splitDocs = new TokenTextSplitter({
-        chunkSize: 4096, // 4k
-        chunkOverlap: 200,
+    const splitDocs = new RecursiveCharacterTextSplitter({
+        chunkSize: 2048,
+        chunkOverlap: 100,
+        separators: ['|', '##', '>', '-'],
+        keepSeparator: false,
     }).splitDocuments(docs);
     console.timeEnd('📊 loadAndTokenTextSplit costs:');
     return splitDocs;
