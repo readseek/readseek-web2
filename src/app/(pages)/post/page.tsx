@@ -10,13 +10,13 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { UploadBox } from '@/components/Chat/UploadBox';
 import { OptionType, MultiSelect } from '@/components/MultiSelect';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/components/ui/hooks/use-toast';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToastAction } from '@/components/ui/toast';
+import { UploadBox } from '@/components/UploadBox';
 import { GET_URI, POST_URI } from '@/constants/application';
 import { getData, postForm } from '@/utils/http/client';
 import { logInfo, logWarn } from '@/utils/logger';

@@ -58,7 +58,7 @@ export async function parseFileContent(filePath: string, extName: string): Promi
         const segments = (await getSplitContents(filePath, extName)) as LSegment[];
 
         // test file pare
-        // writeToFile(segments);
+        writeToFile(segments);
 
         if (Array.isArray(segments) && segments.length > 0) {
             // 标题和描述暂时均从第一节内容截取

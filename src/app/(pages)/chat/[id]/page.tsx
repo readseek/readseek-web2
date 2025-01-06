@@ -25,7 +25,7 @@ const FormSchema = z.object({
         .min(2, {
             message: '起码写两个字吧...',
         })
-        .max(500, {
+        .max(200, {
             message: '最多一次发送500字噢',
         }),
 });
@@ -141,11 +141,11 @@ export default function ChatPage({ params }: { params: { id: string } }) {
                         name="input"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>请在下方回复你想要了解的信息：</FormLabel>
+                                <FormLabel>{`请在下方输入你想要了解关于《${doc?.title}》的任意信息`}</FormLabel>
                                 <FormControl>
                                     <div className="flex items-center">
                                         <Textarea
-                                            placeholder="单次最大长度不要超过500字"
+                                            placeholder="单次最大长度不要超过200字"
                                             className="mr-4 resize-none"
                                             {...field}
                                             onKeyDown={e => {
