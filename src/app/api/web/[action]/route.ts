@@ -31,34 +31,34 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     let ret: APIRet;
     switch (action as GET_URI) {
         case GET_URI.fileCategories:
-            ret = await FileService.categoryList(req);
+            ret = await new FileService().categoryList(req);
             break;
         case GET_URI.fileTags:
-            ret = await FileService.tagList(req);
+            ret = await new FileService().tagList(req);
             break;
         case GET_URI.fileList:
-            ret = await FileService.list(req);
+            ret = await new FileService().list(req);
             break;
         case GET_URI.initChat:
-            ret = await FileService.initChat(req);
+            ret = await new FileService().initChat(req);
             break;
         case GET_URI.userFiles:
-            ret = await UserService.files(req);
+            ret = await new UserService().files(req);
             break;
         case GET_URI.userProfile:
-            ret = await UserService.profile(req);
+            ret = await new UserService().profile(req);
             break;
         case GET_URI.historyList:
-            ret = await ConversationService.history(req);
+            ret = await new ConversationService().history(req);
             break;
         case GET_URI.sys_env:
-            ret = await SystemService.devEnvs(req);
+            ret = await new SystemService().devEnvs(req);
             break;
         case GET_URI.sys_files:
-            ret = await SystemService.allFiles(req);
+            ret = await new SystemService().allFiles(req);
             break;
         case GET_URI.sys_users:
-            ret = await SystemService.allUsers(req);
+            ret = await new SystemService().allUsers(req);
             break;
         default:
             return NextResponse.json({ code: -1, message: 'Notfound get' }, { status: 404 });
@@ -73,28 +73,28 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     let ret: APIRet;
     switch (action as POST_URI) {
         case POST_URI.userLogin:
-            ret = await UserService.login(req);
+            ret = await new UserService().login(req);
             break;
         case POST_URI.userUpdate:
-            ret = await UserService.update(req);
+            ret = await new UserService().update(req);
             break;
         case POST_URI.userCancellation:
-            ret = await UserService.cancel(req);
+            ret = await new UserService().cancel(req);
             break;
         case POST_URI.syncMessage:
-            ret = await ConversationService.syncMessage(req);
+            ret = await new ConversationService().syncMessage(req);
             break;
         case POST_URI.fileSearch:
-            ret = await FileService.fileSearch(req);
+            ret = await new FileService().fileSearch(req);
             break;
         case POST_URI.fileQuery:
-            ret = await FileService.fileQuery(req);
+            ret = await new FileService().fileQuery(req);
             break;
         case POST_URI.fileUpload:
-            ret = await FileService.upload(req);
+            ret = await new FileService().upload(req);
             break;
         case POST_URI.fileDelete:
-            ret = await FileService.delete(req);
+            ret = await new FileService().delete(req);
             break;
         default:
             return NextResponse.json({ code: -1, message: 'Notfound post' }, { status: 404 });

@@ -12,15 +12,13 @@ import { deleteFileStorage, getCategories, getDocumentInfo, getFiles, getTags, c
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
+import BaseService from './_base';
+
 const pipelineAsync = promisify(pipeline);
 const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH ?? 'public/uploads');
 
-const ErrorRet = (msg: string) => {
-    return { code: -1, data: false, message: msg } as APIRet;
-};
-
-export default class DocumentService {
-    static async removeUploadedFile(fpath: string): Promise<void> {
+export default class DocumentService extends BaseService {
+    async removeUploadedFile(fpath: string): Promise<void> {
         try {
             if (existsSync(fpath || '')) {
                 promisify(unlink)(fpath);
@@ -34,7 +32,7 @@ export default class DocumentService {
     }
 
     @LogAPIRoute
-    static async categoryList(req: NextRequest): Promise<APIRet> {
+    async categoryList(req: NextRequest): Promise<APIRet> {
         const list = await getCategories();
         if (list) {
             return { code: 0, data: list, message: 'ok' };
@@ -43,7 +41,7 @@ export default class DocumentService {
     }
 
     @LogAPIRoute
-    static async tagList(req: NextRequest): Promise<APIRet> {
+    async tagList(req: NextRequest): Promise<APIRet> {
         const list = await getTags();
         if (list) {
             return { code: 0, data: list, message: 'ok' };
@@ -52,7 +50,7 @@ export default class DocumentService {
     }
 
     @LogAPIRoute
-    static async list(req: NextRequest): Promise<APIRet> {
+    async list(req: NextRequest): Promise<APIRet> {
         const searchParams = req.nextUrl.searchParams;
 
         const pageSize = Number(searchParams.get('size')) || 10;
@@ -67,7 +65,7 @@ export default class DocumentService {
 
     @LogAPIRoute
     @CheckLogin
-    static async upload(req: NextRequest): Promise<APIRet> {
+    async upload(req: NextRequest): Promise<APIRet> {
         try {
             let file,
                 fileHash = '',
@@ -78,7 +76,7 @@ export default class DocumentService {
 
             const formData = await req.formData();
             if (!formData || !formData.has('file')) {
-                return ErrorRet('no parameter file upload');
+                return this.renderError('no parameter file upload');
             }
 
             cateId = Number(formData.get('category'));
@@ -118,16 +116,16 @@ export default class DocumentService {
             };
         } catch (error: any) {
             logError('fileUpload: ', error);
-            return ErrorRet(error || 'upload failed');
+            return this.renderError(error || 'upload failed');
         }
     }
 
     @LogAPIRoute
     @CheckLogin
-    static async delete(req: NextRequest): Promise<APIRet> {
+    async delete(req: NextRequest): Promise<APIRet> {
         const jsonData = await req.json();
         if (!jsonData || !jsonData?.id) {
-            return ErrorRet('no file id found');
+            return this.renderError('no file id found');
         }
 
         try {
@@ -147,11 +145,11 @@ export default class DocumentService {
 
     @LogAPIRoute
     @CheckLogin
-    static async initChat(req: NextRequest): Promise<APIRet> {
+    async initChat(req: NextRequest): Promise<APIRet> {
         try {
             const docId = req.nextUrl.searchParams.get('id') as string;
             if (!docId || docId.trim().length !== 64) {
-                return ErrorRet('id is missing or incorrect');
+                return this.renderError('id is missing or incorrect');
             }
 
             const doc = (await getDocumentInfo(docId)) as Document;
@@ -164,7 +162,7 @@ export default class DocumentService {
 
     @LogAPIRoute
     @CheckLogin
-    static async fileSearch(req: NextRequest): Promise<APIRet> {
+    async fileSearch(req: NextRequest): Promise<APIRet> {
         try {
             const { input, id } = await req.json();
             if (input && id) {
@@ -191,7 +189,7 @@ export default class DocumentService {
 
     @LogAPIRoute
     @CheckLogin
-    static async fileQuery(req: NextRequest): Promise<APIRet> {
+    async fileQuery(req: NextRequest): Promise<APIRet> {
         try {
             const { input, id } = await req.json();
             if (input && id) {

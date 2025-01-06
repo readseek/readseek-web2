@@ -8,7 +8,7 @@ import { logError, logInfo, logWarn } from '@/utils/logger';
 export default class UserService {
     @LogAPIRoute
     @CheckLogin
-    static async login(req: NextRequest): Promise<APIRet> {
+    async login(req: NextRequest): Promise<APIRet> {
         const params = await req.json();
         logInfo('start login...', params);
         return { code: 0, data: [], message: 'ok' };
@@ -16,7 +16,7 @@ export default class UserService {
 
     @LogAPIRoute
     @CheckLogin
-    static async update(req: NextRequest): Promise<APIRet> {
+    async update(req: NextRequest): Promise<APIRet> {
         const params = await req.json();
         logInfo('start update...', params);
         return { code: 0, data: [], message: 'ok' };
@@ -24,7 +24,7 @@ export default class UserService {
 
     @LogAPIRoute
     @CheckLogin
-    static async cancel(req: NextRequest): Promise<APIRet> {
+    async cancel(req: NextRequest): Promise<APIRet> {
         const params = await req.json();
         logInfo('start cancel...', params);
         return { code: 0, data: [], message: 'ok' };
@@ -32,7 +32,7 @@ export default class UserService {
 
     @LogAPIRoute
     @CheckLogin
-    static async profile(req: NextRequest): Promise<APIRet> {
+    async profile(req: NextRequest): Promise<APIRet> {
         // TODO: 正式情况下，从拦截器中存放的变量获取
         const uid = Number(req.nextUrl.searchParams.get('uid'));
         const user = (await getUserInfo(uid)) as User;
@@ -44,7 +44,7 @@ export default class UserService {
 
     @LogAPIRoute
     @CheckLogin
-    static async files(req: NextRequest): Promise<APIRet> {
+    async files(req: NextRequest): Promise<APIRet> {
         let user: User = { id: 1 };
 
         const searchParams = req.nextUrl.searchParams;
