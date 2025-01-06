@@ -54,6 +54,19 @@ export default function ChatPage({ params }: { params: { id: string } }) {
         });
     };
 
+    useQuery({
+        queryKey: [GET_URI.historyList, params.id],
+        placeholderData: keepPreviousData,
+        queryFn: async () => {
+            const ret = await getData(`/api/web/historyList?id=${params.id}`);
+            if (!ret || ret?.code) {
+                return [];
+            }
+            setMessages(ret?.data);
+            return ret?.data;
+        },
+    });
+
     const { isError, isPending } = useQuery({
         queryKey: [GET_URI.initChat, params.id],
         placeholderData: keepPreviousData,
