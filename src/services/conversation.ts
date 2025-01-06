@@ -5,7 +5,9 @@ import LevelDB from '@/utils/database/leveldb';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
-export default class ConversationService {
+import BaseService from './_base';
+
+export default class ConversationService extends BaseService {
     @LogAPIRoute
     @CheckLogin
     async history(req: NextRequest): Promise<APIRet> {

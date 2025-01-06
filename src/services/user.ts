@@ -5,7 +5,9 @@ import { getUserFiles, getUserInfo } from '@/utils/db';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
-export default class UserService {
+import BaseService from './_base';
+
+export default class UserService extends BaseService {
     @LogAPIRoute
     @CheckLogin
     async login(req: NextRequest): Promise<APIRet> {
@@ -45,7 +47,7 @@ export default class UserService {
     @LogAPIRoute
     @CheckLogin
     async files(req: NextRequest): Promise<APIRet> {
-        let user: User = { id: 1 };
+        let user: User = { id: this.getSharedUid() };
 
         const searchParams = req.nextUrl.searchParams;
 

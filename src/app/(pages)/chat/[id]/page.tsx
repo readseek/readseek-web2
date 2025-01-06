@@ -15,11 +15,12 @@ import { useToast } from '@/components/ui/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { ToastAction } from '@/components/ui/toast';
 import { GET_URI, POST_URI } from '@/constants/application';
-import { MessageType, Message } from '@/models/Message';
+import { MessageType, MessageStatus, buildMessage, Message } from '@/models/Message';
 import { getData, postJson } from '@/utils/http/client';
 import { logInfo, logWarn } from '@/utils/logger';
 
-import { ContentError, ContentPending, ConversationNone } from './chat-tip';
+import { ContentError, ContentPending } from './chat-tip';
+import { MessageList } from './message-list';
 
 const FormSchema = z.object({
     input: z
@@ -92,14 +93,19 @@ export default function ChatPage({ params }: { params: { id: string } }) {
                     description: `${ret?.message || '网络异常~'}`,
                     action: <ToastAction altText="Try again">再来一次</ToastAction>,
                 });
-                return [];
+                return null;
             }
             return ret?.data;
         },
-        onSuccess: (resp: Array<Message>) => {
-            if (resp.length) {
+        onMutate: (data: z.infer<typeof FormSchema>) => {
+            const msgIn = buildMessage({ cid: params.id, uid: 1, text: data.input, type: MessageType.In, status: MessageStatus.default });
+            setMessages(messages.concat(msgIn));
+        },
+        onSuccess: (resp?: Message) => {
+            console.log('onSuccess', resp);
+            if (resp) {
                 resetForm();
-                setMessages(messages.concat(resp[0]));
+                setMessages(messages.concat(resp));
             }
         },
         onError: (e: any) => {
@@ -121,17 +127,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
 
     return (
         <div className="main-content !justify-between">
-            {messages?.length ? (
-                <div className="no-scrollbar my-5 w-[80%] overflow-y-scroll rounded-md bg-gray-100 p-4">
-                    {messages.map((m: Message, i: number) => (
-                        <code className="text-black" key={`chat_msg_${i}`}>
-                            {m.text}
-                        </code>
-                    ))}
-                </div>
-            ) : (
-                <ConversationNone />
-            )}
+            <MessageList data={messages} />
             <Form {...form}>
                 <form onSubmit={form.handleSubmit((data: any) => searchMutation.mutate(data))} onReset={resetForm} className="mb-12 w-2/3 space-y-6">
                     <FormField
