@@ -1,4 +1,4 @@
-import type { Document } from './document';
+import type { Document } from './Document';
 
 export interface User {
     id?: number;

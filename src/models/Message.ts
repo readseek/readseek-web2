@@ -1,8 +1,15 @@
+export enum MessageType {
+    In = 0, // 用户输入
+    Out, // 后台响应
+}
+
 export interface Message {
-    id: string; // 消息本身id
-    cid: string; // 消息隶属内容的id
-    input: string; // 输入信息
-    output: string; // 响应信息
+    id: number; // 消息id
+    cid: string; // 隶属内容的id
+    type: MessageType; // 消息类型
+    text: string; // 消息内容
+    approve: boolean; // true: 赞同, false 反对
     timestamp: number; // 消息产生时间
-    hot: number; // 热度，该消息出现过多少次
+    rags?: string[]; // RAGs
+    uid?: number[]; // 用户信息
 }

@@ -16,6 +16,7 @@ import { useToast } from '@/components/ui/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { ToastAction } from '@/components/ui/toast';
 import { GET_URI, POST_URI } from '@/constants/application';
+import { MessageType, Message } from '@/models/Message';
 import { getData, postJson } from '@/utils/http/client';
 import { logInfo, logWarn } from '@/utils/logger';
 
@@ -37,7 +38,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
     });
     const { toast } = useToast();
     const [doc, setDocument] = useState<Document>();
-    const [message, setMessage] = useState<Array<string>>(['']);
+    const [messages, setMessages] = useState<Message[]>;
 
     useEffect(() => {
         if (doc) {
@@ -94,10 +95,10 @@ export default function ChatPage({ params }: { params: { id: string } }) {
             }
             return ret?.data;
         },
-        onSuccess: (resp: Array<string>) => {
+        onSuccess: (resp: Array<Message>) => {
             if (resp.length) {
                 resetForm();
-                setMessage(message.concat(resp[0]));
+                setMessages(messages.concat(resp[0]));
             }
         },
         onError: (e: any) => {
@@ -128,11 +129,15 @@ export default function ChatPage({ params }: { params: { id: string } }) {
     return (
         <div className="main-content !justify-between">
             <div className="no-scrollbar my-5 w-[80%] overflow-y-scroll rounded-md bg-gray-100 p-4">
-                {message.map((m: string, i: number) => (
-                    <code className="text-black" key={`chat_msg_${i}`}>
-                        {m}
-                    </code>
-                ))}
+                {messages?.length ? (
+                    messages.map((m: string, i: number) => (
+                        <code className="text-black" key={`chat_msg_${i}`}>
+                            {m}
+                        </code>
+                    ))
+                ) : (
+                    <ErrorImage />
+                )}
             </div>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit((data: any) => searchMutation.mutate(data))} onReset={resetForm} className="mb-12 w-2/3 space-y-6">
