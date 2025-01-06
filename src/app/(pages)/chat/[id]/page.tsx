@@ -9,7 +9,6 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { ErrorImage, LoadingImage } from '@/components/ImageView';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/components/ui/hooks/use-toast';
@@ -19,6 +18,8 @@ import { GET_URI, POST_URI } from '@/constants/application';
 import { MessageType, Message } from '@/models/Message';
 import { getData, postJson } from '@/utils/http/client';
 import { logInfo, logWarn } from '@/utils/logger';
+
+import { ContentError, ContentPending, ConversationNone } from './chat-tip';
 
 const FormSchema = z.object({
     input: z
@@ -38,7 +39,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
     });
     const { toast } = useToast();
     const [doc, setDocument] = useState<Document>();
-    const [messages, setMessages] = useState<Message[]>;
+    const [messages, setMessages] = useState<Message[]>([]);
 
     useEffect(() => {
         if (doc) {
@@ -111,34 +112,26 @@ export default function ChatPage({ params }: { params: { id: string } }) {
     });
 
     if (isPending) {
-        return (
-            <div className="main-content">
-                <LoadingImage />
-            </div>
-        );
+        return <ContentPending />;
     }
 
     if (isError) {
-        return (
-            <div className="main-content">
-                <ErrorImage />
-            </div>
-        );
+        return <ContentError />;
     }
 
     return (
         <div className="main-content !justify-between">
-            <div className="no-scrollbar my-5 w-[80%] overflow-y-scroll rounded-md bg-gray-100 p-4">
-                {messages?.length ? (
-                    messages.map((m: string, i: number) => (
+            {messages?.length ? (
+                <div className="no-scrollbar my-5 w-[80%] overflow-y-scroll rounded-md bg-gray-100 p-4">
+                    {messages.map((m: Message, i: number) => (
                         <code className="text-black" key={`chat_msg_${i}`}>
-                            {m}
+                            {m.text}
                         </code>
-                    ))
-                ) : (
-                    <ErrorImage />
-                )}
-            </div>
+                    ))}
+                </div>
+            ) : (
+                <ConversationNone />
+            )}
             <Form {...form}>
                 <form onSubmit={form.handleSubmit((data: any) => searchMutation.mutate(data))} onReset={resetForm} className="mb-12 w-2/3 space-y-6">
                     <FormField

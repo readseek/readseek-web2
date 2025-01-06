@@ -16,7 +16,7 @@ interface Props {
 
 const supportFileType = ['txt', 'md', 'pdf', 'epub', 'csv', 'tsv', 'doc', 'docx'];
 
-export const UploadBox = ({ field, formState, disabled = false }: Props) => {
+export function UploadBox({ field, formState, disabled = false }: Props) {
     const [uploadFile, setUploadFile] = useState<File>();
 
     useEffect(() => {
@@ -91,4 +91,4 @@ export const UploadBox = ({ field, formState, disabled = false }: Props) => {
             </label>
         </div>
     );
-};
+}
