@@ -101,8 +101,13 @@ export default function ChatPage({ params }: { params: { id: string } }) {
             const msgIn = buildMessage({ cid: params.id, uid: 1, text: data.input, type: MessageType.In, status: MessageStatus.default });
             setMessages(messages.concat(msgIn));
         },
+        onSettled: async (data: any) => {
+            if (data) {
+                const ret = await postJson('/api/web/syncMessage', { id: params.id, data: messages });
+                logInfo('syncMessage', ret?.message);
+            }
+        },
         onSuccess: (resp?: Message) => {
-            console.log('onSuccess', resp);
             if (resp) {
                 resetForm();
                 setMessages(messages.concat(resp));
