@@ -18,7 +18,7 @@ import BaseService from './_base';
 const pipelineAsync = promisify(pipeline);
 const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH ?? 'public/uploads');
 
-export default class DocumentService extends BaseService {
+export default class FileService extends BaseService {
     async removeUploadedFile(fpath: string): Promise<void> {
         try {
             if (existsSync(fpath || '')) {
