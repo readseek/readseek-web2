@@ -56,7 +56,7 @@ const AnyModel = {
         categoryId: 1,
         userId: 1,
         authors: ['thomas', 'kevin'],
-        coverUrl: 'https://mn.tangkunyin.com/assets/ideal-img/hero.cae8a08.1080.png',
+        coverUrl: 'http://localhost:4455/assets/text-files.svg',
         tags: {
             // 创建时，自动校验关联关系，如果有、则绑定，否则创建并绑定
             connectOrCreate: [

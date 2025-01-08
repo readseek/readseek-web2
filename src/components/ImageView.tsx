@@ -74,7 +74,7 @@ export function SuccessImage({ message = '恭喜你，操作成功！' }: { mess
 export function LoadingImage({ message = '正在准备数据，请稍候...' }: { message?: string }) {
     return (
         <div className="h-64 w-1/6">
-            <LocalImage file="loading" />
+            <LocalImage file="file-searching" />
             <h3 className="mt-7 w-full text-center text-base leading-10 text-slate-500">{message}</h3>
         </div>
     );
