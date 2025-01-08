@@ -49,9 +49,10 @@ export default function ChatPage({ params }: { params: { id: string } }) {
     }, [doc]);
 
     const resetForm = () => {
-        form.reset({
-            input: '',
-        });
+        form.reset({ input: '' });
+        setTimeout(() => {
+            form.setFocus('input', { shouldSelect: true });
+        }, 100);
     };
 
     const { isError, isPending } = useQuery({
@@ -115,10 +116,11 @@ export default function ChatPage({ params }: { params: { id: string } }) {
             const msgIn = buildMessage({ cid: params.id, uid: 1, text: data.input, type: MessageType.In, status: MessageStatus.default });
             setMessages(messages.concat(msgIn));
         },
-        onSettled: async (data: any) => {
+        onSettled: (data: any) => {
             if (data) {
-                const ret = await postJson('/api/web/syncMessage', { id: params.id, data: messages });
-                logInfo('syncMessage', ret?.message);
+                setTimeout(() => {
+                    postJson('/api/web/syncMessage', { id: params.id, data: messages });
+                }, 1000);
             }
         },
         onSuccess: (resp?: Message) => {
@@ -160,6 +162,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
                                         <Textarea
                                             placeholder="单次最大长度不要超过200字"
                                             className="mr-4 resize-none"
+                                            disabled={searchMutation.isPending}
                                             {...field}
                                             onKeyDown={e => {
                                                 if (e.key === 'Enter' && !e.shiftKey) {
