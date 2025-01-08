@@ -29,7 +29,7 @@ const FormSchema = z.object({
             message: '起码写两个字吧...',
         })
         .max(200, {
-            message: '最多一次发送500字噢',
+            message: '最多一次发送200字噢',
         }),
 });
 
@@ -44,7 +44,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
 
     useEffect(() => {
         if (doc) {
-            document.title = `${doc?.title} | 开启交互式内容精读 | 搜读`;
+            document.title = `${doc?.title} | 开启精读模式 | 交互式阅读先驱`;
         }
     }, [doc]);
 
@@ -53,19 +53,6 @@ export default function ChatPage({ params }: { params: { id: string } }) {
             input: '',
         });
     };
-
-    useQuery({
-        queryKey: [GET_URI.historyList, params.id],
-        placeholderData: keepPreviousData,
-        queryFn: async () => {
-            const ret = await getData(`/api/web/historyList?id=${params.id}`);
-            if (!ret || ret?.code) {
-                return [];
-            }
-            setMessages(ret?.data);
-            return ret?.data;
-        },
-    });
 
     const { isError, isPending } = useQuery({
         queryKey: [GET_URI.initChat, params.id],
@@ -91,6 +78,20 @@ export default function ChatPage({ params }: { params: { id: string } }) {
                 return null;
             }
             setDocument(ret?.data);
+            return ret?.data;
+        },
+    });
+
+    useQuery({
+        queryKey: [GET_URI.historyList, params.id],
+        placeholderData: keepPreviousData,
+        queryFn: async () => {
+            const ret = await getData(`/api/web/historyList?id=${params.id}`);
+            if (!ret || ret?.code) {
+                logWarn('历史数据加载失败:', ret?.message);
+                return [];
+            }
+            setMessages(ret?.data);
             return ret?.data;
         },
     });
