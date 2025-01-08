@@ -1,6 +1,10 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+
 import { LocalImage } from '@/components/ImageView';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MessageType, MessageStatus, buildMessage, Message } from '@/models/Message';
+import { MessageType, Message } from '@/models/Message';
 
 interface MsgListProps {
     data: Message[];
@@ -8,6 +12,14 @@ interface MsgListProps {
 }
 
 export function MessageList({ data, onFeedback }: MsgListProps) {
+    const endOfMessagesRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (endOfMessagesRef.current) {
+            endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [data]);
+
     if (!data || data.length === 0) {
         return (
             <div className="mt-16 h-72 w-1/2">
@@ -48,6 +60,7 @@ export function MessageList({ data, onFeedback }: MsgListProps) {
                     </div>
                 );
             })}
+            <div ref={endOfMessagesRef} />
         </div>
     );
 }
