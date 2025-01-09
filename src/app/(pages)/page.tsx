@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 
-import { PostItem, getPosts } from '@/components/home/PostItem';
+import { PostCards, getPosts } from '@/components/home/PostCards';
 
 export default async function HomePage() {
     const queryClient = new QueryClient();
@@ -10,7 +10,7 @@ export default async function HomePage() {
     });
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
-            <PostItem />
+            <PostCards />
         </HydrationBoundary>
     );
 }

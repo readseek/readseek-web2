@@ -16,7 +16,7 @@ export async function getPosts() {
     return { total: ret.data.total, posts: ret.data.list };
 }
 
-export function PostItem() {
+export function PostCards() {
     const { data, isError, isPending } = useQuery({
         queryKey: ['fileList'],
         queryFn: getPosts,
