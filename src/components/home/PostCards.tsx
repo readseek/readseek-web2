@@ -48,23 +48,25 @@ export function PostCards() {
     }
 
     return (
-        <div className="flex flex-col">
-            <div className="no-scrollbar grid flex-1 gap-4 overflow-y-scroll p-6 sm:grid-cols-3 xl:grid-cols-5">
+        <div className="flex h-full flex-col">
+            <div className="grid flex-1 gap-4 overflow-y-scroll p-6 sm:grid-cols-3 xl:grid-cols-5">
                 {data?.posts.map((doc: Document, index: number) => {
                     return (
-                        <div id="doc" className="rectangle group relative" key={`doc_card_${index}`}>
+                        <div id="doc" className="rectangle group relative bg-slate-50" key={`card_${doc.id}_${index}`}>
                             <RemoteImage src={doc.coverUrl!} fill />
-                            <div id="info" className="absolute bottom-0 left-0 z-10 flex h-14 w-full flex-col items-start bg-neutral-600 bg-opacity-35 p-1 text-white transition-all duration-300 group-hover:h-[85%] group-hover:bg-opacity-90">
-                                {'标题: '}
-                                <h2 className="m-0 underline hover:italic hover:no-underline">
-                                    <a href={`/chat/${doc.id}`} target="_blank">
+                            <div
+                                id="info"
+                                className="no-scrollbar absolute bottom-0 left-0 z-10 flex h-[25%] w-full flex-col items-start overflow-y-scroll bg-neutral-600 bg-opacity-45 p-1 text-white transition-all duration-500 group-hover:h-[80%] group-hover:bg-opacity-85">
+                                <span className="text-lg underline">{'标题: '}</span>
+                                <h2 className="max-h-12 w-full overflow-clip indent-2 text-base hover:italic hover:underline">
+                                    <a href={`/chat/${doc.id}`} target="_blank" title={doc.title}>
                                         {doc.title}
                                     </a>
                                 </h2>
-                                {'作者: '}
-                                <b className="m-0 px-1">{doc.authors?.join('|')}</b>
-                                {'简介: '}
-                                <h3 id="desc" className="no-scrollbar hidden overflow-auto p-1 italic group-hover:block">
+                                <span className="text-lg underline">{'作者: '}</span>
+                                <b className="indent-2">{doc.authors?.join('|')}</b>
+                                <span className="text-lg underline">{'简介: '}</span>
+                                <h3 id="desc" className="indent-2 text-sm group-hover:block">
                                     {doc.description}
                                 </h3>
                             </div>
