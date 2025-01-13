@@ -14,6 +14,13 @@ export enum DocumentType {
     UNKNOWN = 'unknown',
 }
 
+export enum DocumentLang {
+    EN,
+    CNS,
+    CNT,
+    JP,
+}
+
 export enum DocumentState {
     SUCCESS = 'SUCCESS',
     FAILED = 'FAILED',
@@ -29,6 +36,7 @@ export interface Document {
     userId: number;
     tags: Tag[];
     type: DocumentType;
+    lang: DocumentLang;
     keywords?: string[];
     authors?: string[];
     visible?: boolean;

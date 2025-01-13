@@ -24,6 +24,13 @@ enum DocumentType {
   UNKNOWN
 }
 
+enum DocumentLang {
+  EN
+  CNS
+  CNT
+  JP
+}
+
 enum DocumentState {
   SUCCESS
   FAILED
@@ -61,6 +68,7 @@ model Document {
   tags        Tag[]
   /// file type
   type        DocumentType
+  lang        DocumentLang  @default(EN)
   /// one-to-one: a doc to a user
   userId      Int
   user        User          @relation(fields: [userId], references: [id])
