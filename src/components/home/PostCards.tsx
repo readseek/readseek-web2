@@ -63,12 +63,22 @@ export function PostCards() {
                                         {doc.title}
                                     </a>
                                 </h2>
-                                <span className="text-lg underline">{'作者: '}</span>
-                                <b className="indent-2">{doc.authors?.join('|')}</b>
-                                <span className="text-lg underline">{'简介: '}</span>
-                                <h3 id="desc" className="indent-2 text-sm group-hover:block">
+                                {doc.authors ? (
+                                    <>
+                                        <span className="text-lg underline">{'作者: '}</span>
+                                        <h3 className="indent-2">{doc.authors?.join(', ')}</h3>
+                                    </>
+                                ) : null}
+                                {doc.keywords ? (
+                                    <>
+                                        <span className="text-lg underline">{'关键字: '}</span>
+                                        <h3 className="indent-2">{doc.keywords?.join(', ')}</h3>
+                                    </>
+                                ) : null}
+                                <span className="text-lg underline">{'内容摘要: '}</span>
+                                <p id="desc" className="indent-2 text-sm group-hover:block">
                                     {doc.description}
-                                </h3>
+                                </p>
                             </div>
                         </div>
                     );
