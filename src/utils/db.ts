@@ -39,6 +39,7 @@ export async function getFiles(data: any): Promise<RecordData> {
                 id: true,
                 title: true,
                 type: true,
+                lang: true,
                 keywords: true,
                 authors: true,
                 description: true,
