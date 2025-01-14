@@ -16,10 +16,7 @@ export const isBrowserModel = ((): boolean => {
 })();
 
 export function isDevModel(): boolean {
-    if (isBrowserModel) {
-        return true;
-    }
-    return Boolean(process.env.__RSN_ENV && process.env.__RSN_ENV === 'dev');
+    return Boolean(process.env.__RSN_ENV && (process.env.__RSN_ENV === 'dev' || process.env.__RSN_ENV === 'development'));
 }
 
 export function getFullTime() {
