@@ -14,11 +14,12 @@ export enum DocumentType {
     UNKNOWN = 'unknown',
 }
 
+// https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
 export enum DocumentLang {
-    EN,
-    CNS,
-    CNT,
-    JP,
+    ENG = 'ENG',
+    CHI = 'CHI',
+    ZHO = 'ZHO',
+    JPN = 'JPN',
 }
 
 export enum DocumentState {

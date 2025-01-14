@@ -1,7 +1,7 @@
 import type { SearchResults, QueryResults } from '@zilliz/milvus2-sdk-node';
 import type { NextRequest } from 'next/server';
 
-import { createWriteStream, existsSync, unlink } from 'node:fs';
+import { createWriteStream, existsSync, mkdir, unlink } from 'node:fs';
 import path from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
@@ -19,6 +19,23 @@ const pipelineAsync = promisify(pipeline);
 const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH ?? 'public/uploads');
 
 export default class FileService extends BaseService {
+    constructor() {
+        super();
+        // Ensure the upload directory exists
+        this.ensureUploadDirectory();
+    }
+
+    private async ensureUploadDirectory() {
+        try {
+            if (!existsSync(UPLOAD_PATH)) {
+                await promisify(mkdir)(UPLOAD_PATH, { recursive: true });
+                logInfo('Upload directory created:', UPLOAD_PATH);
+            }
+        } catch (error) {
+            logError('Failed to create upload directory:', error);
+        }
+    }
+
     async removeUploadedFile(fpath: string): Promise<void> {
         try {
             if (existsSync(fpath || '')) {
@@ -67,6 +84,9 @@ export default class FileService extends BaseService {
     @LogAPIRoute
     @CheckLogin
     async upload(req: NextRequest): Promise<APIRet> {
+        // Log the upload path and environment variable
+        logInfo('Upload environment variable:', process.env.__RSN_UPLOAD_PATH);
+        logInfo('Upload path:', UPLOAD_PATH);
         try {
             let file,
                 fileHash = '',

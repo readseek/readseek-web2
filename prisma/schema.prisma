@@ -25,10 +25,10 @@ enum DocumentType {
 }
 
 enum DocumentLang {
-  EN
-  CNS
-  CNT
-  JP
+  ENG
+  CHI
+  ZHO
+  JPN
 }
 
 enum DocumentState {
@@ -68,7 +68,7 @@ model Document {
   tags        Tag[]
   /// file type
   type        DocumentType
-  lang        DocumentLang  @default(EN)
+  lang        DocumentLang  @default(ENG)
   /// one-to-one: a doc to a user
   userId      Int
   user        User          @relation(fields: [userId], references: [id])
