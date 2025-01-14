@@ -1,4 +1,4 @@
-import { isDevModel } from '@/utils/common';
+import { isBrowserModel, isDevModel } from '@/utils/common';
 
 export const enum GET_URI {
     initChat = 'initChat',
@@ -27,13 +27,16 @@ export const enum POST_URI {
     syncMessage = 'syncMessage',
 }
 
-export const API_HOST = 'https://api.readseek.com';
+export const HOST_URL = 'https://api.readseek.com';
 
-export const LOGIN_URL = isDevModel() ? 'http://localhost:4455' : API_HOST;
+export const LOGIN_URL = isDevModel() ? 'http://localhost:4455' : HOST_URL;
 
 export const API_URL = (path: string) => {
     if (typeof path === 'string') {
-        return (isDevModel() ? 'http://localhost:4455' : API_HOST) + path;
+        if (isBrowserModel) {
+            return path;
+        }
+        return (isDevModel() ? 'http://localhost:4455' : HOST_URL) + path;
     }
     return '';
 };
