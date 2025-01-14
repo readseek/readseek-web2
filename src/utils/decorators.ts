@@ -15,20 +15,19 @@ export function LogAPIRoute(target: any, propertyKey: string, descriptor: Proper
         try {
             const req = args[0] as NextRequest;
 
-            if (req.method?.toUpperCase() === 'POST' && req.headers.get('content-type')?.toLowerCase() === 'application/json') {
-                const jsonStr = JSON.stringify(await req.json());
-                logInfo(`🎯 ${propertyKey} is called by url: ${req.url}, params: ${jsonStr}, geo: ${req.geo?.city}`);
-                // create a new request in order to use body stream more than once
-                args[0] = new NextRequest(req.url, {
-                    credentials: 'include',
-                    mode: 'same-origin',
-                    method: req.method,
-                    headers: req.headers,
-                    body: jsonStr,
-                });
-            } else {
-                logInfo(`🎯 ${propertyKey} is called by url: ${req.url}, method: ${req.method}, geo: ${req.geo?.city}`);
-            }
+            // if (req.method?.toUpperCase() === 'POST' && req.headers.get('content-type')?.toLowerCase() === 'application/json') {
+            // create a new request when use body stream more than once
+            // const jsonStr = JSON.stringify(await req.json());
+            // args[0] = new NextRequest(req.url, {
+            //     credentials: 'include',
+            //     mode: 'same-origin',
+            //     method: req.method,
+            //     headers: req.headers,
+            //     body: jsonStr,
+            // });
+            // }
+
+            logInfo(`🎯 Ip: ${req.ip}, ${req.method}. API ${propertyKey} is called by url: ${req.url}`);
 
             return await originalMethod.apply(this, args);
         } catch (error) {
