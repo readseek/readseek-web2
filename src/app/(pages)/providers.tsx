@@ -14,14 +14,11 @@ function getQueryClient() {
         browserQueryClient = new QueryClient({
             defaultOptions: {
                 queries: {
-                    networkMode: 'online',
+                    retry: 5,
                     staleTime: 1000 * 60 * 10, // 10 minutes
                     gcTime: 1000 * 60 * 30,
-                    refetchOnMount: true,
-                    refetchOnReconnect: true,
-                    refetchOnWindowFocus: true,
-                    retry: 5,
-                    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 1000 * 60),
+                    refetchOnMount: 'always',
+                    refetchOnReconnect: 'always',
                 },
             },
         });
