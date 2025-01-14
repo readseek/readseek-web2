@@ -84,7 +84,7 @@ export function PostCards() {
                     );
                 })}
             </div>
-            {data?.total > 10 ?? (
+            {data?.total > 10 && (
                 <footer className="center h-20">
                     <Pagination>
                         <PaginationContent>
