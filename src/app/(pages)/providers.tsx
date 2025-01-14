@@ -20,8 +20,6 @@ function getQueryClient() {
                     refetchOnMount: true,
                     refetchOnReconnect: true,
                     refetchOnWindowFocus: true,
-                    refetchInterval: 1000 * 60 * 15,
-                    refetchIntervalInBackground: true,
                     retry: 5,
                     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 1000 * 60),
                 },
