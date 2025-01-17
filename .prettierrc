@@ -1,11 +1,12 @@
 {
     "tabWidth": 4,
-    "printWidth": 260,
+    "printWidth": 220,
     "singleQuote": true,
     "bracketSpacing": true,
     "bracketSameLine": true,
     "arrowParens": "avoid",
     "endOfLine": "auto",
+    "trailingComma": "all",
     "tailwindFunctions": ["clsx"],
     "plugins": ["prettier-plugin-tailwindcss"]
 }

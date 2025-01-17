@@ -99,7 +99,12 @@ export function DataTable({ data, onDelete, onChatWith, onPaginationChanged }: D
     return (
         <>
             <div className="flex items-center py-4">
-                <Input placeholder="根据书名筛选信息" value={(table.getColumn('title')?.getFilterValue() as string) ?? ''} onChange={event => table.getColumn('title')?.setFilterValue(event.target.value)} className="max-w-sm" />
+                <Input
+                    placeholder="根据书名筛选信息"
+                    value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
+                    onChange={event => table.getColumn('title')?.setFilterValue(event.target.value)}
+                    className="max-w-sm"
+                />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">
