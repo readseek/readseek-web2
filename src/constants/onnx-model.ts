@@ -4,6 +4,8 @@ import path from 'node:path';
 
 import { absolutePath } from '@/utils/common';
 
+export type Onnx_Model = 'all-MiniLM-L6-v2' | 'gte-multilingual-base' | 't5-summary-enruzh-base-2048' | 'bloomz-560m';
+
 export const enum ModelName {
     ALL_MiniLM_L6_V2 = 'all-MiniLM-L6-v2', // English Prefer
     BGE_M3 = 'bge-m3', // Multilingual

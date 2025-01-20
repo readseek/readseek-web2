@@ -24,7 +24,6 @@ export const enum POST_URI {
     userLogin = 'userLogin',
     userUpdate = 'userUpdate',
     userCancellation = 'userCancellation',
-    syncMessage = 'syncMessage',
 }
 
 export const HOST_URL = 'https://api.readseek.com';

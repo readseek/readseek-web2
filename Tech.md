@@ -10,13 +10,17 @@
 - nextjs: <https://nextjs.org/learn/dashboard-app/getting-started>
 - shadcnUI: <https://ui.shadcn.com/docs>
 - 预训练模型：
-  - BGE-M3：<https://huggingface.co/BAAI/bge-m3>
-  - all-MiniLM-L6-v2：<https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2>
-  - gte-multilingual-base：<https://huggingface.co/Alibaba-NLP/gte-multilingual-base>
-  - eng Summary：<https://huggingface.co/Falconsai/text_summarization>
-  - chi Summary: <https://huggingface.co/IDEA-CCNL/Randeng-Pegasus-523M-Summary-Chinese>
-  - long text：<https://huggingface.co/pszemraj/long-t5-tglobal-base-16384-book-summary>
-  - t5_summary：<https://huggingface.co/utrobinmv/t5_summary_en_ru_zh_base_2048>
+  - Embeddings:
+    - English: <https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2>
+    - Multilingual: <https://huggingface.co/Alibaba-NLP/gte-multilingual-base>
+  - Summarization:
+    - <https://huggingface.co/utrobinmv/t5_summary_en_ru_zh_base_2048>
+    - <https://huggingface.co/IDEA-CCNL/Randeng-Pegasus-523M-Summary-Chinese>
+    - <https://huggingface.co/Xenova/long-t5-tglobal-base-16384-book-summary>
+  - Text Generation:
+    - <https://huggingface.co/bigscience/bloomz-560m>
+    - <https://huggingface.co/Xenova/flan-t5-small>
+    - <https://huggingface.co/openai-community/gpt2-medium>
 
 ### 模型在前段的集成方案
 
@@ -47,10 +51,7 @@
 
 #### 本地模型
 
-通过**optimum-cli**导出并存放在本地，作为项目公共库
-
-1. ~/.onnx_models/all-MiniLM-L6-v2/model.onnx
-2. ~/.onnx_models/bge-m3/model.onnx
+通过**optimum-cli**导出并存放在本地，作为项目公共库: `~/.llm_onnx/all-MiniLM-L6-v2/model.onnx`
 
 #### 关于onnx的文档
 
