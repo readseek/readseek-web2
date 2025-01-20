@@ -5,7 +5,7 @@ import { isDevModel, isBrowserModel, getFullTime } from './common';
 function logWrapper(level: number) {
     // Using curried wrapper
     return (logs: any[]) => {
-        if (isDevModel() && logs.length > 0) {
+        if ((isBrowserModel || isDevModel()) && logs.length > 0) {
             const timestamp = `[${getFullTime()}]`;
             let logFunction: any = null;
             switch (level) {
