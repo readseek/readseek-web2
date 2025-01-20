@@ -32,10 +32,10 @@ class LevelDBWrapper {
         return value !== null && value !== undefined;
     }
 
-    public async get(key: string): Promise<any> {
+    public async get(key: string | number): Promise<any> {
         try {
             if (await this.checkStatus()) {
-                const value = await this.db.get(key);
+                const value = await this.db.get(`${key}`);
                 if (isJSONObject(value)) {
                     return JSON.parse(value);
                 }
@@ -47,13 +47,13 @@ class LevelDBWrapper {
         return null;
     }
 
-    public async put(key: string, value: any): Promise<boolean> {
+    public async put(key: string | number, value: any): Promise<boolean> {
         try {
             if (await this.checkStatus()) {
                 if (isJSONObject(value)) {
-                    await this.db.put(key, JSON.stringify(value));
+                    await this.db.put(`${key}`, JSON.stringify(value));
                 } else {
-                    await this.db.put(key, `${value}`);
+                    await this.db.put(`${key}`, `${value}`);
                 }
                 return true;
             }
