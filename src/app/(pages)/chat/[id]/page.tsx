@@ -15,7 +15,7 @@ import { useToast } from '@/components/ui/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { ToastAction } from '@/components/ui/toast';
 import { GET_URI, POST_URI } from '@/constants/application';
-import { MessageType, MessageStatus, buildMessage, Message } from '@/models/Message';
+import { Conversation, Message, packingMessage } from '@/models/Conversation';
 import { getData, postJson } from '@/utils/http/client';
 import { logInfo, logWarn } from '@/utils/logger';
 
@@ -33,14 +33,14 @@ const FormSchema = z.object({
         }),
 });
 
-export default function ChatPage({ params }: { params: { id: string } }) {
+export default function ChatPage({ params }) {
     const router = useRouter();
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
     });
     const { toast } = useToast();
     const [doc, setDocument] = useState<Document>();
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [conversation, setConversation] = useState<Conversation>();
 
     useEffect(() => {
         if (doc) {
@@ -88,11 +88,12 @@ export default function ChatPage({ params }: { params: { id: string } }) {
         placeholderData: keepPreviousData,
         queryFn: async () => {
             const ret = await getData(`/api/web/historyList?id=${params.id}`);
+            logInfo('conversation history: ', ret?.data || ret);
             if (!ret || ret?.code) {
                 logWarn('历史数据加载失败:', ret?.message);
                 return [];
             }
-            setMessages(ret?.data);
+            setConversation(ret?.data);
             return ret?.data;
         },
     });
@@ -113,20 +114,14 @@ export default function ChatPage({ params }: { params: { id: string } }) {
             return ret?.data;
         },
         onMutate: (data: z.infer<typeof FormSchema>) => {
-            const msgIn = buildMessage({ cid: params.id, uid: 1, text: data.input, type: MessageType.In, status: MessageStatus.default });
-            setMessages(messages.concat(msgIn));
-        },
-        onSettled: (data: any) => {
-            if (data) {
-                setTimeout(() => {
-                    postJson('/api/web/syncMessage', { id: params.id, data: messages });
-                }, 1000);
-            }
+            conversation?.messages.push(packingMessage({ role: 'user', content: data.input }));
+            setConversation(conversation);
         },
         onSuccess: (resp?: Message) => {
             if (resp) {
                 resetForm();
-                setMessages(messages.concat(resp));
+                conversation?.messages.push(resp);
+                setConversation(conversation);
             }
         },
         onError: (e: any) => {
@@ -148,7 +143,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
 
     return (
         <div className="main-content !justify-between">
-            <MessageList data={messages} />
+            <MessageList data={conversation?.messages} />
             <Form {...form}>
                 <form onSubmit={form.handleSubmit((data: any) => searchMutation.mutate(data))} onReset={resetForm} className="mb-12 w-2/3 space-y-6">
                     <FormField

@@ -4,10 +4,10 @@ import { useEffect, useRef } from 'react';
 
 import { LocalImage } from '@/components/ImageView';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MessageType, Message } from '@/models/Message';
+import { Message } from '@/models/Conversation';
 
 interface MsgListProps {
-    data: Message[];
+    data?: Message[];
     onFeedback?: (id: string) => void;
 }
 
@@ -32,11 +32,11 @@ export function MessageList({ data, onFeedback }: MsgListProps) {
     return (
         <div className="no-scrollbar my-5 w-[70%] overflow-y-scroll">
             {data.map((m: Message, i: number) => {
-                if (m.type === MessageType.In) {
+                if (m.role === 'user') {
                     return (
                         <div key={`in_${m.id}#${i}`} className="mb-3 flex w-full flex-row items-center justify-end">
                             <div className="rounded-md bg-blue-50 px-2 pt-1 text-right">
-                                <div className="text-base text-black">{m.text}</div>
+                                <div className="text-base text-black">{m.content}</div>
                                 <div className="mt-2 text-xs font-light italic">{new Date(m.timestamp).toLocaleString()}</div>
                             </div>
                             <div className="flex flex-col items-center">
@@ -54,7 +54,7 @@ export function MessageList({ data, onFeedback }: MsgListProps) {
                             <LocalImage file="conference_speaker" />
                         </div>
                         <div className="w-full rounded-md bg-gray-100 px-2 pt-1 text-left">
-                            <div className="text-base text-black">{m.text}</div>
+                            <div className="text-base text-black">{m.content}</div>
                             <div className="mt-2 text-xs font-light italic">{new Date(m.timestamp).toLocaleString()}</div>
                         </div>
                     </div>
