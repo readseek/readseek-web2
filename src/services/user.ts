@@ -3,11 +3,11 @@ import type { NextRequest } from 'next/server';
 
 import { getUserFiles, getUserInfo } from '@/utils/db';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
-import { logError, logInfo, logWarn } from '@/utils/logger';
+import { logError, logInfo } from '@/utils/logger';
 
 import BaseService from './_base';
 
-export default class UserService extends BaseService {
+class UserService extends BaseService {
     @LogAPIRoute
     @CheckLogin
     async login(req: NextRequest): Promise<APIRet> {
@@ -68,3 +68,7 @@ export default class UserService extends BaseService {
         return { code: 0, data: [], message: 'no files found on given userId' };
     }
 }
+
+const service: UserService = new UserService();
+
+export default service;

@@ -6,8 +6,9 @@ import path from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
+import { Message, MessageAttitude, packingMessage } from '@/models/Conversation';
 import { DocumentType, Document } from '@/models/Document';
-import { buildMessage, MessageType, MessageStatus } from '@/models/Message';
+import ConversationService from '@/services/conversation';
 import { getFileHash } from '@/utils/common';
 import { deleteFileStorage, getCategories, getDocumentInfo, getFiles, getTags, chatQuery, saveOrUpdateDocument, chatSearch } from '@/utils/db';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
@@ -18,7 +19,7 @@ import BaseService from './_base';
 const pipelineAsync = promisify(pipeline);
 const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH ?? 'public/uploads');
 
-export default class FileService extends BaseService {
+class FileService extends BaseService {
     constructor() {
         super();
         // Ensure the upload directory exists
@@ -184,9 +185,11 @@ export default class FileService extends BaseService {
     @LogAPIRoute
     @CheckLogin
     async fileSearch(req: NextRequest): Promise<APIRet> {
+        const { input, id } = await req.json();
+        const messageBuff: Message[] = [];
         try {
-            const { input, id } = await req.json();
             if (input && id) {
+                messageBuff.push(packingMessage({ role: 'user', content: input }));
                 const rets: SearchResults = await chatSearch(input, id);
                 if (rets.status.code === 0) {
                     logInfo(
@@ -194,16 +197,18 @@ export default class FileService extends BaseService {
                         rets.results.map(r => r.score),
                     );
                     const relatedTexts = rets.results.filter(r => r.score > 0.35).map(r => r.text);
+                    const msgOut = packingMessage({
+                        role: 'bot',
+                        content: relatedTexts.length > 0 ? relatedTexts[0] : '抱歉，暂未匹配到相关内容',
+                        ma: MessageAttitude.default,
+                        rags: relatedTexts.length > 0 ? relatedTexts.splice(1) : null,
+                    });
+
+                    messageBuff.push(msgOut);
+
                     return {
                         code: 0,
-                        data: buildMessage({
-                            text: relatedTexts.length > 0 ? relatedTexts[0] : '抱歉，暂未匹配到相关内容',
-                            rags: relatedTexts.length > 0 ? relatedTexts.splice(1) : null,
-                            cid: id,
-                            uid: this.getSharedUid(),
-                            type: MessageType.Out,
-                            status: MessageStatus.default,
-                        }),
+                        data: msgOut,
                         message: 'ok',
                     };
                 }
@@ -212,6 +217,8 @@ export default class FileService extends BaseService {
             }
         } catch (error) {
             logError('fileSearch service: ', error);
+        } finally {
+            ConversationService.syncMessage(id, messageBuff);
         }
         return { code: -1, data: null, message: 'fileSearch failed' };
     }
@@ -231,3 +238,7 @@ export default class FileService extends BaseService {
         return { code: -1, data: null, message: 'fileQuery failed' };
     }
 }
+
+const service: FileService = new FileService();
+
+export default service;

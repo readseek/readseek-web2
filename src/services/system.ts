@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server';
 
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 
-export default class SystemService {
+class SystemService {
     @LogAPIRoute
     @CheckLogin
     async allUsers(req: NextRequest): Promise<APIRet> {
@@ -27,3 +27,7 @@ export default class SystemService {
         return { code: 0, data: confs, message: 'ok' };
     }
 }
+
+const service: SystemService = new SystemService();
+
+export default service;
