@@ -11,7 +11,7 @@ import { createEmbeddings, deleteEmbeddings, queryEmbeddings, saveEmbeddings, se
 import { parseFileContent } from '@/utils/langchain/parser';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
-import { getFileType } from './common';
+import { getFileType } from '../common';
 
 export type SOUDocParam = {
     fileHash: string;

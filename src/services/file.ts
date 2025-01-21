@@ -10,7 +10,7 @@ import { Message, MessageAttitude, packingMessage } from '@/models/Conversation'
 import { DocumentType, Document } from '@/models/Document';
 import ConversationService from '@/services/conversation';
 import { getFileHash } from '@/utils/common';
-import { deleteFileStorage, getCategories, getDocumentInfo, getFiles, getTags, chatQuery, saveOrUpdateDocument, chatSearch } from '@/utils/db';
+import { deleteFileStorage, getCategories, getDocumentInfo, getFiles, getTags, chatQuery, saveOrUpdateDocument, chatSearch } from '@/utils/database';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
