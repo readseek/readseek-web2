@@ -1,11 +1,10 @@
 import crypto from 'node:crypto';
-import { writeFile } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 
 import { DocumentType } from '@/models/Document';
-import { logError, logInfo, logWarn } from '@/utils/logger';
+import { logError } from '@/utils/logger';
 
 export const isBrowserModel = ((): boolean => {
     try {
@@ -127,17 +126,4 @@ export async function getFileHash(file: File): Promise<string> {
             reject(err?.message);
         });
     });
-}
-
-export function writeToFile(content: object, fPath?: string) {
-    try {
-        const localPath = path.join(absolutePath(fPath ?? '~/Downloads'), `RSNOut_${new Date().toISOString()}.txt`);
-        writeFile(localPath, JSON.stringify(content, null, 4), 'utf8', (err: any) => {
-            if (!err) {
-                logInfo('File have been create: ', localPath);
-            }
-        });
-    } catch (error) {
-        logWarn(error);
-    }
 }
