@@ -8,19 +8,17 @@ import { logError, logInfo, logWarn } from '@/utils/logger';
 
 import { isJSONObject } from '../common';
 
-const LevelDB_PATH = path.join(process.cwd(), process.env.__RSN_LevelDB_PATH ?? '.leveldb_data');
-
-class LevelDBWrapper {
-    private db: Level;
+export class LevelDBWrapper {
+    #db: Level;
 
     constructor(dbPath: string) {
         logInfo('LevelDB path is: ', dbPath);
-        this.db = new Level(dbPath, { keyEncoding: 'utf8', valueEncoding: 'utf8' });
+        this.#db = new Level(dbPath, { keyEncoding: 'utf8', valueEncoding: 'utf8' });
     }
 
-    private async close() {
+    public async close() {
         try {
-            await this.db.close();
+            await this.#db.close();
             logWarn('LevelDB has been closed.');
         } catch (err) {
             logError(`LevelDB has closed error: `, err);
@@ -35,7 +33,7 @@ class LevelDBWrapper {
     public async get(key: string | number): Promise<any> {
         try {
             if (await this.checkStatus()) {
-                const value = await this.db.get(`${key}`);
+                const value = await this.#db.get(`${key}`);
                 if (isJSONObject(value)) {
                     return JSON.parse(value);
                 }
@@ -51,9 +49,9 @@ class LevelDBWrapper {
         try {
             if (await this.checkStatus()) {
                 if (isJSONObject(value)) {
-                    await this.db.put(`${key}`, JSON.stringify(value));
+                    await this.#db.put(`${key}`, JSON.stringify(value));
                 } else {
-                    await this.db.put(`${key}`, `${value}`);
+                    await this.#db.put(`${key}`, `${value}`);
                 }
                 return true;
             }
@@ -67,11 +65,11 @@ class LevelDBWrapper {
         try {
             if (await this.checkStatus()) {
                 if (all) {
-                    for await (const k of this.db.keys()) {
-                        await this.db.del(k);
+                    for await (const k of this.#db.keys()) {
+                        await this.#db.del(k);
                     }
                 } else {
-                    await this.db.del(key);
+                    await this.#db.del(key);
                 }
                 return true;
             }
@@ -82,9 +80,9 @@ class LevelDBWrapper {
     }
 
     public async checkStatus(): Promise<boolean> {
-        if (this.db.status === 'closed') {
+        if (this.#db.status === 'closed') {
             try {
-                await this.db.open({ createIfMissing: true, multithreading: true, compression: true });
+                await this.#db.open({ createIfMissing: true, multithreading: true, compression: true });
             } catch (err) {
                 logError(`LevelDB opening error`, err);
                 return false;
@@ -94,14 +92,6 @@ class LevelDBWrapper {
     }
 }
 
-export default class LevelDB {
-    private static dbWrapper: LevelDBWrapper;
-    private constructor() {}
+const LevelDB = new LevelDBWrapper(path.join(process.cwd(), process.env.__RSN_LevelDB_PATH ?? '.leveldb_data'));
 
-    public static get getSharedDB(): LevelDBWrapper {
-        if (!this.dbWrapper) {
-            this.dbWrapper = new LevelDBWrapper(LevelDB_PATH);
-        }
-        return this.dbWrapper;
-    }
-}
+export default LevelDB;

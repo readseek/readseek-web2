@@ -6,68 +6,65 @@ import { DataType, MilvusClient, QueryReq, SearchSimpleReq, LoadState, FieldType
 
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
-type CollectionSearchParams = SearchReq | SearchSimpleReq;
+export type CollectionSearchParams = SearchReq | SearchSimpleReq;
 
-type CollectionQueryParams = QueryReq;
+export type CollectionQueryParams = QueryReq;
 
-export default class MilvusDB {
-    private static readonly MILVUS_DBNAME = process.env.__RSN_MILVUS_DBName || 'default';
-    private static readonly MILVUS_USERNAME = process.env.__RSN_MILVUS_USERNAME || 'root';
-    private static readonly MILVUS_ADDRESS = process.env.__RSN_MILVUS_ADDRESS || '127.0.0.1:19530';
+const MILVUS_DBNAME = process.env.__RSN_MILVUS_DBName || 'default';
+const MILVUS_USERNAME = process.env.__RSN_MILVUS_USERNAME || 'root';
+const MILVUS_ADDRESS = process.env.__RSN_MILVUS_ADDRESS || '127.0.0.1:19530';
 
-    private static LoadedCollnections = [];
+export class MilvusDBClient {
+    #milvusClient?: MilvusClient;
+    #LoadedCollnections = [];
 
-    private static _milvusClient: MilvusClient;
-    private static get milvusClient(): MilvusClient | null {
-        if (!this._milvusClient) {
+    constructor() {
+        try {
+            this.#milvusClient = new MilvusClient({
+                database: MILVUS_DBNAME,
+                username: MILVUS_USERNAME,
+                address: MILVUS_ADDRESS,
+                timeout: 90,
+                maxRetries: 5,
+                logLevel: 'warn',
+                pool: {
+                    max: 5,
+                    min: 1,
+                    autostart: true,
+                    idleTimeoutMillis: 1000 * 60 * 5, // 5min
+                },
+            });
+        } catch (error) {
+            logError(`Failed to connect milvus with db ${MILVUS_DBNAME} and username ${MILVUS_USERNAME}`, error);
+        } finally {
             logInfo('MilvusClient sdkInfo: ', MilvusClient.sdkInfo);
-            try {
-                this._milvusClient = new MilvusClient({
-                    database: this.MILVUS_DBNAME,
-                    username: this.MILVUS_USERNAME,
-                    address: this.MILVUS_ADDRESS,
-                    timeout: 90,
-                    maxRetries: 5,
-                    logLevel: 'warn',
-                    pool: {
-                        max: 5,
-                        min: 1,
-                        autostart: true,
-                        idleTimeoutMillis: 1000 * 60 * 5, // 5min
-                    },
-                });
-            } catch (error) {
-                logError(`Failed to connect milvus with db ${this.MILVUS_DBNAME} and username ${this.MILVUS_USERNAME}`, error);
-                return null;
-            }
         }
-        return this._milvusClient;
     }
 
-    private static async releaseCollection(collectionName?: string): Promise<void> {
+    private async releaseCollection(collectionName?: string): Promise<void> {
         const release = async (name: string) => {
-            const resp = await this.milvusClient?.getLoadState({ collection_name: name });
+            const resp = await this.#milvusClient?.getLoadState({ collection_name: name });
             if (resp?.state === LoadState.LoadStateLoaded) {
-                const status = await this.milvusClient?.releaseCollection({ collection_name: name });
+                const status = await this.#milvusClient?.releaseCollection({ collection_name: name });
                 logWarn(`Collection ${name} was release: `, status);
             }
         };
         if (collectionName) {
             release(collectionName);
         } else {
-            this.LoadedCollnections.forEach((colName: string) => {
+            this.#LoadedCollnections.forEach((colName: string) => {
                 release(colName);
             });
         }
     }
 
-    private static async loadCollection(name: string): Promise<boolean> {
+    private async loadCollection(name: string): Promise<boolean> {
         try {
-            const resp = await this.milvusClient?.getLoadState({ collection_name: name });
+            const resp = await this.#milvusClient?.getLoadState({ collection_name: name });
             if (resp?.state === LoadState.LoadStateLoaded) {
                 return true;
             }
-            const loadResp = await this.milvusClient?.loadCollection({ collection_name: name });
+            const loadResp = await this.#milvusClient?.loadCollection({ collection_name: name });
             return loadResp?.code === 0;
         } catch (error) {
             logError('Collection load error: ', error);
@@ -75,26 +72,26 @@ export default class MilvusDB {
         return false;
     }
 
-    private static async checkAndCreateDB(): Promise<boolean> {
-        const res = await this.milvusClient?.checkHealth();
+    private async checkAndCreateDB(): Promise<boolean> {
+        const res = await this.#milvusClient?.checkHealth();
         if (!res?.isHealthy) {
             logWarn('Checking MilvusDB Health: ', res || 'failed');
             return false;
         }
 
-        const listResp = await this.milvusClient?.listDatabases();
-        if (!listResp?.db_names.includes(this.MILVUS_DBNAME)) {
-            await this.milvusClient?.createDatabase({ db_name: this.MILVUS_DBNAME });
-            await this.milvusClient?.useDatabase({ db_name: this.MILVUS_DBNAME });
-            logInfo(`Database ${this.MILVUS_DBNAME} has been created`);
+        const listResp = await this.#milvusClient?.listDatabases();
+        if (!listResp?.db_names.includes(MILVUS_DBNAME)) {
+            await this.#milvusClient?.createDatabase({ db_name: MILVUS_DBNAME });
+            await this.#milvusClient?.useDatabase({ db_name: MILVUS_DBNAME });
+            logInfo(`Database ${MILVUS_DBNAME} has been created`);
         }
         return true;
     }
 
-    private static async checkAndCreateCollection(collectionName: string, dim: number): Promise<boolean> {
+    private async checkAndCreateCollection(collectionName: string, dim: number): Promise<boolean> {
         try {
             if (await this.checkAndCreateDB()) {
-                const ret = await this.milvusClient?.hasCollection({
+                const ret = await this.#milvusClient?.hasCollection({
                     collection_name: collectionName,
                 });
                 if (!ret?.value) {
@@ -133,7 +130,7 @@ export default class MilvusDB {
                             params: { nlist: 1024 },
                         },
                     ];
-                    const res = await this.milvusClient?.createCollection({
+                    const res = await this.#milvusClient?.createCollection({
                         fields: collectionFields,
                         index_params: indexParams,
                         collection_name: collectionName,
@@ -152,9 +149,9 @@ export default class MilvusDB {
         return false;
     }
 
-    public static async deleteCollection(collectionName: string): Promise<boolean> {
+    public async deleteCollection(collectionName: string): Promise<boolean> {
         try {
-            const ret = await this.milvusClient?.dropCollection({
+            const ret = await this.#milvusClient?.dropCollection({
                 collection_name: collectionName,
             });
             logWarn(`Collection ${collectionName} was dropped, error_code: `, ret?.error_code);
@@ -167,7 +164,7 @@ export default class MilvusDB {
         return false;
     }
 
-    public static async saveCollection(data: any, collectionName: string): Promise<boolean> {
+    public async saveCollection(data: any, collectionName: string): Promise<boolean> {
         const { textItems, dim, metas } = data;
 
         if (!textItems || textItems.length === 0 || dim === 0) {
@@ -179,7 +176,7 @@ export default class MilvusDB {
                 return false;
             }
             // Batch Insert the embeddings
-            const res = await this.milvusClient?.insert({
+            const res = await this.#milvusClient?.insert({
                 collection_name: collectionName,
                 fields_data: textItems.map((item: EmbeddingTextItem, index: number) => {
                     return {
@@ -201,12 +198,12 @@ export default class MilvusDB {
      * @param {colName, vector, outPuts}
      * @returns {SearchResults}
      */
-    public static async searchCollection(params: Record<string, any>): Promise<SearchResults> {
+    public async searchCollection(params: Record<string, any>): Promise<SearchResults> {
         const { colName, vector, outPuts } = params;
         if (!(await this.loadCollection(colName))) {
             throw new Error('Collection load failed, searching break...');
         }
-        return (await this.milvusClient?.search({
+        return (await this.#milvusClient?.search({
             topk: 3,
             limit: 5,
             collection_name: colName,
@@ -222,13 +219,13 @@ export default class MilvusDB {
      * @param {colName, vector, outPuts}
      * @returns {QueryResults}
      */
-    public static async queryCollection(params: Record<string, any>): Promise<QueryResults> {
+    public async queryCollection(params: Record<string, any>): Promise<QueryResults> {
         const { colName, vector, outPuts } = params;
         if (!(await this.loadCollection(colName))) {
             throw new Error('Collection load failed, querying break...');
         }
         // TODO: 没有针对query场景进行适配！
-        return (await this.milvusClient?.query({
+        return (await this.#milvusClient?.query({
             topk: 3,
             limit: 5,
             collection_name: colName,
@@ -239,3 +236,7 @@ export default class MilvusDB {
         } as CollectionQueryParams)) as QueryResults;
     }
 }
+
+const MilvusDB = new MilvusDBClient();
+
+export default MilvusDB;

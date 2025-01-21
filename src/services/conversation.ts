@@ -16,7 +16,7 @@ class ConversationService extends BaseService {
             const cId = searchParams.get('id') as string;
             if (cId && cId.length === 64) {
                 const uId = this.getSharedUid();
-                const conHis: Conversation[] = (await LevelDB.getSharedDB.get(uId)) || [];
+                const conHis: Conversation[] = (await LevelDB.get(uId)) || [];
                 let conv = conHis.find(item => (item.cId = cId));
                 if (!conv) {
                     logWarn('no conversation history yet! Creating a new conversation...');
@@ -33,7 +33,7 @@ class ConversationService extends BaseService {
                         messages: [],
                     };
                     conHis.push(conv);
-                    await LevelDB.getSharedDB.put(uId, conHis);
+                    await LevelDB.put(uId, conHis);
                 }
                 return { code: 0, data: conv, message: 'ok' };
             }
@@ -46,7 +46,7 @@ class ConversationService extends BaseService {
     async syncMessage(cId: string, message: Message[]): Promise<boolean> {
         try {
             const uId = this.getSharedUid();
-            const conHis: Conversation[] = await LevelDB.getSharedDB.get(uId);
+            const conHis: Conversation[] = await LevelDB.get(uId);
             const conI = conHis?.findIndex(item => (item.cId = cId));
             if (conI !== -1) {
                 const conv = conHis[conI];
@@ -58,7 +58,7 @@ class ConversationService extends BaseService {
                     updateAt: new Date().getTime(),
                     messages: conv.messages.concat(message),
                 };
-                const ret = await LevelDB.getSharedDB.put(uId, conHis);
+                const ret = await LevelDB.put(uId, conHis);
                 logInfo('syncMessage result:', ret, message.map(e => e.content).join(' => '));
                 return ret;
             }
