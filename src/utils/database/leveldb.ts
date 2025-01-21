@@ -13,7 +13,7 @@ export class LevelDBWrapper {
 
     constructor(dbPath: string) {
         logInfo('LevelDB path is: ', dbPath);
-        this.#db = new Level(dbPath, { keyEncoding: 'utf8', valueEncoding: 'utf8' });
+        this.#db = new Level(dbPath, { prefix: 'readseek-node-', createIfMissing: true });
     }
 
     public async close() {
@@ -82,7 +82,7 @@ export class LevelDBWrapper {
     public async checkStatus(): Promise<boolean> {
         if (this.#db.status === 'closed') {
             try {
-                await this.#db.open({ createIfMissing: true, multithreading: true, compression: true });
+                await this.#db.open({ maxFileSize: 10 * 1024 * 1024, maxOpenFiles: 3000, blockSize: 8192, cacheSize: 16 * 1024 * 1024 });
             } catch (err) {
                 logError(`LevelDB opening error`, err);
                 return false;
@@ -92,6 +92,7 @@ export class LevelDBWrapper {
     }
 }
 
-const LevelDB = new LevelDBWrapper(path.join(process.cwd(), process.env.__RSN_LevelDB_PATH ?? '.leveldb_data'));
+const DB_FILE_PATH = path.join(process.cwd(), process.env.__RSN_LevelDB_PATH ?? '.leveldb_data');
+const LevelDB = new LevelDBWrapper(DB_FILE_PATH);
 
 export default LevelDB;
