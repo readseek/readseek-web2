@@ -42,7 +42,7 @@
 
 ### ONNX Runtime
 
-> 使用转换为 ONNX 的HG模型创建嵌入模型(createEmbeddings)
+> 使用转换为 ONNX 的HG模型创建嵌入模型(createEmbedding)
 
 主包`onnxruntime-node`，其官方文档稀烂，特别是没有`typings`定义。在引用依赖时需要自己定义`.d.ts`文件
 

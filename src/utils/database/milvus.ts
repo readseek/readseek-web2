@@ -1,6 +1,6 @@
 'use server';
 
-import type { EmbeddingTextItem } from '../embeddings';
+import type { EmbeddingTextItem } from '../embedding';
 
 import { DataType, MilvusClient, QueryReq, SearchSimpleReq, LoadState, FieldType, IndexType, MetricType, SearchReq, SearchResults, QueryResults } from '@zilliz/milvus2-sdk-node';
 

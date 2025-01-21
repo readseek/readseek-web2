@@ -7,7 +7,7 @@ import path from 'node:path';
 
 import { Tag } from '@/models/Tag';
 import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove } from '@/utils/database/postgresql';
-import { createEmbeddings, deleteEmbeddings, queryEmbeddings, saveEmbeddings, searchEmbeddings } from '@/utils/embeddings';
+import { createEmbedding, deleteEmbedding, queryEmbedding, saveEmbedding, searchEmbedding } from '@/utils/embedding';
 import { parseFileContent } from '@/utils/langchain/parser';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -190,7 +190,7 @@ export async function saveOrUpdateDocument(data: SOUDocParam): Promise<{ state: 
         console.time('🔱 Saving db costs:');
 
         let saveRet: any = false;
-        if (await saveEmbeddings(segments, collectionNameWithId(fileHash))) {
+        if (await saveEmbedding(segments, collectionNameWithId(fileHash))) {
             // save supabase postgresql
             saveRet = await saveOrUpdate({
                 model: 'Document',
@@ -227,7 +227,7 @@ export async function saveOrUpdateDocument(data: SOUDocParam): Promise<{ state: 
 
 export async function deleteFileStorage(id: string): Promise<boolean> {
     const [det1, det2] = await Promise.all([
-        deleteEmbeddings(collectionNameWithId(id)),
+        deleteEmbedding(collectionNameWithId(id)),
         remove({
             model: 'Document',
             method: PrismaDBMethod.deleteMany,
@@ -287,9 +287,9 @@ export async function getDocumentInfo(id: string): Promise<RecordData> {
 }
 
 export async function chatSearch(input: string, id: string): Promise<SearchResults> {
-    const textItems = await createEmbeddings(input);
+    const textItems = await createEmbedding(input);
     if (Array.isArray(textItems) && textItems.length) {
-        return await searchEmbeddings({
+        return await searchEmbedding({
             colName: collectionNameWithId(id),
             vector: textItems[0].embedding,
             outPuts: ['text'],
@@ -299,9 +299,9 @@ export async function chatSearch(input: string, id: string): Promise<SearchResul
 }
 
 export async function chatQuery(input: string, id: string): Promise<QueryResults> {
-    const textItems = await createEmbeddings(input);
+    const textItems = await createEmbedding(input);
     if (Array.isArray(textItems) && textItems.length) {
-        return await queryEmbeddings({
+        return await queryEmbedding({
             colName: collectionNameWithId(id),
             vector: textItems[0].embedding,
             outPuts: ['text', 'meta'],

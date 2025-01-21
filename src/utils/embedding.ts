@@ -47,7 +47,7 @@ async function initialize() {
     }
 }
 
-export async function createEmbeddings(text: string | string[]): Promise<Array<EmbeddingTextItem> | null> {
+export async function createEmbedding(text: string | string[]): Promise<Array<EmbeddingTextItem> | null> {
     try {
         await initialize();
 
@@ -72,15 +72,15 @@ export async function createEmbeddings(text: string | string[]): Promise<Array<E
             }),
         );
     } catch (error) {
-        logError('createEmbeddings', error);
+        logError('createEmbedding', error);
     }
     return null;
 }
 
-export async function saveEmbeddings(segments: LSegment[], collectionName: string) {
+export async function saveEmbedding(segments: LSegment[], collectionName: string) {
     try {
         const contents: string[] = segments.map(segment => segment.pageContent);
-        const textItems = await createEmbeddings(contents);
+        const textItems = await createEmbedding(contents);
         if (Array.isArray(textItems) && textItems.length > 0) {
             const params = {
                 textItems,
@@ -90,19 +90,19 @@ export async function saveEmbeddings(segments: LSegment[], collectionName: strin
             return await MilvusDB.saveCollection(params, collectionName);
         }
     } catch (error) {
-        logError('saveEmbeddings', error);
+        logError('saveEmbedding', error);
     }
     return false;
 }
 
-export async function deleteEmbeddings(collection: string) {
+export async function deleteEmbedding(collection: string) {
     return MilvusDB.deleteCollection(collection);
 }
 
-export async function searchEmbeddings(params: Record<string, any>) {
+export async function searchEmbedding(params: Record<string, any>) {
     return MilvusDB.searchCollection(params);
 }
 
-export async function queryEmbeddings(params: Record<string, any>) {
+export async function queryEmbedding(params: Record<string, any>) {
     return MilvusDB.queryCollection(params);
 }
