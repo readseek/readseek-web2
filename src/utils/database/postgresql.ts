@@ -5,18 +5,17 @@ import type { Document } from '@/models/Document';
 import type { Tag } from '@/models/Tag';
 import type { User } from '@/models/User';
 
-import { isDevModel } from '@/utils/common';
 import prisma from '@/utils/database/prisma';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
-if (isDevModel()) {
-    prisma.$on('query', e => {
-        console.group(`DB Event: ${e.timestamp}`);
-        console.log('🔍 Query: ' + e.query + ', ' + 'Params: ' + e.params);
-        console.log('⌛️ Duration: ' + e.duration + 'ms');
-        console.groupEnd();
-    });
-}
+// if (isDevModel()) {
+//     prisma.$on('query', e => {
+//         console.group(`DB Event: ${e.timestamp}`);
+//         console.log('🔍 Query: ' + e.query + ', ' + 'Params: ' + e.params);
+//         console.log('⌛️ Duration: ' + e.duration + 'ms');
+//         console.groupEnd();
+//     });
+// }
 
 // https://www.prisma.io/docs/orm/reference/prisma-client-reference#model-queries
 export const enum PrismaDBMethod {
