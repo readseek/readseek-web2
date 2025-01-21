@@ -2,7 +2,7 @@ import type { User } from '@/models/User';
 import type { NextRequest } from 'next/server';
 
 import { getUserFiles, getUserInfo } from '@/utils/database';
-import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
+import { LogAPIRoute, CheckLogin } from '@/utils/http/decorators';
 import { logError, logInfo } from '@/utils/logger';
 
 import BaseService from './_base';

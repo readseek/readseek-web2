@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 
 import { onnxModelWith } from '@/constants/onnx-model';
-import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
+import { LogAPIRoute, CheckLogin } from '@/utils/http/decorators';
 
 class SystemService {
     @LogAPIRoute

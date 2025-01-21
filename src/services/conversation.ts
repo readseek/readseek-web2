@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 
 import { Conversation, Message, packingMessage } from '@/models/Conversation';
 import LevelDB from '@/utils/database/leveldb';
-import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
+import { LogAPIRoute, CheckLogin } from '@/utils/http/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
 import BaseService from './_base';

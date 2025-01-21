@@ -7,9 +7,7 @@ import { TokenTextSplitter, RecursiveCharacterTextSplitter } from 'langchain/tex
 import { DocumentLang } from '@/models/Document';
 import { logError, logInfo } from '@/utils/logger';
 
-import { writeToFile } from '../filewriter';
-
-import { getDocumentLoader } from './file-loader';
+import { getDocumentLoader } from './loader';
 
 // Langchain Document real types, for per text segment
 export type LSegment = {
@@ -63,8 +61,6 @@ export async function parseFileContent(filePath: string, extName: string): Promi
     try {
         const segments = (await getSplitContents(filePath, extName)) as LSegment[];
         if (Array.isArray(segments) && segments.length > 0) {
-            // checking file parsed-content
-            writeToFile(segments);
             // 标题和描述暂时均从第一节内容截取
             const firstParts = segments[0].pageContent.split('\n\n');
             logInfo('File firstPart:\n', firstParts);

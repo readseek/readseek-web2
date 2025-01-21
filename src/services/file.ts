@@ -11,7 +11,7 @@ import { DocumentType, Document } from '@/models/Document';
 import ConversationService from '@/services/conversation';
 import { getFileHash } from '@/utils/common';
 import { deleteFileStorage, getCategories, getDocumentInfo, getFiles, getTags, chatQuery, saveOrUpdateDocument, chatSearch } from '@/utils/database';
-import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
+import { LogAPIRoute, CheckLogin } from '@/utils/http/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
 import BaseService from './_base';

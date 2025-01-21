@@ -9,7 +9,7 @@ import { onnxModelWith, OnnxModel } from '@/constants/onnx-model';
 import { logError, logInfo } from '@/utils/logger';
 
 import MilvusDB from './database/milvus';
-import OptimizedTokenizer, { TokenizeResult } from './tokenizer';
+import OptimizedTokenizer, { TokenizeResult } from './langchain/tokenizer';
 
 let model: OnnxModel;
 let session: any;
