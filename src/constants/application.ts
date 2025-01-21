@@ -9,6 +9,7 @@ export const enum GET_URI {
     userFiles = 'userFiles',
     userProfile = 'userProfile',
     // only for dev and admin debug
+    test = 'test',
     sys_env = 'sys_env',
     sys_files = 'sys_files',
     sys_users = 'sys_users',

@@ -5,7 +5,7 @@ import type { LSegment } from './langchain/parser';
 // @ts-ignore
 import { InferenceSession, Tensor } from 'onnxruntime-node';
 
-import { getOnnxModel, OnnxModel } from '@/constants/onnx-model';
+import { onnxModelWith, OnnxModel } from '@/constants/onnx-model';
 import { logError, logInfo } from '@/utils/logger';
 
 import MilvusDB from './database/milvus';
@@ -24,13 +24,8 @@ export type EmbeddingTextItem = {
 async function initialize() {
     if (!session) {
         try {
-            model = getOnnxModel();
-            if (!model) {
-                logError('model is not found, check your local path or config');
-                return;
-            }
-            const { localPath, localTokenizerPath, type } = model;
-            session = await InferenceSession.create(localPath, {
+            model = onnxModelWith('similarity');
+            session = await InferenceSession.create(model.path, {
                 enableCpuMemArena: true,
                 enableMemPattern: true,
                 executionMode: 'parallel',
@@ -42,10 +37,9 @@ async function initialize() {
                 interOpNumThreads: 0,
                 intraOpNumThreads: 0,
             });
-
-            if (!tokenizer && localTokenizerPath) {
-                tokenizer = new OptimizedTokenizer(localTokenizerPath);
-                logInfo('preTokenizer and its type are: ', tokenizer.getPreTokenizer(), type);
+            if (!tokenizer && model.tokenizerPath) {
+                tokenizer = new OptimizedTokenizer(model.tokenizerPath);
+                logInfo('preTokenizer and its type are: ', tokenizer.getPreTokenizer());
             }
         } catch (error) {
             logError('initialize onnx model error: ', error);

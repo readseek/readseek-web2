@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
 
+import { onnxModelWith } from '@/constants/onnx-model';
 import { LogAPIRoute, CheckLogin } from '@/utils/decorators';
 
 class SystemService {
@@ -25,6 +26,13 @@ class SystemService {
             }
         });
         return { code: 0, data: confs, message: 'ok' };
+    }
+
+    async test(req: NextRequest): Promise<APIRet> {
+        const parameter = req.nextUrl.searchParams.get('p');
+        // @ts-ignore
+        const model = onnxModelWith(parameter || 'similarity');
+        return { code: 0, data: model, message: 'ok' };
     }
 }
 

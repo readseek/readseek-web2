@@ -1,62 +1,96 @@
 'use server';
 
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
 import { absolutePath } from '@/utils/common';
+import { logError, logInfo } from '@/utils/logger';
 
-export type Onnx_Model = 'all-MiniLM-L6-v2' | 'gte-multilingual-base' | 't5-summary-enruzh-base-2048' | 'bloomz-560m';
+export type ModelType = 'similarity' | 'summarization' | 'text-generation' | 'image-generation';
 
+/**
+ * Value is the same as its location dir-name where onnx file it is.
+ */
 export const enum ModelName {
-    ALL_MiniLM_L6_V2 = 'all-MiniLM-L6-v2', // English Prefer
-    BGE_M3 = 'bge-m3', // Multilingual
-    GTE_MULTILINGUAL_BASE = 'gte-multilingual-base', // Multilingual
+    allMiniLML6v2 = 'all-MiniLM-L6-v2', // default for embeddings
+    gteMultilingualBase = 'gte-multilingual-base',
+    t5Summary = 't5-summary-enruzh-base-2048',
+    bloomz560m = 'bloomz-560m',
 }
 
-export type OnnxModel = {
-    type: 'Bert' | 'XLMRoberta'; // model_type
+export interface OnnxModel {
+    name: ModelName;
+    type: ModelType;
+    path: string;
+    tokenizerPath: string;
+    maxContextLength: number; // max text input length
     outputDimension: number; // hidden_size
     tokenSize: number; // max_position_embeddings
     vocabSize: number; // vocab_size
-    name?: ModelName;
-    localPath?: string;
-    localTokenizerPath?: string;
-};
+}
 
-const LOCAL_MODEL_ROOT_PATH = process.env.__RSN_LOCAL_MODEL_ROOT_PATH as string;
+export function getModelConfig(name: string, rootPath: string): any {
+    try {
+        const basePath = absolutePath(path.join(rootPath, name));
+        if (!existsSync(basePath || '')) {
+            logError('Base path for onnx llm model is not exists.');
+            return null;
+        }
 
-const ModelConfig: Record<ModelName, OnnxModel> = {
-    [ModelName.ALL_MiniLM_L6_V2]: {
-        type: 'Bert',
-        outputDimension: 384,
-        tokenSize: 512,
-        vocabSize: 30522,
-        localPath: absolutePath(path.join(LOCAL_MODEL_ROOT_PATH, `${ModelName.ALL_MiniLM_L6_V2}/model.onnx`)),
-        localTokenizerPath: absolutePath(path.join(LOCAL_MODEL_ROOT_PATH, `${ModelName.ALL_MiniLM_L6_V2}/tokenizer.json`)),
-    },
-    [ModelName.BGE_M3]: {
-        type: 'XLMRoberta',
-        outputDimension: 1024,
-        tokenSize: 8194,
-        vocabSize: 250002,
-        localPath: absolutePath(path.join(LOCAL_MODEL_ROOT_PATH, `${ModelName.BGE_M3}/model.onnx`)),
-        localTokenizerPath: absolutePath(path.join(LOCAL_MODEL_ROOT_PATH, `${ModelName.BGE_M3}/tokenizer.json`)),
-    },
-    [ModelName.GTE_MULTILINGUAL_BASE]: {
-        type: 'XLMRoberta',
-        outputDimension: 768,
-        tokenSize: 8192,
-        vocabSize: 250048,
-        localPath: absolutePath(path.join(LOCAL_MODEL_ROOT_PATH, `${ModelName.GTE_MULTILINGUAL_BASE}/model.onnx`)),
-        localTokenizerPath: absolutePath(path.join(LOCAL_MODEL_ROOT_PATH, `${ModelName.GTE_MULTILINGUAL_BASE}/tokenizer.json`)),
-    },
-};
+        const { hidden_size, max_position_embeddings, vocab_size } = JSON.parse(readFileSync(path.join(basePath, '/config.json'), 'utf8'));
+        return {
+            name,
+            onnx: path.join(basePath, '/model.onnx'),
+            tokenizer: path.join(basePath, '/tokenizer.json'),
+            outputDimension: hidden_size,
+            tokenSize: max_position_embeddings,
+            vocabSize: vocab_size,
+        };
+    } catch (error) {
+        logError(error);
+    }
+    return null;
+}
 
-export function getOnnxModel(name: ModelName = ModelName.ALL_MiniLM_L6_V2): OnnxModel {
-    const model = ModelConfig[name];
-
-    if (!model) {
-        throw new Error(`Model ${name} not found`);
+export function onnxModelWith(type: ModelType, name?: ModelName): OnnxModel {
+    const rootPath = process.env.__RSN_LOCAL_MODEL_ROOT_PATH as string;
+    if (!rootPath) {
+        throw new Error('__RSN_LOCAL_MODEL_ROOT_PATH is not defined, check .env file');
     }
 
-    return model;
+    let model_name = '';
+    switch (type) {
+        case 'similarity':
+            model_name = name ? name : ModelName.allMiniLML6v2;
+            break;
+        case 'summarization':
+            model_name = name ? name : ModelName.t5Summary;
+            break;
+        case 'text-generation':
+            model_name = name ? name : ModelName.bloomz560m;
+            break;
+        case 'image-generation':
+            model_name = name ? name : ModelName.bloomz560m;
+            break;
+        default:
+            throw new Error(`Illegal model type ${type}`);
+    }
+
+    const config = getModelConfig(model_name, rootPath);
+    if (config) {
+        const { name, onnx, tokenizer, outputDimension, tokenSize, vocabSize } = config;
+        logInfo(`Using LLM Model: ${name}, tokenSize: ${tokenSize}`);
+        return {
+            name,
+            type,
+            path: onnx,
+            tokenizerPath: tokenizer,
+            outputDimension,
+            tokenSize,
+            vocabSize,
+            maxContextLength: 1000,
+        };
+    }
+
+    throw new Error(`Illegal onnx model config`, config);
 }

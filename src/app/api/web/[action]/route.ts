@@ -60,6 +60,9 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         case GET_URI.sys_users:
             ret = await SystemService.allUsers(req);
             break;
+        case GET_URI.test:
+            ret = await SystemService.test(req);
+            break;
         default:
             return NextResponse.json({ code: -1, message: 'Notfound get' }, { status: 404 });
     }
