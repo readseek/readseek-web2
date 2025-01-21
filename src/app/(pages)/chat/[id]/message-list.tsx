@@ -18,7 +18,7 @@ export function MessageList({ data, onFeedback }: MsgListProps) {
         if (endOfMessagesRef.current) {
             endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [data]);
+    }, [data?.length]);
 
     if (!data || data.length === 0) {
         return (
