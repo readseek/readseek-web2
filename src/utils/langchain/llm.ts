@@ -30,7 +30,6 @@ export class LLMWrapper {
                 enableCpuMemArena: true,
                 enableMemPattern: true,
                 executionMode: 'parallel',
-                executionProviders: ['CPUExecutionProvider'],
                 graphOptimizationLevel: 'all',
             });
             return true;
