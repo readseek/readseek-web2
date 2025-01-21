@@ -2,19 +2,28 @@
 
 import path from 'node:path';
 
-import { Level } from 'level';
+import { Level, OpenOptions } from 'level';
 
 import { logError, logWarn } from '@/utils/logger';
 
 import { isJSONObject } from '../common';
+
+const OPEN_OPTIONS: OpenOptions = {
+    blockSize: 8192,
+    compression: true,
+    cacheSize: 16 * 1024 * 1024,
+    maxOpenFiles: 3000,
+    maxFileSize: 10 * 1024 * 1024,
+};
 
 export default class LevelDB {
     static #db: Level;
     static get db() {
         if (!this.#db) {
             try {
-                const DB_PATH = path.join(process.cwd(), process.env.__RSN_LevelDB_PATH ?? '.leveldb_data');
-                this.#db = new Level(DB_PATH, { prefix: 'readseek-node-', createIfMissing: true });
+                const levelDB = new Level(path.join(process.cwd(), process.env.__RSN_LevelDB_PATH ?? '.leveldb_data'), { prefix: 'readseek-node-', createIfMissing: true });
+                levelDB.open(OPEN_OPTIONS);
+                this.#db = levelDB;
             } catch (error) {
                 logError(error);
             }
@@ -22,13 +31,24 @@ export default class LevelDB {
         return this.#db;
     }
 
-    public static async close() {
+    private static async close() {
         try {
             await this.db.close();
             logWarn('LevelDB has been closed.');
         } catch (err) {
-            logError(`LevelDB has closed error: `, err);
+            logError(`LevelDB closing error: `, err);
         }
+    }
+
+    private static async open() {
+        try {
+            await this.db.open(OPEN_OPTIONS);
+            logWarn('LevelDB has been opened.');
+            return true;
+        } catch (err) {
+            logError(`LevelDB opening error: `, err);
+        }
+        return false;
     }
 
     public static async has(key: string): Promise<boolean> {
@@ -88,11 +108,11 @@ export default class LevelDB {
     public static async checkStatus(): Promise<boolean> {
         if (this.db.status === 'closed') {
             try {
-                await this.db.open({ maxFileSize: 10 * 1024 * 1024, maxOpenFiles: 3000, blockSize: 8192, cacheSize: 16 * 1024 * 1024 });
+                return await this.open();
             } catch (err) {
                 logError(`LevelDB opening error`, err);
-                return false;
             }
+            return false;
         }
         return true;
     }

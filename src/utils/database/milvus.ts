@@ -32,7 +32,7 @@ export default class MilvusDBClient {
                         min: 2,
                         max: 10,
                         autostart: true,
-                        idleTimeoutMillis: 1000 * 60 * 10, // 5min
+                        idleTimeoutMillis: 1000 * 60 * 10,
                     },
                     channelOptions: {
                         // starter cluster will throw rejected by server because of excess ping, so we need to adjust the ping interval
