@@ -20,15 +20,15 @@ class ConversationService extends BaseService {
                 let conv = conHis.find(item => (item.cId = cId));
                 if (!conv) {
                     logWarn('no conversation history yet! Creating a new conversation...');
-                    const createTime = new Date().getTime();
+                    const createAt = new Date().getTime();
                     conv = {
                         id: conHis.length + 1,
                         name: '',
                         cId,
                         uId,
                         gId: -1,
-                        createTime,
-                        updateTime: createTime,
+                        createAt,
+                        updateAt: createAt,
                         prompt: '',
                         messages: [],
                     };
@@ -55,7 +55,7 @@ class ConversationService extends BaseService {
                 }
                 conHis[conI] = {
                     ...conv,
-                    updateTime: new Date().getTime(),
+                    updateAt: new Date().getTime(),
                     messages: conv.messages.concat(message),
                 };
                 const ret = await LevelDB.getSharedDB.put(uId, conHis);

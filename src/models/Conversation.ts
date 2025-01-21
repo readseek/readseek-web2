@@ -2,7 +2,6 @@ import { Md5 } from 'ts-md5';
 
 export type MessageRole = 'bot' | 'user';
 
-// 消息态度
 export const enum MessageAttitude {
     default = 0,
     agree = 1, // 赞同
@@ -24,8 +23,8 @@ export interface Conversation {
     cId: string; // 隶属内容的Id
     uId: number; // 用户Id（记录谁产生这条会话）
     gId: number; // 会话分组Id, -1表示没有分组
-    createTime: number; // 会话产生时间，时间戳13位
-    updateTime: number; // 会话再次更新时间，时间戳13位
+    createAt: number; // 会话产生时间，时间戳13位
+    updateAt: number; // 会话再次更新时间，时间戳13位
     prompt: string;
     messages: Message[];
 }
