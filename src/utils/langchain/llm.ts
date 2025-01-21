@@ -40,14 +40,10 @@ export class LLMWrapper {
     }
 }
 
-export class LLMFactory {
-    #cache: LRUCache<string, LLMWrapper>;
+export default class LLMFactory {
+    static #cache: LRUCache<string, LLMWrapper> = new LRUCache({ max: 5, ttl: 1000 * 60 * 15 });
 
-    constructor() {
-        this.#cache = new LRUCache({ max: 5, ttl: 1000 * 60 * 15 });
-    }
-
-    public async getLLMInstance(type: ModelType, name?: ModelName): Promise<LLMWrapper | null> {
+    public static async getInstance(type: ModelType, name?: ModelName): Promise<LLMWrapper | null> {
         try {
             if (this.#cache.has(type)) {
                 logInfo('Using cached LLM: ', type, name);
@@ -65,7 +61,3 @@ export class LLMFactory {
         return null;
     }
 }
-
-const LLM = new LLMFactory();
-
-export default LLM;

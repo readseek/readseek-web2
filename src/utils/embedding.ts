@@ -9,7 +9,7 @@ import { Tensor } from 'onnxruntime-node';
 import { logError } from '@/utils/logger';
 
 import MilvusDB from './database/milvus';
-import LLM from './langchain/llm';
+import LLMFactory from './langchain/llm';
 
 export type EmbeddingTextItem = {
     number: number;
@@ -19,7 +19,7 @@ export type EmbeddingTextItem = {
 
 export async function createEmbedding(text: string | string[]): Promise<Array<EmbeddingTextItem> | null> {
     try {
-        const llm = await LLM.getLLMInstance('similarity');
+        const llm = await LLMFactory.getInstance('similarity');
         if (llm) {
             // Tokenize the texts
             const texts = Array.isArray(text) ? text : [text];
@@ -52,7 +52,7 @@ export async function saveEmbedding(segments: LSegment[], collectionName: string
         const contents: string[] = segments.map(segment => segment.pageContent);
         const textItems = await createEmbedding(contents);
         if (Array.isArray(textItems) && textItems.length > 0) {
-            const llm = await LLM.getLLMInstance('similarity');
+            const llm = await LLMFactory.getInstance('similarity');
             const params = {
                 textItems,
                 dim: llm?.model.outputDimension,
