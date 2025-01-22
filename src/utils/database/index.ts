@@ -182,7 +182,6 @@ export async function saveOrUpdateDocument(data: SOUDocParam): Promise<{ state: 
         // TODO: 耗时操作，后续改成移步执行、成功后通过消息通知
         const { state, meta, segments } = await parseFileContent(filePath, ext.substring(1).toLowerCase());
         if (!state || !meta || !segments) {
-            logWarn('parseFileContent result: ', state, meta);
             return { state: false, message: 'file parsing failed' };
         }
 
@@ -287,7 +286,7 @@ export async function getDocumentInfo(id: string): Promise<RecordData> {
 }
 
 export async function chatSearch(input: string, id: string): Promise<SearchResults> {
-    const textItems = await createEmbedding(input);
+    const textItems = await createEmbedding(input, false);
     if (Array.isArray(textItems) && textItems.length) {
         return await searchEmbedding({
             colName: collectionNameWithId(id),
@@ -299,7 +298,7 @@ export async function chatSearch(input: string, id: string): Promise<SearchResul
 }
 
 export async function chatQuery(input: string, id: string): Promise<QueryResults> {
-    const textItems = await createEmbedding(input);
+    const textItems = await createEmbedding(input, false);
     if (Array.isArray(textItems) && textItems.length) {
         return await queryEmbedding({
             colName: collectionNameWithId(id),

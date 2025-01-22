@@ -6,6 +6,7 @@ import type { TokenizeResult } from './langchain/tokenizer';
 // @ts-ignore
 import { Tensor } from 'onnxruntime-node';
 
+import { ModelType } from '@/constants/onnx-model';
 import { logError } from '@/utils/logger';
 
 import MilvusDB from './database/milvus';
@@ -17,13 +18,13 @@ export type EmbeddingTextItem = {
     embedding: Array<number>;
 };
 
-export async function createEmbedding(text: string | string[]): Promise<Array<EmbeddingTextItem> | null> {
+export async function createEmbedding(text: string | string[], batch = true, modelType: ModelType = 'similarity'): Promise<Array<EmbeddingTextItem> | null> {
     try {
-        const llm = await LLMFactory.getInstance('similarity');
+        const llm = await LLMFactory.getInstance(modelType);
         if (llm) {
             // Tokenize the texts
             const texts = Array.isArray(text) ? text : [text];
-            const tokenizers: TokenizeResult[] = await llm.tokenizer.batchTokenizeWithoutCache(texts);
+            const tokenizers: TokenizeResult[] = batch ? await llm.tokenizer.batchTokenizeWithCache(texts) : await llm.tokenizer.tokenize(texts);
 
             // Run local inference
             return await Promise.all(

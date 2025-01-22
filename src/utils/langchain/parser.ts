@@ -85,7 +85,7 @@ export async function parseFileContent(filePath: string, extName: string): Promi
                     title,
                     description,
                     keywords,
-                    lang: segments[0].metadata.languages.length ? (segments[0].metadata.languages[0].toUpperCase() as DocumentLang) : DocumentLang.ENG,
+                    lang: segments[0].metadata?.languages?.length ? (segments[0].metadata.languages[0].toUpperCase() as DocumentLang) : DocumentLang.ENG,
                     authors: ['tomartisan'], // 先写死，后面从前端传过来。或者从网络抓取
                     coverUrl: process.env.__RSN_DEFAULT_COVER, // 后边从网络抓取，或随机
                 },

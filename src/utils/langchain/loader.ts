@@ -97,6 +97,7 @@ export function getDocumentLoader(filePath: string, extName: string): DocumentLo
     let loader;
     switch (extName) {
         case DocumentType.TXT:
+        case DocumentType.MARKDOWN:
             loader = new TextLoader(filePath);
             break;
         case DocumentType.PDF:
@@ -123,7 +124,7 @@ export function getDocumentLoader(filePath: string, extName: string): DocumentLo
             });
             break;
         default:
-            // for markdown and html
+            // for html and UNKNOWN
             loader = getOptimizedUnstructuredLoader(filePath, extName);
             break;
     }
