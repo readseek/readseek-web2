@@ -36,7 +36,7 @@ export default function FileListPage(props) {
         queryKey: [GET_URI.userFiles, pagination],
         placeholderData: keepPreviousData,
         queryFn: async () => {
-            const ret = await getData(`/api/web/userFiles?page=${pagination.pageIndex}&size=${pagination.pageSize}`);
+            const ret = await getData(GET_URI.userFiles, { page: pagination.pageIndex, size: pagination.pageSize });
             if (!ret || ret?.code) {
                 return null;
             }
@@ -47,7 +47,7 @@ export default function FileListPage(props) {
     const mutationDelete = useMutation({
         mutationKey: [POST_URI.fileDelete],
         mutationFn: async (doc?: Document) => {
-            const ret = await postJson('/api/web/fileDelete', { id: doc?.id, type: doc?.type });
+            const ret = await postJson(POST_URI.fileDelete, { id: doc?.id, type: doc?.type });
             return ret?.code === 0;
         },
         onSuccess: (data: any) => {

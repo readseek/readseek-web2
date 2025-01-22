@@ -70,7 +70,7 @@ export default function PostContentPage(props) {
         queryKey: [GET_URI.fileCategories],
         placeholderData: keepPreviousData,
         queryFn: async () => {
-            const ret = await getData('/api/web/fileCategories');
+            const ret = await getData(GET_URI.fileCategories);
             if (!ret || ret?.code) {
                 return null;
             }
@@ -81,7 +81,7 @@ export default function PostContentPage(props) {
         queryKey: [GET_URI.fileTags],
         placeholderData: keepPreviousData,
         queryFn: async () => {
-            const ret = await getData('/api/web/fileTags');
+            const ret = await getData(GET_URI.fileTags);
             if (!ret || ret?.code) {
                 return null;
             }
@@ -92,7 +92,7 @@ export default function PostContentPage(props) {
     const mutationUpload = useMutation({
         mutationKey: [POST_URI.fileUpload],
         mutationFn: async (data: z.infer<typeof FormSchema>) => {
-            const ret = await postForm('/api/web/fileUpload', data);
+            const ret = await postForm(POST_URI.fileUpload, data);
             logInfo('upload ret:', ret);
             if (!ret || ret?.code) {
                 toast({

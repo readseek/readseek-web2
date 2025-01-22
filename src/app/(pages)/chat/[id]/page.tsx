@@ -59,7 +59,7 @@ export default function ChatPage({ params }) {
         queryKey: [GET_URI.convHistory, params.id],
         placeholderData: keepPreviousData,
         queryFn: async () => {
-            const ret = await getData(`/api/web/convHistory?id=${params.id}`);
+            const ret = await getData(GET_URI.convHistory, { id: params.id });
             logInfo('conversation history: ', ret?.data || ret);
             if (!ret || ret?.code) {
                 logWarn('历史数据加载失败:', ret?.message);
@@ -73,7 +73,7 @@ export default function ChatPage({ params }) {
     const { isError, isPending } = useQuery({
         queryKey: [POST_URI.convInit, params.id],
         queryFn: async () => {
-            const ret = await postJson('/api/web/convInit', { id: params.id });
+            const ret = await postJson(POST_URI.convInit, { id: params.id });
             if (!ret || ret?.code) {
                 toast({
                     variant: 'destructive',
@@ -100,7 +100,7 @@ export default function ChatPage({ params }) {
     const chattingMutation = useMutation({
         mutationKey: [POST_URI.convChat, params.id],
         mutationFn: async (data: z.infer<typeof FormSchema>) => {
-            const ret = await postJson('/api/web/convChat', { input: data.input, id: params.id });
+            const ret = await postJson(POST_URI.convChat, { input: data.input, id: params.id });
             if (!ret || ret?.code) {
                 toast({
                     variant: 'destructive',

@@ -6,10 +6,11 @@ import { useQuery } from '@tanstack/react-query';
 
 import { RemoteImage, NodataImage, ErrorImage, LoadingImage } from '@/components/ImageView';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { GET_URI } from '@/utils/http';
 import { getServerData } from '@/utils/http/server';
 
 export async function getPosts() {
-    const ret: any = await getServerData('/api/web/fileList');
+    const ret: any = await getServerData(GET_URI.fileList);
     if (!Array.isArray(ret?.data.list) || !ret.data.list.length) {
         return { total: 0, posts: [] };
     }

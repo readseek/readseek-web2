@@ -6,7 +6,7 @@ import { Response } from 'node-fetch';
 import { isDevModel } from '../common';
 import { logError } from '../logger';
 
-import { LOGIN_URL, API_URL } from './index';
+import { LOGIN_URL, API_URL, API_PATH, buildUrl } from './index';
 
 async function respDataHandler(res: Response) {
     try {
@@ -26,10 +26,10 @@ async function respDataHandler(res: Response) {
     }
 }
 
-export async function getServerData(path: string) {
+export async function getServerData(path: API_PATH, parameters?: Record<string, any>) {
     const url = API_URL(path);
     try {
-        const res: any = await fetch(url, {
+        const res: any = await fetch(buildUrl(url, parameters), {
             headers: headers(),
             method: 'GET',
             next: {
@@ -43,7 +43,7 @@ export async function getServerData(path: string) {
     }
 }
 
-export async function postServerJson(path: string, data: Record<string, any>) {
+export async function postServerJson(path: API_PATH, data: Record<string, any>) {
     const url = API_URL(path);
     try {
         const res: any = await fetch(url, {

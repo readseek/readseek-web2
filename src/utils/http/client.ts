@@ -2,7 +2,7 @@
 
 import { logError } from '../logger';
 
-import { LOGIN_URL, API_URL } from './index';
+import { LOGIN_URL, API_URL, API_PATH, buildUrl } from './index';
 
 const ReqHeaders = {
     'client-secret': '123-xyz-321-0000',
@@ -26,10 +26,10 @@ async function respDataHandler(res: Response) {
     }
 }
 
-export async function getData(path: string) {
+export async function getData(path: API_PATH, parameters?: Record<string, any>) {
     const url = API_URL(path);
     try {
-        const res: any = await fetch(url, {
+        const res: any = await fetch(buildUrl(url, parameters), {
             method: 'GET',
             mode: 'same-origin',
             cache: 'reload',
@@ -48,7 +48,7 @@ export async function getData(path: string) {
     }
 }
 
-export async function postJson(path: string, data: Record<string, any>) {
+export async function postJson(path: API_PATH, data: Record<string, any>) {
     const url = API_URL(path);
     try {
         const res: any = await fetch(url, {
@@ -70,7 +70,7 @@ export async function postJson(path: string, data: Record<string, any>) {
     }
 }
 
-export async function postForm(path: string, data: Record<string, any>) {
+export async function postForm(path: API_PATH, data: Record<string, any>) {
     const url = API_URL(path);
     try {
         const formData = new FormData();

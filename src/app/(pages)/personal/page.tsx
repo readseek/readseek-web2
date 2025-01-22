@@ -7,14 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { GET_URI } from '@/utils/http';
 import { getServerData } from '@/utils/http/server';
 
 export const metadata: Metadata = {
     title: '用户中心 - 搜读',
 };
 
-export default async function PersonalPage() {
-    const ret: any = await getServerData('/api/web/userProfile?uid=1');
+export default async function PersonalPage(props) {
+    const ret: any = await getServerData(GET_URI.userProfile, { uid: 1 });
     const user: User = ret?.data as User;
     return (
         <div className="main-content">
