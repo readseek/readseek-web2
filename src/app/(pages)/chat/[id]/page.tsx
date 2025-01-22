@@ -55,11 +55,25 @@ export default function ChatPage({ params }) {
         }, 100);
     };
 
-    const { isError, isPending } = useQuery({
-        queryKey: [GET_URI.initChat, params.id],
+    useQuery({
+        queryKey: [GET_URI.convHistory, params.id],
         placeholderData: keepPreviousData,
         queryFn: async () => {
-            const ret = await getData(`/api/web/initChat?id=${params.id}`);
+            const ret = await getData(`/api/web/convHistory?id=${params.id}`);
+            logInfo('conversation history: ', ret?.data || ret);
+            if (!ret || ret?.code) {
+                logWarn('历史数据加载失败:', ret?.message);
+                return [];
+            }
+            setConversation(ret?.data);
+            return ret?.data;
+        },
+    });
+
+    const { isError, isPending } = useQuery({
+        queryKey: [POST_URI.convInit, params.id],
+        queryFn: async () => {
+            const ret = await postJson('/api/web/convInit', { id: params.id });
             if (!ret || ret?.code) {
                 toast({
                     variant: 'destructive',
@@ -83,25 +97,10 @@ export default function ChatPage({ params }) {
         },
     });
 
-    useQuery({
-        queryKey: [GET_URI.historyList, params.id],
-        placeholderData: keepPreviousData,
-        queryFn: async () => {
-            const ret = await getData(`/api/web/historyList?id=${params.id}`);
-            logInfo('conversation history: ', ret?.data || ret);
-            if (!ret || ret?.code) {
-                logWarn('历史数据加载失败:', ret?.message);
-                return [];
-            }
-            setConversation(ret?.data);
-            return ret?.data;
-        },
-    });
-
-    const searchMutation = useMutation({
-        mutationKey: [POST_URI.fileSearch, params.id],
+    const chattingMutation = useMutation({
+        mutationKey: [POST_URI.convChat, params.id],
         mutationFn: async (data: z.infer<typeof FormSchema>) => {
-            const ret = await postJson('/api/web/fileSearch', { input: data.input, id: params.id });
+            const ret = await postJson('/api/web/convChat', { input: data.input, id: params.id });
             if (!ret || ret?.code) {
                 toast({
                     variant: 'destructive',
@@ -145,7 +144,7 @@ export default function ChatPage({ params }) {
         <div className="main-content !justify-between">
             <MessageList data={conversation?.messages} />
             <Form {...form}>
-                <form onSubmit={form.handleSubmit((data: any) => searchMutation.mutate(data))} onReset={resetForm} className="mb-12 w-2/3 space-y-6">
+                <form onSubmit={form.handleSubmit((data: any) => chattingMutation.mutate(data))} onReset={resetForm} className="mb-12 w-2/3 space-y-6">
                     <FormField
                         control={form.control}
                         name="input"
@@ -157,16 +156,16 @@ export default function ChatPage({ params }) {
                                         <Textarea
                                             placeholder="单次最大长度不要超过200字"
                                             className="mr-4 resize-none"
-                                            disabled={searchMutation.isPending}
+                                            disabled={chattingMutation.isPending}
                                             {...field}
                                             onKeyDown={e => {
                                                 if (e.key === 'Enter' && !e.shiftKey) {
                                                     e.preventDefault();
-                                                    form.handleSubmit((data: any) => searchMutation.mutate(data))();
+                                                    form.handleSubmit((data: any) => chattingMutation.mutate(data))();
                                                 }
                                             }}
                                         />
-                                        <Button type="submit" disabled={searchMutation.isPending}>
+                                        <Button type="submit" disabled={chattingMutation.isPending}>
                                             发送
                                         </Button>
                                     </div>

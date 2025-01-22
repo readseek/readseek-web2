@@ -285,25 +285,13 @@ export async function getDocumentInfo(id: string): Promise<RecordData> {
     });
 }
 
-export async function chatSearch(input: string, id: string): Promise<SearchResults> {
+export async function queryChat(input: string, id: string): Promise<SearchResults> {
     const textItems = await createEmbedding(input, false);
     if (Array.isArray(textItems) && textItems.length) {
         return await searchEmbedding({
             colName: collectionNameWithId(id),
             vector: textItems[0].embedding,
             outPuts: ['text'],
-        });
-    }
-    throw new Error(`invalid data while create embedding with input: ${input}`);
-}
-
-export async function chatQuery(input: string, id: string): Promise<QueryResults> {
-    const textItems = await createEmbedding(input, false);
-    if (Array.isArray(textItems) && textItems.length) {
-        return await queryEmbedding({
-            colName: collectionNameWithId(id),
-            vector: textItems[0].embedding,
-            outPuts: ['text', 'meta'],
         });
     }
     throw new Error(`invalid data while create embedding with input: ${input}`);

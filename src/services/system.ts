@@ -1,24 +1,47 @@
 import type { NextRequest } from 'next/server';
 
 import { onnxModelWith } from '@/constants/onnx-model';
+import { isDevModel } from '@/utils/common';
 import { LogAPIRoute, CheckLogin } from '@/utils/http/decorators';
 
-class SystemService {
+import BaseService from './_base';
+
+class SystemService extends BaseService {
+    @LogAPIRoute
+    async test(req: NextRequest): Promise<APIRet> {
+        if (!isDevModel()) {
+            return this.renderError('Bad request');
+        }
+        const parameter = req.nextUrl.searchParams.get('p');
+        // @ts-ignore
+        const model = onnxModelWith(parameter || 'similarity');
+        return { code: 0, data: model, message: 'ok' };
+    }
+
     @LogAPIRoute
     @CheckLogin
-    async allUsers(req: NextRequest): Promise<APIRet> {
+    async sysUsers(req: NextRequest): Promise<APIRet> {
+        if (!isDevModel()) {
+            return this.renderError('Bad request');
+        }
         return { code: 0, data: [], message: 'ok' };
     }
 
     @LogAPIRoute
     @CheckLogin
-    async allFiles(req: NextRequest): Promise<APIRet> {
+    async sysFiles(req: NextRequest): Promise<APIRet> {
+        if (!isDevModel()) {
+            return this.renderError('Bad request');
+        }
         return { code: 0, data: [], message: 'ok' };
     }
 
     @LogAPIRoute
     @CheckLogin
-    async devEnvs(req: NextRequest): Promise<APIRet> {
+    async sysEnvs(req: NextRequest): Promise<APIRet> {
+        if (!isDevModel()) {
+            return this.renderError('Bad request');
+        }
         const confs: Record<string, string> = {};
         Object.keys(process.env).forEach(key => {
             if (key.startsWith('__RSN_')) {
@@ -26,13 +49,6 @@ class SystemService {
             }
         });
         return { code: 0, data: confs, message: 'ok' };
-    }
-
-    async test(req: NextRequest): Promise<APIRet> {
-        const parameter = req.nextUrl.searchParams.get('p');
-        // @ts-ignore
-        const model = onnxModelWith(parameter || 'similarity');
-        return { code: 0, data: model, message: 'ok' };
     }
 }
 

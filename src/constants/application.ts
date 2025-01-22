@@ -1,27 +1,28 @@
 import { isBrowserModel, isDevModel } from '@/utils/common';
 
 export const enum GET_URI {
-    initChat = 'initChat',
+    // for conversation
+    convHistory = 'convHistory',
+    // for document file
     fileTags = 'fileTags',
     fileCategories = 'fileCategories',
     fileList = 'fileList',
+    fileQuery = 'fileQuery',
     // user's info
     userFiles = 'userFiles',
     userProfile = 'userProfile',
-    // only for dev and admin debug
-    test = 'test',
-    sys_env = 'sys_env',
-    sys_files = 'sys_files',
-    sys_users = 'sys_users',
-    // for conversation
-    historyList = 'historyList',
+    // only for dev debug
+    __test = '__test',
+    __env = '__env',
+    __files = '__files',
+    ___users = '___users',
 }
 
 export const enum POST_URI {
+    convInit = 'convInit',
+    convChat = 'convChat',
     fileUpload = 'fileUpload',
     fileDelete = 'fileDelete',
-    fileSearch = 'fileSearch',
-    fileQuery = 'fileQuery',
     userLogin = 'userLogin',
     userUpdate = 'userUpdate',
     userCancellation = 'userCancellation',
