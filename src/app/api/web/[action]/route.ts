@@ -3,11 +3,11 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 
-import { GET_URI, POST_URI } from '@/constants/application';
 import ConversationService from '@/services/conversation';
 import FileService from '@/services/file';
 import SystemService from '@/services/system';
 import UserService from '@/services/user';
+import { GET_URI, POST_URI } from '@/utils/http/index';
 
 export const preferredRegion = 'auto';
 export const runtime = 'nodejs';

@@ -14,9 +14,9 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useToast } from '@/components/ui/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { ToastAction } from '@/components/ui/toast';
-import { GET_URI, POST_URI } from '@/constants/application';
 import { Conversation, Message, packingMessage } from '@/models/Conversation';
 import { getData, postJson } from '@/utils/http/client';
+import { GET_URI, POST_URI } from '@/utils/http/index';
 import { logInfo, logWarn } from '@/utils/logger';
 
 import { ContentError, ContentPending } from './chat-tip';

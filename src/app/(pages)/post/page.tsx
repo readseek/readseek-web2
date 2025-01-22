@@ -17,8 +17,8 @@ import { useToast } from '@/components/ui/hooks/use-toast';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToastAction } from '@/components/ui/toast';
 import { UploadBox } from '@/components/UploadBox';
-import { GET_URI, POST_URI } from '@/constants/application';
 import { getData, postForm } from '@/utils/http/client';
+import { GET_URI, POST_URI } from '@/utils/http/index';
 import { logInfo, logWarn } from '@/utils/logger';
 
 const metadata = {
@@ -44,7 +44,7 @@ const FormSchema = z.object({
         .min(1, '请为内容至少选择一个标签（可多选）'),
 });
 
-export default function PostContentPage() {
+export default function PostContentPage(props) {
     useEffect(() => {
         document.title = metadata.title;
     }, []);

@@ -9,8 +9,8 @@ import { useEffect, useState } from 'react';
 
 import { LoadingImage, ErrorImage } from '@/components/ImageView';
 import { useToast } from '@/components/ui/hooks/use-toast';
-import { GET_URI, POST_URI } from '@/constants/application';
 import { getData, postJson } from '@/utils/http/client';
+import { GET_URI, POST_URI } from '@/utils/http/index';
 import { logInfo, logWarn } from '@/utils/logger';
 
 import { DataTable } from './data-table';
@@ -19,7 +19,7 @@ const metadata = {
     title: '文库中心 - 搜读',
 };
 
-export default function FileListPage() {
+export default function FileListPage(props) {
     const router = useRouter();
     const { toast } = useToast();
 

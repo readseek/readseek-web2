@@ -3,10 +3,10 @@
 import { headers } from 'next/headers';
 import { Response } from 'node-fetch';
 
-import { LOGIN_URL, API_URL } from '@/constants/application';
-
 import { isDevModel } from '../common';
 import { logError } from '../logger';
+
+import { LOGIN_URL, API_URL } from './index';
 
 async function respDataHandler(res: Response) {
     try {

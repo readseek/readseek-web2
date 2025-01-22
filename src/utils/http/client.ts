@@ -1,8 +1,8 @@
 'use client';
 
-import { LOGIN_URL, API_URL } from '@/constants/application';
-
 import { logError } from '../logger';
+
+import { LOGIN_URL, API_URL } from './index';
 
 const ReqHeaders = {
     'client-secret': '123-xyz-321-0000',
