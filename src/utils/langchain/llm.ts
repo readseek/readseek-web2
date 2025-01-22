@@ -41,7 +41,7 @@ export class LLMWrapper {
 }
 
 export default class LLMFactory {
-    static #cache: LRUCache<string, LLMWrapper> = new LRUCache({ max: 5, ttl: 1000 * 60 * 15 });
+    static #cache: LRUCache<string, LLMWrapper> = new LRUCache({ max: 3, ttl: 1000 * 60 * 15 });
 
     public static async getInstance(type: ModelType, name?: ModelName): Promise<LLMWrapper | null> {
         try {
