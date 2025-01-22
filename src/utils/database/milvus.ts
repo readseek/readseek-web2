@@ -15,7 +15,7 @@ const MILVUS_USERNAME = process.env.__RSN_MILVUS_USERNAME || 'root';
 const MILVUS_ADDRESS = process.env.__RSN_MILVUS_ADDRESS || '127.0.0.1:19530';
 
 export default class MilvusDBClient {
-    static #LoadedCollnections = new Set<string>();
+    static #loadedCollnections = new Set<string>();
     static #milvusClient: MilvusClient;
 
     static get db() {
@@ -60,10 +60,10 @@ export default class MilvusDBClient {
         if (collectionName) {
             await release(collectionName);
         } else {
-            for (const colName of this.#LoadedCollnections) {
+            for (const colName of this.#loadedCollnections) {
                 await release(colName);
             }
-            this.#LoadedCollnections.clear();
+            this.#loadedCollnections.clear();
         }
     }
 
@@ -75,7 +75,7 @@ export default class MilvusDBClient {
             }
             const loadResp = await this.db.loadCollection({ collection_name: name });
             if (loadResp?.code === 0) {
-                this.#LoadedCollnections.add(name);
+                this.#loadedCollnections.add(name);
                 return true;
             }
         } catch (error) {
