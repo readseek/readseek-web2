@@ -1,20 +1,19 @@
 import type { NextRequest } from 'next/server';
 
-import { createWriteStream, existsSync, mkdir, unlink } from 'node:fs';
+import { createWriteStream, existsSync, mkdir } from 'node:fs';
 import path from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
-import { DocumentType, Document } from '@/models/Document';
+import { UPLOAD_PATH } from '@/constants/application';
 import { getFileHash } from '@/utils/common';
-import { deleteFileStorage, getCategories, getFiles, getTags, saveOrUpdateDocument } from '@/utils/database';
+import { getCategories, getFiles, getTags, saveOrUpdateDocument } from '@/utils/database';
 import { LogAPIRoute, CheckLogin } from '@/utils/http/decorators';
-import { logError, logInfo, logWarn } from '@/utils/logger';
+import { logError, logInfo } from '@/utils/logger';
 
 import BaseService from './_base';
 
 const pipelineAsync = promisify(pipeline);
-const UPLOAD_PATH = path.join(process.cwd(), process.env.__RSN_UPLOAD_PATH ?? 'public/uploads');
 
 class FileService extends BaseService {
     constructor() {
@@ -31,19 +30,6 @@ class FileService extends BaseService {
             }
         } catch (error) {
             logError('Failed to create upload directory:', error);
-        }
-    }
-
-    async removeUploadedFile(fpath: string): Promise<void> {
-        try {
-            if (existsSync(fpath || '')) {
-                promisify(unlink)(fpath);
-                logInfo('uploaded file has been deleted');
-                return;
-            }
-            logWarn('file delete failed, wrong file path or file not exists:', fpath);
-        } catch (error) {
-            logError('removeUploadedFile:', error);
         }
     }
 
@@ -137,29 +123,6 @@ class FileService extends BaseService {
             logError('fileUpload: ', error);
             return this.renderError(error || 'upload failed');
         }
-    }
-
-    @LogAPIRoute
-    @CheckLogin
-    async delete(req: NextRequest): Promise<APIRet> {
-        const jsonData = await req.json();
-        if (!jsonData || !jsonData?.id) {
-            return this.renderError('no file id found');
-        }
-
-        try {
-            const { id, type } = jsonData;
-            // 清理数据库
-            const ret = await deleteFileStorage(id);
-            if (ret) {
-                // 清理已上传的文件
-                this.removeUploadedFile(path.join(UPLOAD_PATH, `${id}.${DocumentType[type]}`) || '');
-                return { code: 0, data: null, message: 'ok' };
-            }
-        } catch (error) {
-            logError('fileDelete: ', error);
-        }
-        return { code: -1, data: null, message: 'delete failed' };
     }
 
     @LogAPIRoute

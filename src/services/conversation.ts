@@ -15,7 +15,7 @@ class ConversationService extends BaseService {
         try {
             const uId = this.getSharedUid();
             const conHis: Conversation[] = await LevelDB.get(uId);
-            const conI = conHis?.findIndex(item => (item.cId = cId));
+            const conI = conHis?.findIndex(item => item.cId === cId);
             if (conI !== -1) {
                 const conv = conHis[conI];
                 if (!conv.messages) {
@@ -62,7 +62,7 @@ class ConversationService extends BaseService {
             if (cId && cId.length === 64) {
                 const uId = this.getSharedUid();
                 const conHis: Conversation[] = (await LevelDB.get(uId)) || [];
-                let conv = conHis.find(item => (item.cId = cId));
+                let conv = conHis.find(item => item.cId === cId);
                 if (!conv) {
                     logWarn('no conversation history yet! Creating a new conversation...');
                     const createAt = new Date().getTime();

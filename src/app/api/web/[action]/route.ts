@@ -58,7 +58,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
             ret = await FileService.tagList(req);
             break;
         case GET_URI.userFiles:
-            ret = await UserService.files(req);
+            ret = await UserService.userFiles(req);
             break;
         case GET_URI.userProfile:
             ret = await UserService.profile(req);
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
             ret = await FileService.upload(req);
             break;
         case POST_URI.fileDelete:
-            ret = await FileService.delete(req);
+            ret = await UserService.fileDelete(req);
             break;
         case POST_URI.userLogin:
             ret = await UserService.login(req);
