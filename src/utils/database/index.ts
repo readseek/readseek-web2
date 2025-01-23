@@ -238,10 +238,10 @@ export async function deleteFileStorage(id: string): Promise<boolean> {
         }),
     ]);
     if (!det1) {
-        logWarn('Embeddings clear failed', det1);
+        logWarn('VectorDB clear failed', det1);
     }
     if (!det2) {
-        logWarn('SQL DB clear failed', det2);
+        logWarn('SQLDB clear failed', det2);
     }
     return det1 && det2;
 }

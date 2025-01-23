@@ -6,7 +6,7 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 
 import { UPLOAD_PATH } from '@/constants/application';
-import { Conversation } from '@/models/Conversation';
+import { DocumentType } from '@/models/Document';
 import { deleteFileStorage, getUserFiles, getUserInfo } from '@/utils/database';
 import LevelDB from '@/utils/database/leveldb';
 import { LogAPIRoute, CheckLogin } from '@/utils/http/decorators';
@@ -42,8 +42,7 @@ class UserService extends BaseService {
     @LogAPIRoute
     @CheckLogin
     async profile(req: NextRequest): Promise<APIRet> {
-        // TODO: 正式情况下，从拦截器中存放的变量获取
-        const uid = Number(req.nextUrl.searchParams.get('uid'));
+        const uid = this.getSharedUid();
         const user = (await getUserInfo(uid)) as User;
         if (user) {
             return { code: 0, data: user, message: 'ok' };
@@ -60,7 +59,7 @@ class UserService extends BaseService {
 
         const pageSize = Number(searchParams.get('size')) || 10;
         const pageNum = Number(searchParams.get('page')) || 1;
-        // 根据标题模糊查询
+        // TODO: Fuzzy query later
         const title = searchParams.get('title');
         if (title && title.trim().length > 0) {
             user = Object.assign(user, {
@@ -78,32 +77,27 @@ class UserService extends BaseService {
     @LogAPIRoute
     @CheckLogin
     async fileDelete(req: NextRequest): Promise<APIRet> {
-        const jsonData = await req.json();
-        if (!jsonData || !jsonData?.id) {
-            return this.renderError('no file id found');
-        }
-
+        const { id, type } = await req.json();
         try {
-            const { id, type } = jsonData;
-            // 清理数据库
-            const ret = await deleteFileStorage(id);
-            if (ret) {
-                // 清理已上传的文件
-                const fpath = path.join(UPLOAD_PATH, `${id}.${DocumentType[type]}`) || '';
-                if (existsSync(fpath || '')) {
-                    promisify(unlink)(fpath);
-                    logInfo('uploaded file has been deleted');
-                }
-                // 清理消息记录
-                const uId = this.getSharedUid();
-                const messages = (await LevelDB.get(uId))?.filter(item => item.cId !== id);
-                await LevelDB.put(uId, messages);
-                logInfo('message histories has been cleared');
+            // clear conversation message list
+            const uId = this.getSharedUid();
+            const messages = (await LevelDB.get(uId))?.filter(item => item.cId !== id);
+            const r1 = await LevelDB.put(uId, messages);
+            logInfo('message histories has been cleared');
 
-                return { code: 0, data: null, message: 'ok' };
-            }
+            // clear embeddings and sql records
+            const r2 = await deleteFileStorage(id);
+
+            return { code: 0, data: r1 && r2, message: 'ok' };
         } catch (error) {
             logError('fileDelete: ', error);
+        } finally {
+            // delete raw file
+            const fpath = path.join(UPLOAD_PATH, `${id}.${DocumentType[type]}`) || '';
+            if (existsSync(fpath || '')) {
+                promisify(unlink)(fpath);
+                logInfo('Uploaded file has been deleted');
+            }
         }
         return { code: -1, data: null, message: 'delete failed' };
     }
