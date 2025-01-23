@@ -3,8 +3,9 @@ import type { SearchResults } from '@zilliz/milvus2-sdk-node';
 import { NextRequest } from 'next/server';
 
 import { Conversation, Message, MessageAttitude, packingMessage } from '@/models/Conversation';
-import { queryChat, getDocumentInfo } from '@/utils/database';
+import { getDocumentInfo } from '@/utils/database';
 import LevelDB from '@/utils/database/leveldb';
+import { searchEmbedding } from '@/utils/embedding';
 import { LogAPIRoute, CheckLogin } from '@/utils/http/decorators';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -96,13 +97,9 @@ class ConversationService extends BaseService {
         try {
             if (input && id) {
                 messageBuff.push(packingMessage({ role: 'user', content: input }));
-                const rets: SearchResults = await queryChat(input, id);
+                const rets: SearchResults = await searchEmbedding(input, id);
                 if (rets.status.code === 0) {
-                    logInfo(
-                        `Matched #${input}# scores: `,
-                        rets.results.map(r => r.score),
-                    );
-                    const relatedTexts = rets.results.filter(r => r.score > 0.35).map(r => r.text);
+                    const relatedTexts = rets.results.filter(r => r.score > 0.75).map(r => r.text);
                     const msgOut = packingMessage({
                         role: 'bot',
                         content: relatedTexts.length > 0 ? relatedTexts[0] : '抱歉，暂未匹配到相关内容',

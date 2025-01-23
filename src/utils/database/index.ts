@@ -1,13 +1,12 @@
 'use server';
 
 import type { Document } from '@/models/Document';
-import type { SearchResults } from '@zilliz/milvus2-sdk-node';
 
 import path from 'node:path';
 
 import { Tag } from '@/models/Tag';
 import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove } from '@/utils/database/postgresql';
-import { createEmbedding, deleteEmbedding, saveEmbedding, searchEmbedding } from '@/utils/embedding';
+import { saveEmbedding, deleteEmbedding } from '@/utils/embedding';
 import { parseFileContent } from '@/utils/langchain/parser';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -19,15 +18,6 @@ export type SOUDocParam = {
     cateId: number;
     tags: any[];
 };
-
-/**
- * https://milvus.io/docs/manage-collections.md
- * Collection and entity are similar to tables and records in relational databases.
- * In this project, every stand-alone file has its own Collection.
- */
-function collectionNameWithId(fileId: string): string {
-    return `RS_DOC_${fileId.toLocaleUpperCase()}`;
-}
 
 export async function getFiles(data: any): Promise<RecordData> {
     return await find({
@@ -189,7 +179,7 @@ export async function saveOrUpdateDocument(data: SOUDocParam): Promise<{ state: 
         console.time('🔱 Saving db costs:');
 
         let saveRet: any = false;
-        if (await saveEmbedding(segments, collectionNameWithId(fileHash))) {
+        if (await saveEmbedding(segments, fileHash)) {
             // save supabase postgresql
             saveRet = await saveOrUpdate({
                 model: 'Document',
@@ -226,7 +216,7 @@ export async function saveOrUpdateDocument(data: SOUDocParam): Promise<{ state: 
 
 export async function deleteFileStorage(id: string): Promise<boolean> {
     const [det1, det2] = await Promise.all([
-        deleteEmbedding(collectionNameWithId(id)),
+        deleteEmbedding(id),
         remove({
             model: 'Document',
             method: PrismaDBMethod.deleteMany,
@@ -283,16 +273,4 @@ export async function getDocumentInfo(id: string): Promise<RecordData> {
             where: { id },
         },
     });
-}
-
-export async function queryChat(input: string, id: string): Promise<SearchResults> {
-    const textItems = await createEmbedding(input, false);
-    if (Array.isArray(textItems) && textItems.length) {
-        return await searchEmbedding({
-            colName: collectionNameWithId(id),
-            vector: textItems[0].embedding,
-            outPuts: ['text'],
-        });
-    }
-    throw new Error(`invalid data while create embedding with input: ${input}`);
 }

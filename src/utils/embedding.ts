@@ -2,6 +2,7 @@
 
 import type { LSegment } from './langchain/parser';
 import type { TokenizeResult } from './langchain/tokenizer';
+import type { SearchResults } from '@zilliz/milvus2-sdk-node';
 
 // @ts-ignore
 import { Tensor } from 'onnxruntime-node';
@@ -16,6 +17,15 @@ export type EmbeddingTextItem = {
     number: number;
     text: string;
     embedding: Array<number>;
+};
+
+/**
+ * https://milvus.io/docs/manage-collections.md
+ * Collection and entity are similar to tables and records in relational databases.
+ * In this project, every stand-alone file has its own Collection.
+ */
+const collectionNameWithId = (fileId: string): string => {
+    return `RS_DOC_${fileId.toLocaleUpperCase()}`;
 };
 
 export async function createEmbedding(text: string | string[], batch = true, modelType: ModelType = 'similarity'): Promise<Array<EmbeddingTextItem> | null> {
@@ -48,7 +58,7 @@ export async function createEmbedding(text: string | string[], batch = true, mod
     return null;
 }
 
-export async function saveEmbedding(segments: LSegment[], collectionName: string) {
+export async function saveEmbedding(segments: LSegment[], cid: string) {
     try {
         const contents: string[] = segments.map(segment => segment.pageContent);
         const textItems = await createEmbedding(contents);
@@ -59,7 +69,7 @@ export async function saveEmbedding(segments: LSegment[], collectionName: string
                 dim: llm?.model.outputDimension,
                 metas: segments.map(segment => segment.metadata),
             };
-            return await MilvusDB.saveCollection(params, collectionName);
+            return await MilvusDB.saveCollection(params, collectionNameWithId(cid));
         }
     } catch (error) {
         logError('saveEmbedding', error);
@@ -67,14 +77,18 @@ export async function saveEmbedding(segments: LSegment[], collectionName: string
     return false;
 }
 
-export async function deleteEmbedding(collection: string) {
-    return MilvusDB.deleteCollection(collection);
+export async function deleteEmbedding(cid: string) {
+    return MilvusDB.deleteCollection(collectionNameWithId(cid));
 }
 
-export async function searchEmbedding(params: Record<string, any>) {
-    return MilvusDB.searchCollection(params);
-}
-
-export async function queryEmbedding(params: Record<string, any>) {
-    return MilvusDB.queryCollection(params);
+export async function searchEmbedding(text: string, cid: string): Promise<SearchResults> {
+    const textItems = await createEmbedding(text, false);
+    if (Array.isArray(textItems) && textItems.length) {
+        return MilvusDB.searchCollection({
+            colName: collectionNameWithId(cid),
+            vector: textItems[0].embedding,
+            outPuts: ['text'],
+        });
+    }
+    throw new Error(`invalid data while create embedding with input: ${text}`);
 }
