@@ -25,8 +25,8 @@ import { MessageList } from './message-list';
 const FormSchema = z.object({
     input: z
         .string()
-        .min(2, {
-            message: '起码写两个字吧...',
+        .min(1, {
+            message: '不能一言不发噢',
         })
         .max(200, {
             message: '最多一次发送200字噢',
