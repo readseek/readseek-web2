@@ -1,4 +1,4 @@
-import type { SearchResults, QueryResults } from '@zilliz/milvus2-sdk-node';
+import type { SearchResults } from '@zilliz/milvus2-sdk-node';
 
 import { NextRequest } from 'next/server';
 

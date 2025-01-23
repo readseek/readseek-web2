@@ -1,13 +1,13 @@
 'use server';
 
 import type { Document } from '@/models/Document';
-import type { SearchResults, QueryResults } from '@zilliz/milvus2-sdk-node';
+import type { SearchResults } from '@zilliz/milvus2-sdk-node';
 
 import path from 'node:path';
 
 import { Tag } from '@/models/Tag';
 import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove } from '@/utils/database/postgresql';
-import { createEmbedding, deleteEmbedding, queryEmbedding, saveEmbedding, searchEmbedding } from '@/utils/embedding';
+import { createEmbedding, deleteEmbedding, saveEmbedding, searchEmbedding } from '@/utils/embedding';
 import { parseFileContent } from '@/utils/langchain/parser';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
