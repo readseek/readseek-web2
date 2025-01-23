@@ -3,7 +3,7 @@ import { Md5 } from 'ts-md5';
 export type MessageRole = 'bot' | 'user';
 
 export const enum MessageAttitude {
-    default = 0,
+    none = 0, // 不表态
     agree = 1, // 赞同
     oppose = -1, // 反对
 }
@@ -20,9 +20,9 @@ export interface Message {
 export interface Conversation {
     id: number;
     name: string;
-    cId: string; // 隶属内容的Id
-    uId: number; // 用户Id（记录谁产生这条会话）
-    gId: number; // 会话分组Id, -1表示没有分组
+    cid: string; // 隶属内容的Id
+    uid: number; // 用户Id（记录谁产生这条会话）
+    gid: number; // 会话分组Id, -1表示没有分组
     createAt: number; // 会话产生时间，时间戳13位
     updateAt: number; // 会话再次更新时间，时间戳13位
     prompt: string;

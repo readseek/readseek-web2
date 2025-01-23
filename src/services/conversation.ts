@@ -12,11 +12,11 @@ import { logError, logInfo, logWarn } from '@/utils/logger';
 import BaseService from './_base';
 
 class ConversationService extends BaseService {
-    private async syncMessage(cId: string, message: Message[]): Promise<boolean> {
+    private async syncMessage(cid: string, message: Message[]): Promise<boolean> {
         try {
-            const uId = this.getSharedUid();
-            const conHis: Conversation[] = await LevelDB.get(uId);
-            const conI = conHis?.findIndex(item => item.cId === cId);
+            const uid = this.getSharedUid();
+            const conHis: Conversation[] = await LevelDB.get(uid);
+            const conI = conHis?.findIndex(item => item.cid === cid);
             if (conI !== -1) {
                 const conv = conHis[conI];
                 if (!conv.messages) {
@@ -27,7 +27,7 @@ class ConversationService extends BaseService {
                     updateAt: new Date().getTime(),
                     messages: conv.messages.concat(message),
                 };
-                const ret = await LevelDB.put(uId, conHis);
+                const ret = await LevelDB.put(uid, conHis);
                 logInfo('syncMessage result:', ret, message.map(e => e.content).join(' => '));
                 return ret;
             }
@@ -59,27 +59,27 @@ class ConversationService extends BaseService {
     async history(req: NextRequest): Promise<APIRet> {
         try {
             const searchParams = req.nextUrl.searchParams;
-            const cId = searchParams.get('id') as string;
-            if (cId && cId.length === 64) {
-                const uId = this.getSharedUid();
-                const conHis: Conversation[] = (await LevelDB.get(uId)) || [];
-                let conv = conHis.find(item => item.cId === cId);
+            const cid = searchParams.get('id') as string;
+            if (cid && cid.length === 64) {
+                const uid = this.getSharedUid();
+                const conHis: Conversation[] = (await LevelDB.get(uid)) || [];
+                let conv = conHis.find(item => item.cid === cid);
                 if (!conv) {
                     logWarn('no conversation history yet! Creating a new conversation...');
                     const createAt = new Date().getTime();
                     conv = {
                         id: conHis.length + 1,
                         name: '',
-                        cId,
-                        uId,
-                        gId: -1,
+                        cid,
+                        uid,
+                        gid: -1,
                         createAt,
                         updateAt: createAt,
                         prompt: '',
                         messages: [],
                     };
                     conHis.push(conv);
-                    await LevelDB.put(uId, conHis);
+                    await LevelDB.put(uid, conHis);
                 }
                 return { code: 0, data: conv, message: 'ok' };
             }
@@ -103,7 +103,7 @@ class ConversationService extends BaseService {
                     const msgOut = packingMessage({
                         role: 'bot',
                         content: relatedTexts.length > 0 ? relatedTexts[0] : '抱歉，暂未匹配到相关内容',
-                        ma: MessageAttitude.default,
+                        ma: MessageAttitude.none,
                         rags: relatedTexts.length > 0 ? relatedTexts.splice(1) : null,
                     });
 

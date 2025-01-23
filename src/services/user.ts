@@ -80,9 +80,9 @@ class UserService extends BaseService {
         const { id, type } = await req.json();
         try {
             // clear conversation message list
-            const uId = this.getSharedUid();
-            const messages = (await LevelDB.get(uId))?.filter(item => item.cId !== id);
-            const r1 = await LevelDB.put(uId, messages);
+            const uid = this.getSharedUid();
+            const messages = (await LevelDB.get(uid))?.filter(item => item.cid !== id);
+            const r1 = await LevelDB.put(uid, messages);
             logInfo('message histories has been cleared');
 
             // clear embeddings and sql records
