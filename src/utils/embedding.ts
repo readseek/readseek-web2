@@ -8,7 +8,7 @@ import type { SearchResults } from '@zilliz/milvus2-sdk-node';
 import { Tensor } from 'onnxruntime-node';
 
 import { ModelType } from '@/constants/onnx-model';
-import { logError } from '@/utils/logger';
+import { logError, logWarn } from '@/utils/logger';
 
 import MilvusDB from './database/milvus';
 import LLMFactory from './langchain/llm';
@@ -24,8 +24,8 @@ export type EmbeddingTextItem = {
  * Collection and entity are similar to tables and records in relational databases.
  * In this project, every stand-alone file has its own Collection.
  */
-const collectionNameWithId = (fileId: string): string => {
-    return `RS_DOC_${fileId.toLocaleUpperCase()}`;
+const collectionNameWithId = (contentId: string): string => {
+    return `RS_DOC_${contentId.toLocaleUpperCase()}`;
 };
 
 export async function createEmbedding(text: string | string[], batch = true, modelType: ModelType = 'similarity'): Promise<Array<EmbeddingTextItem> | null> {
@@ -81,14 +81,21 @@ export async function deleteEmbedding(cid: string) {
     return MilvusDB.deleteCollection(collectionNameWithId(cid));
 }
 
-export async function searchEmbedding(text: string, cid: string): Promise<SearchResults> {
+export async function searchEmbedding(text: string, cid: string, similarityThreshold: number): Promise<{ data: string[]; matched: string[] }> {
     const textItems = await createEmbedding(text, false);
     if (Array.isArray(textItems) && textItems.length) {
-        return MilvusDB.searchCollection({
+        const rets: SearchResults = await MilvusDB.searchCollection({
             colName: collectionNameWithId(cid),
             vector: textItems[0].embedding,
             outPuts: ['text'],
         });
+        if (rets.status.code === 0) {
+            return {
+                data: rets.results.map(r => r.text),
+                matched: rets.results.filter(r => r.score > similarityThreshold).map(r => r.text),
+            };
+        }
+        logWarn('searchEmbedding failed: ', rets.status);
     }
     throw new Error(`invalid data while create embedding with input: ${text}`);
 }

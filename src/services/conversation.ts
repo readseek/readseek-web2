@@ -1,8 +1,7 @@
-import type { SearchResults } from '@zilliz/milvus2-sdk-node';
-
 import { NextRequest } from 'next/server';
 
 import { Conversation, Message, MessageAttitude, packingMessage } from '@/models/Conversation';
+import EnhancedChatbot from '@/utils/chatbot';
 import { getDocumentInfo } from '@/utils/database';
 import LevelDB from '@/utils/database/leveldb';
 import { searchEmbedding } from '@/utils/embedding';
@@ -95,28 +94,33 @@ class ConversationService extends BaseService {
         const { input, id } = await req.json();
         const messageBuff: Message[] = [];
         try {
+            let botResponse = '';
             if (input && id) {
                 messageBuff.push(packingMessage({ role: 'user', content: input }));
-                const rets: SearchResults = await searchEmbedding(input, id);
-                if (rets.status.code === 0) {
-                    const relatedTexts = rets.results.filter(r => r.score > 0.75).map(r => r.text);
-                    const msgOut = packingMessage({
-                        role: 'bot',
-                        content: relatedTexts.length > 0 ? relatedTexts[0] : '抱歉，暂未匹配到相关内容',
-                        ma: MessageAttitude.none,
-                        rags: relatedTexts.length > 0 ? relatedTexts.splice(1) : null,
-                    });
+                // search similar results in Milvus and check if good match exists
+                const { data, matched } = await searchEmbedding(input, id, 0.75);
 
-                    messageBuff.push(msgOut);
-
-                    return {
-                        code: 0,
-                        data: msgOut,
-                        message: 'ok',
-                    };
+                if (matched.length > 0) {
+                    botResponse = matched.shift() as string;
+                } else {
+                    // use LLM to generate a response
+                    botResponse = await EnhancedChatbot.processQuery(input, data);
                 }
-                logWarn('chatSearch failed: \n', rets.status);
-                return { code: -1, data: null, message: rets.status.reason };
+
+                const msgOut = packingMessage({
+                    role: 'bot',
+                    content: botResponse,
+                    ma: MessageAttitude.none,
+                    rags: null,
+                });
+
+                messageBuff.push(msgOut);
+
+                return {
+                    code: 0,
+                    data: msgOut,
+                    message: 'ok',
+                };
             }
         } catch (error) {
             logError('chat service: ', error);

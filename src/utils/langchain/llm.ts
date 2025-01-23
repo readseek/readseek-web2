@@ -6,16 +6,16 @@ import { ModelName, ModelType, OnnxModel, onnxModelWith } from '@/constants/onnx
 
 import { logInfo, logError } from '../logger';
 
-import OptimizedTokenizer from './tokenizer';
+import EnhancedTokenizer from './tokenizer';
 
 export class LLMWrapper {
     public model: OnnxModel;
-    public tokenizer: OptimizedTokenizer;
+    public tokenizer: EnhancedTokenizer;
     public session?: any;
 
     constructor(type: ModelType, name?: ModelName) {
         this.model = onnxModelWith(type, name);
-        this.tokenizer = new OptimizedTokenizer(this.model.tokenizerPath);
+        this.tokenizer = new EnhancedTokenizer(this.model.tokenizerPath);
     }
 
     public async createInferenceSession() {

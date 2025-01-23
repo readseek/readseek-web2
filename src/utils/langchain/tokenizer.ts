@@ -11,7 +11,7 @@ const { Tokenizer } = require('@turingscript/tokenizers');
 
 export type TokenizeResult = { inputIds: number[]; attentionMask: number[]; tokenTypeIds?: number[] };
 
-export default class OptimizedTokenizer {
+export default class EnhancedTokenizer {
     private cache: LRUCache<string, any>;
     private tokenizer: TokenizerType;
 
@@ -24,6 +24,14 @@ export default class OptimizedTokenizer {
         return this.tokenizer.getPreTokenizer();
     }
 
+    public async encode(text: string) {
+        return this.tokenizer.encode(text, null, { isPretokenized: true, addSpecialTokens: true });
+    }
+
+    public async decode(ids: Array<number>, skipSpecialTokens: boolean) {
+        return this.tokenizer.decode(ids, skipSpecialTokens);
+    }
+
     public async tokenize(texts: string[]): Promise<TokenizeResult[]> {
         return Promise.all(
             texts.map(async text => {
@@ -32,7 +40,7 @@ export default class OptimizedTokenizer {
                     return cached;
                 }
 
-                const encoded = await this.tokenizer.encode(text, null, { isPretokenized: true, addSpecialTokens: true });
+                const encoded = await this.encode(text);
                 const result = {
                     inputIds: encoded.getIds(),
                     attentionMask: encoded.getAttentionMask(),
