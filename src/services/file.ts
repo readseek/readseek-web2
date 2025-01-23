@@ -24,7 +24,7 @@ class FileService extends BaseService {
 
     private async ensureUploadDirectory() {
         try {
-            if (!existsSync(UPLOAD_PATH)) {
+            if (!existsSync(UPLOAD_PATH || '')) {
                 await promisify(mkdir)(UPLOAD_PATH, { recursive: true });
                 logInfo('Upload directory created:', UPLOAD_PATH);
             }
