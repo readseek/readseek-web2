@@ -36,11 +36,11 @@ export default class EnhancedChatbot {
             };
 
             const output: any = await this.llm.session.run(inputFeeds);
-
             const response = await this.llm.tokenizer.decode(Array.from(output.logits.data), true);
-            logInfo('Bot response', response);
-
-            return response;
+            if (response) {
+                logInfo('Bot response', response);
+                return response;
+            }
         } catch (error) {
             logError(error);
         }
