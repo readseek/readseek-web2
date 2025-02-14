@@ -23,7 +23,7 @@ export default class EnhancedTokenizer {
                 const tokenizerConfig = readFileSync(filePath || '', 'utf8');
                 const { model, pre_tokenizer } = JSON.parse(tokenizerConfig);
 
-                logInfo(`Tokenizer modelType: ${model.type}, preTokenizer: ${pre_tokenizer.type}`);
+                logInfo(`Tokenizer's model type: ${model.type}, preTokenizer: ${pre_tokenizer.type}`);
 
                 switch (model.type) {
                     case 'WordPiece':
@@ -44,10 +44,10 @@ export default class EnhancedTokenizer {
                 }
                 this.cache = new LRUCache({ max: 512, ttl: 1000 * 60 * 5 });
             } else {
-                logWarn('Base path for onnx llm model is not exists.');
+                logWarn('Path for tokenizer.json is not exists.');
             }
         } catch (error) {
-            logError(error);
+            logError('Error on creating EnhancedTokenizer: ', error);
         }
     }
 
