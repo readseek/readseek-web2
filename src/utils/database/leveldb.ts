@@ -22,6 +22,7 @@ export default class LevelDB {
         if (!this.#db) {
             try {
                 const levelDB = new Level(path.join(process.cwd(), process.env.__RSN_LevelDB_PATH ?? '.leveldb_data'), { prefix: 'readseek-node-', createIfMissing: true });
+                levelDB.close();
                 levelDB.open(OPEN_OPTIONS);
                 this.#db = levelDB;
             } catch (error) {
@@ -29,26 +30,6 @@ export default class LevelDB {
             }
         }
         return this.#db;
-    }
-
-    private static async close() {
-        try {
-            await this.db.close();
-            logWarn('LevelDB has been closed.');
-        } catch (err) {
-            logError(`LevelDB closing error: `, err);
-        }
-    }
-
-    private static async open() {
-        try {
-            await this.db.open(OPEN_OPTIONS);
-            logWarn('LevelDB has been opened.');
-            return true;
-        } catch (err) {
-            logError(`LevelDB opening error: `, err);
-        }
-        return false;
     }
 
     public static async has(key: string): Promise<boolean> {
@@ -106,14 +87,6 @@ export default class LevelDB {
     }
 
     public static async checkStatus(): Promise<boolean> {
-        if (this.db.status === 'closed') {
-            try {
-                return await this.open();
-            } catch (err) {
-                logError(`LevelDB opening error`, err);
-            }
-            return false;
-        }
-        return true;
+        return this.db.status === 'open';
     }
 }
