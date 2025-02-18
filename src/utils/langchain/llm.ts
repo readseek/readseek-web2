@@ -46,8 +46,9 @@ export default class LLMFactory {
     public static async getInstance(type: ModelType, name?: ModelName): Promise<LLMWrapper | null> {
         try {
             if (this.#cache.has(type)) {
-                logInfo('Using cached LLM: ', type, name);
-                return this.#cache.get(type) as LLMWrapper;
+                const llm = this.#cache.get(type) as LLMWrapper;
+                logInfo('Using cached LLM: ', name ?? llm.model.name);
+                return llm;
             }
             const llm = new LLMWrapper(type, name);
             const ret = await llm.createInferenceSession();

@@ -2,13 +2,13 @@
 
 import type { LSegment } from './langchain/parser';
 import type { TokenizeResult } from './langchain/tokenizer';
-import type { SearchResults } from '@zilliz/milvus2-sdk-node';
+import type { SearchResults, SearchResultData } from '@zilliz/milvus2-sdk-node';
 
 // @ts-ignore
 import { Tensor } from 'onnxruntime-node';
 
 import { ModelType } from '@/constants/onnx-model';
-import { logError, logWarn } from '@/utils/logger';
+import { logError, logInfo, logWarn } from '@/utils/logger';
 
 import MilvusDB from './database/milvus';
 import LLMFactory from './langchain/llm';
@@ -28,13 +28,13 @@ const collectionNameWithId = (contentId: string): string => {
     return `RS_DOC_${contentId.toLocaleUpperCase()}`;
 };
 
-export async function createEmbedding(text: string | string[], batch = true, modelType: ModelType = 'similarity'): Promise<Array<EmbeddingTextItem> | null> {
+export async function createEmbedding(text: string | string[], batchCreate = true): Promise<Array<EmbeddingTextItem> | null> {
     try {
-        const llm = await LLMFactory.getInstance(modelType);
+        const llm = await LLMFactory.getInstance('similarity');
         if (llm) {
             // Tokenize the texts
             const texts = Array.isArray(text) ? text : [text];
-            const tokenizers: TokenizeResult[] = batch ? await llm.tokenizer.batchTokenizeWithCache(texts) : await llm.tokenizer.tokenize(texts);
+            const tokenizers: TokenizeResult[] = batchCreate ? await llm.tokenizer.batchTokenizeWithCache(texts) : await llm.tokenizer.tokenize(texts);
 
             // Run local inference
             return await Promise.all(
@@ -47,7 +47,7 @@ export async function createEmbedding(text: string | string[], batch = true, mod
                     return {
                         number: index + 1,
                         text: texts[index],
-                        embedding: Array.from(outputs?.sentence_embedding?.cpuData) as Array<number>,
+                        embedding: Array.from(outputs?.sentence_embedding?.data) as Array<number>,
                     };
                 }),
             );
@@ -90,10 +90,21 @@ export async function searchEmbedding(text: string, cid: string, similarityThres
             outPuts: ['text'],
         });
         if (rets.status.code === 0) {
-            return {
-                data: rets.results.map(r => r.text),
-                matched: rets.results.filter(r => r.score > similarityThreshold).map(r => r.text),
-            };
+            return rets.results.reduce(
+                (p, c: SearchResultData) => {
+                    if (c.text) {
+                        p.data.push(c.text);
+                        if (c.score > similarityThreshold) {
+                            p.matched.push(c.text);
+                        }
+                        if (c.score > 0.5) {
+                            logInfo('score: ', c.score, 'text: ', c.text);
+                        }
+                    }
+                    return p;
+                },
+                { data: [] as string[], matched: [] as string[] },
+            );
         }
         logWarn('searchEmbedding failed: ', rets.status);
     }

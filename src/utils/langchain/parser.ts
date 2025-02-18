@@ -2,7 +2,7 @@
 
 import type { Document } from 'langchain/document';
 
-import { TokenTextSplitter, RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 
 import { DocumentLang } from '@/models/Document';
 import { logError, logInfo } from '@/utils/logger';
@@ -39,20 +39,51 @@ export type ParsedResult = {
     segments?: LSegment[];
 };
 
-export async function getSplitContents(filepath: string, extName: string) {
+const TextSeparators = [
+    '\n\n',
+    '\n',
+    ' ',
+    '.',
+    ',',
+    '\u200b', // Zero-width space
+    '\uff0c', //Fullwidth comma
+    '\u3001', // Ideographic comma
+    '\uff0e', // Fullwidth full stop
+    '\u3002', //Ideographic full stop
+    '',
+];
+
+const CommonSplitterParams = {
+    chunkSize: 1500,
+    chunkOverlap: 120,
+    keepSeparator: true,
+    separators: TextSeparators,
+};
+
+export async function getSplitContents(filepath: string, extName: string): Promise<Document[] | null> {
     try {
-        console.time('🕰 loadAndTokenTextSplit costs:');
-        const docs: Document[] = await getDocumentLoader(filepath, extName).load();
-        const splitDocs = new RecursiveCharacterTextSplitter({
-            chunkSize: 3072,
-            chunkOverlap: 200,
-            separators: ['|', '##', '>', '-'],
-        }).splitDocuments(docs);
-        return splitDocs;
+        console.time('🕰 loadAndSplit costs:');
+
+        let textSplitter: any = null;
+        if (extName === 'md') {
+            textSplitter = new RecursiveCharacterTextSplitter({
+                ...CommonSplitterParams,
+                separators: [...new Set(TextSeparators.concat(RecursiveCharacterTextSplitter.getSeparatorsForLanguage('markdown')))],
+            });
+        } else if (extName === 'html') {
+            textSplitter = new RecursiveCharacterTextSplitter({
+                ...CommonSplitterParams,
+                separators: [...new Set(TextSeparators.concat(RecursiveCharacterTextSplitter.getSeparatorsForLanguage('html')))],
+            });
+        } else {
+            textSplitter = new RecursiveCharacterTextSplitter({ ...CommonSplitterParams });
+        }
+
+        return await getDocumentLoader(filepath, extName).loadAndSplit(textSplitter);
     } catch (error: any) {
-        logError('❌ DocumentLoader exception: ', error?.message, ', cause is: ', error?.cause);
+        logError('❌ getSplitContents: ', error?.message, ', cause is: ', error?.cause);
     } finally {
-        console.timeEnd('🕰 loadAndTokenTextSplit costs:');
+        console.timeEnd('🕰 loadAndSplit costs:');
     }
     return null;
 }
