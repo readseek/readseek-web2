@@ -23,7 +23,7 @@ class ConversationService extends BaseService {
                 }
                 conHis[conI] = {
                     ...conv,
-                    updateAt: new Date().getTime(),
+                    updateAt: Date.now(),
                     messages: conv.messages.concat(message),
                 };
                 const ret = await LevelDB.put(uid, conHis);
@@ -61,24 +61,27 @@ class ConversationService extends BaseService {
             const cid = searchParams.get('id') as string;
             if (cid && cid.length === 64) {
                 const uid = this.getSharedUid();
-                const conHis: Conversation[] = (await LevelDB.get(uid)) || [];
-                let conv = conHis.find(item => item.cid === cid);
-                if (!conv) {
+
+                let conv: any = null;
+                let conHis: Conversation[] = await LevelDB.get(uid);
+                if (!Array.isArray(conHis)) {
                     logWarn('no conversation history yet! Creating a new conversation...');
-                    const createAt = new Date().getTime();
+                    conHis = [];
                     conv = {
                         id: conHis.length + 1,
                         name: '',
                         cid,
                         uid,
                         gid: -1,
-                        createAt,
-                        updateAt: createAt,
+                        createAt: Date.now(),
+                        updateAt: Date.now(),
                         prompt: '',
                         messages: [],
                     };
                     conHis.push(conv);
                     await LevelDB.put(uid, conHis);
+                } else {
+                    conv = conHis.find(item => item.cid === cid);
                 }
                 return { code: 0, data: conv, message: 'ok' };
             }
@@ -98,7 +101,9 @@ class ConversationService extends BaseService {
             if (input && id) {
                 messageBuff.push(packingMessage({ role: 'user', content: input }));
                 // search similar results in Milvus and check if good match exists
-                const { data, matched } = await searchEmbedding(input, id, 0.75);
+                const { data, matched } = await searchEmbedding(input, id, 0.7);
+
+                logInfo('matched: ', matched.length, 'data all: ', data.length);
 
                 if (matched.length > 0) {
                     botResponse = matched.shift() as string;
@@ -125,7 +130,7 @@ class ConversationService extends BaseService {
         } catch (error) {
             logError('chat service: ', error);
         } finally {
-            this.syncMessage(id, messageBuff);
+            // this.syncMessage(id, messageBuff);
         }
         return { code: -1, data: null, message: 'chat response failed' };
     }

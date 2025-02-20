@@ -1,7 +1,7 @@
+import { AutoModel } from '@huggingface/transformers';
 import { LRUCache } from 'lru-cache';
-// @ts-ignore
-import { InferenceSession } from 'onnxruntime-node';
 
+import { MODEL_ROOT_PATH } from '@/constants/application';
 import { ModelName, ModelType, OnnxModel, onnxModelWith } from '@/constants/onnx-model';
 
 import { logInfo, logError } from '../logger';
@@ -10,31 +10,39 @@ import EnhancedTokenizer from './tokenizer';
 
 export class LLMWrapper {
     public model: OnnxModel;
-    public tokenizer: EnhancedTokenizer;
+    public tokenizer?: EnhancedTokenizer;
     public session?: any;
 
     constructor(type: ModelType, name?: ModelName) {
         this.model = onnxModelWith(type, name);
-        this.tokenizer = new EnhancedTokenizer(this.model.tokenizerPath);
     }
 
-    public async createInferenceSession() {
+    public async initialize() {
         try {
-            this.session = await InferenceSession.create(this.model.path, {
-                logLevel: 'warning',
-                // 0: Verbose, 1: Info, 2: Warning, 3: Error, 4: Fatal
-                logSeverityLevel: 3,
-                // 0 means use all available threads
-                interOpNumThreads: 0,
-                intraOpNumThreads: 0,
-                enableCpuMemArena: true,
-                enableMemPattern: true,
-                executionMode: 'parallel',
-                graphOptimizationLevel: 'all',
+            this.tokenizer = await EnhancedTokenizer.getInstance(this.model.tokenizerPath);
+            this.session = await AutoModel.from_pretrained(this.model.path, {
+                device: 'auto',
+                cache_dir: MODEL_ROOT_PATH,
+                local_files_only: true,
+                use_external_data_format: true,
+                session_options: {
+                    enableCpuMemArena: true,
+                    enableMemPattern: true,
+                    executionMode: 'parallel',
+                    enableGraphCapture: true,
+                    graphOptimizationLevel: 'all',
+                    // 0 means use all available threads
+                    interOpNumThreads: 0,
+                    intraOpNumThreads: 0,
+                    logSeverityLevel: 3,
+                },
+                progress_callback: (info: any) => {
+                    logInfo(info);
+                },
             });
             return true;
         } catch (error) {
-            logError('createInferenceSession error: ', error);
+            logError('initialize error: ', error);
         }
         return false;
     }
@@ -51,7 +59,7 @@ export default class LLMFactory {
                 return llm;
             }
             const llm = new LLMWrapper(type, name);
-            const ret = await llm.createInferenceSession();
+            const ret = await llm.initialize();
             if (ret) {
                 this.#cache.set(type, llm);
                 return llm;

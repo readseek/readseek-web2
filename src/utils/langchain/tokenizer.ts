@@ -1,113 +1,94 @@
 'use server';
 
-import type { JsEncoding, Tokenizer as TokenizerType } from '@turingscript/tokenizers';
+import { env, AutoTokenizer, PreTrainedTokenizer } from '@huggingface/transformers';
 
-import { existsSync, readFileSync } from 'node:fs';
+import { MODEL_ROOT_PATH } from '@/constants/application';
 
-import { LRUCache } from 'lru-cache';
+import { logError, logInfo } from '../logger';
 
-import { logError, logInfo, logWarn } from '../logger';
-
-// for reason: The request could not be resolved by Node.js from the importing module.
-const { Tokenizer, BPE, WordPiece, WordLevel, Unigram } = require('@turingscript/tokenizers');
-
-export type TokenizeResult = { inputIds: number[]; attentionMask: number[]; tokenTypeIds?: number[] };
+env.allowRemoteModels = false;
+env.localModelPath = MODEL_ROOT_PATH;
 
 export default class EnhancedTokenizer {
-    private tokenizer?: TokenizerType;
-    private cache?: LRUCache<string, any>;
+    private tokenizer?: PreTrainedTokenizer;
+    private constructor() {}
 
-    constructor(filePath: string) {
+    public static async getInstance(nameOrPath: string) {
         try {
-            if (existsSync(filePath || '')) {
-                const tokenizerConfig = readFileSync(filePath || '', 'utf8');
-                const { model, pre_tokenizer } = JSON.parse(tokenizerConfig);
+            const instance = new EnhancedTokenizer();
+            instance.tokenizer = await AutoTokenizer.from_pretrained(nameOrPath, {
+                local_files_only: true,
+                cache_dir: MODEL_ROOT_PATH,
+            });
+            return instance;
+        } catch (error) {
+            logError(error);
+        } finally {
+            logInfo('Using PreTrainedModel: ', nameOrPath);
+        }
+        return undefined;
+    }
 
-                logInfo(`Tokenizer's model type: ${model.type}, preTokenizer: ${pre_tokenizer.type}`);
+    public encode(inputs: string | string[]): number[] {
+        if (this.tokenizer) {
+            throw new Error('null PreTrainedTokenizer exception');
+        }
 
-                switch (model.type) {
-                    case 'WordPiece':
-                        this.tokenizer = new Tokenizer(WordPiece.init(model.vocab));
-                        break;
-                    case 'WordLevel':
-                        this.tokenizer = new Tokenizer(WordLevel.init(model.vocab));
-                        break;
-                    case 'Unigram':
-                        this.tokenizer = new Tokenizer(Unigram.init(model.vocab));
-                        break;
-                    case 'BPE':
-                        this.tokenizer = new Tokenizer(BPE.init(model.vocab, model.merges));
-                        break;
-                    default:
-                        this.tokenizer = Tokenizer.fromString(tokenizerConfig);
-                        break;
-                }
-                this.cache = new LRUCache({ max: 512, ttl: 1000 * 60 * 5 });
-            } else {
-                logWarn('Path for tokenizer.json is not exists.');
+        try {
+            if (Array.isArray(inputs)) {
+                return inputs.map(text => this.encode(text)).flat();
+            }
+
+            if (typeof inputs === 'string' && inputs.length > 0) {
+                return this.tokenizer!.encode(inputs);
             }
         } catch (error) {
-            logError('Error on creating EnhancedTokenizer: ', error);
+            logError(error);
         }
+
+        return [];
     }
 
-    public getPreTokenizer() {
-        return this.tokenizer?.getPreTokenizer();
+    public decode(inputs: number[]): string {
+        if (this.tokenizer) {
+            throw new Error('null PreTrainedTokenizer exception');
+        }
+
+        return this.tokenizer!.decode(inputs);
     }
 
-    public async encode(text: string) {
-        return this.tokenizer?.encode(text, null, { isPretokenized: true, addSpecialTokens: true });
+    public batchDecode(inputs: number[][]): string[] {
+        if (this.tokenizer) {
+            throw new Error('null PreTrainedTokenizer exception');
+        }
+
+        return this.tokenizer!.batch_decode(inputs);
     }
 
-    public async decode(ids: Array<number>, skipSpecialTokens: boolean) {
-        return this.tokenizer?.decode(ids, skipSpecialTokens);
-    }
+    public tokenize(text: string, options?: { pair: string; add_special_tokens: boolean }): string[] {
+        if (this.tokenizer) {
+            throw new Error('null PreTrainedTokenizer exception');
+        }
+        if (typeof text !== 'string' || !text) {
+            throw new Error('null input text exception');
+        }
 
-    public async tokenize(texts: string[]): Promise<TokenizeResult[]> {
-        return Promise.all(
-            texts.map(async text => {
-                const cached = this.cache?.get(text);
-                if (cached) {
-                    return cached;
-                }
-
-                const encoded = await this.encode(text);
-                const result = {
-                    inputIds: encoded?.getIds(),
-                    attentionMask: encoded?.getAttentionMask(),
-                    tokenTypeIds: encoded?.getTypeIds(),
-                };
-
-                this.cache?.set(text, result);
-                return result;
-            }),
-        );
-    }
-
-    public async batchTokenize(texts: string[]): Promise<TokenizeResult[]> {
         try {
-            if (this.tokenizer) {
-                const encodings: JsEncoding[] = await this.tokenizer.encodeBatch(texts, { isPretokenized: true, addSpecialTokens: true });
-                return encodings.map(r => ({
-                    inputIds: r.getIds(),
-                    attentionMask: r.getAttentionMask(),
-                    tokenTypeIds: r.getTypeIds(),
-                }));
-            }
+            return this.tokenizer!.tokenize(text, options);
         } catch (error) {
             logError(error);
         }
         return [];
     }
 
-    public async batchTokenizeWithCache(texts: string[], batchSize = 32): Promise<TokenizeResult[]> {
+    public async batchTokenize(texts: string[], batchSize = 32): Promise<string[]> {
         try {
             const batches: string[][] = [];
             for (let i = 0; i < texts.length; i += batchSize) {
                 batches.push(texts.slice(i, i + batchSize));
             }
-            const tokenizedBatches = await Promise.all(batches.map(batch => this.tokenize(batch)));
-            return tokenizedBatches.flat();
+            const tokenizedBatches = await Promise.all(batches.map((batch: string[]) => batch.map((text: string) => this.tokenize(text))));
+            return tokenizedBatches.flat(Infinity) as string[];
         } catch (error) {
             logError(error);
         }

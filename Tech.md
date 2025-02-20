@@ -71,7 +71,7 @@
 
 #### Transformer
 
-有两种方式调用来自Hugging Face的模型：
+**有两种方式调用来自Hugging Face的模型：**
 
 1. 官方：`@huggingface/inference`，直接通过API Key调用；
 2. xenova出品：<https://www.npmjs.com/package/@xenova/transformers>
@@ -97,7 +97,7 @@ pnpm add tokenizers@latest
 pnpm add @turingscript/tokenizers
 ```
 
-基于Nextjs的项目，还需要额外配置：
+**基于Nextjs的项目，还需要额外配置：**
 
 ```javascript
 const nextConfig = {
@@ -107,14 +107,14 @@ const nextConfig = {
 };
 ```
 
-如果更新NPM包或删除node_modules后，重新运行发生如下错误：
+**如果更新NPM包或删除node_modules后，重新运行发生如下错误：**
 
 ```txt
 ModuleBuildError: ./node_modules/.pnpm/@turingscript+tokenizers@0.15.2-alpha.4/node_modules/@turingscript/tokenizers/index.js
 Package @turingscript/tokenizers.js (serverComponentsExtenalPackages or default list) can't be external
 ```
 
-则需要改一下导包指令
+**则需要改一下导包指令**
 
 ```typescript
 import type { JsEncoding, Tokenizer as TokenizerType } from '@turingscript/tokenizers';
@@ -123,9 +123,39 @@ import type { JsEncoding, Tokenizer as TokenizerType } from '@turingscript/token
 const { Tokenizer } = require('@turingscript/tokenizers');
 ```
 
+对于有的模型，如：`bloomz-560m`其tokenizer.json中model type为BPE、preTokenizer为Sequence。但通过Tokenizer.fromFile()创建Tokenizer时就会[出错](https://github.com/huggingface/tokenizers/issues/1297)：
+
+```txt
+Error: data did not match any variant of untagged enum ModelWrapper
+```
+
 ## 其他
 
 <u>种种迹象说明，想通过Nodejs本地化愉快的玩，往往会让人血压一路飙升...</u>
+
+### 2025更新
+
+鉴于分别处理Tokenizer和InferenceSession会有各种问题，因此最终改为：`@huggingface/transformers`。截至目前，该包已经正式版发布了
+
+**需要卸载掉之前的包**
+
+```bash
+nun @turingscript/tokenizers onnxruntime-node
+```
+
+**如果出现以下的启动错误，**
+
+```txt
+Error: could not resolve "../bin/napi-v3/darwin/arm64/onnxruntime_binding.node" into a module
+```
+
+**Next.js的配置文件内：**
+
+```json
+experimental: {
+        serverComponentsExternalPackages: ['sharp', 'onnxruntime-node', '@huggingface/transformers']
+    },
+```
 
 ### 参考
 

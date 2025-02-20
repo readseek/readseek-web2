@@ -1,44 +1,36 @@
 import { LRUCache } from 'lru-cache';
-// @ts-ignore
-import { Tensor } from 'onnxruntime-node';
 
-import LLMFactory, { LLMWrapper } from './langchain/llm';
+import PipelineManager from './langchain/pipeline';
 import { logError, logInfo, logWarn } from './logger';
 
 export default class EnhancedChatbot {
     private static initialized: boolean = false;
 
     private static respCache: LRUCache<string, any>;
-    private static llm: LLMWrapper;
+    private static taskLine: any;
 
     private static async initialize(): Promise<void> {
         if (!this.initialized) {
-            const modelInstance = await LLMFactory.getInstance('text-generation');
-            if (modelInstance) {
+            const taskLine = await PipelineManager.getTaskLine('txt2txtGen');
+            if (taskLine) {
+                this.taskLine = taskLine;
+                this.respCache = new LRUCache({ max: 512, ttl: 1000 * 60 * 5 });
                 this.initialized = true;
-                this.llm = modelInstance;
-                this.respCache = new LRUCache({ max: 512, ttl: 1000 * 60 * 10 });
+                logInfo('EnhancedChatbot has been initialized');
             }
         }
-        logWarn(`EnhancedChatbot has ${this.initialize ?? 'not'} been initialized`);
     }
 
-    private static async generateResponse(input: string, prompt: string): Promise<string> {
-        if (!this.initialized || !this.llm) {
-            throw new Error('Chat model not initialized');
+    private static async generateResponse(question: string, context: string): Promise<string> {
+        if (!this.initialized || !this.taskLine) {
+            throw new Error('LLM not initialized');
         }
         try {
-            // TODO: to be tested...
-            const encodedInput: any = await this.llm.tokenizer.encode(input);
-            const inputFeeds = {
-                input_ids: new Tensor('int64', BigInt64Array.from(encodedInput), [1, encodedInput.length]),
-                attention_mask: new Tensor('int64', BigInt64Array.from(new Array(encodedInput.length).fill(1)), [1, encodedInput.length]),
-            };
+            const prompt = `Context: ${context}\n\nQuestion: ${question}\n\nAnswer:`;
 
-            const output: any = await this.llm.session.run(inputFeeds);
-            const response = await this.llm.tokenizer.decode(Array.from(output.logits.data), true);
+            const response = await this.taskLine(prompt, question);
             if (response) {
-                logInfo('Bot response', response);
+                logInfo('LLM Response:\n', response);
                 return response;
             }
         } catch (error) {
@@ -47,7 +39,7 @@ export default class EnhancedChatbot {
         return '';
     }
 
-    public static async processQuery(question: string, context: string[]): Promise<string> {
+    public static async processQuery(question: string, contexts: string[]): Promise<string> {
         try {
             await this.initialize();
 
@@ -56,9 +48,9 @@ export default class EnhancedChatbot {
                 return cachedResponse as string;
             }
 
-            const prompt = context.join('\n').slice(0, this.llm.model.maxContextLength);
+            const context = contexts.join('\n').slice(0, 4096);
 
-            const botResponse = await this.generateResponse(question, prompt);
+            const botResponse = await this.generateResponse(question, context);
             if (botResponse) {
                 this.respCache.set(question, botResponse);
             }

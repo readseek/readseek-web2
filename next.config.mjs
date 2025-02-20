@@ -7,16 +7,7 @@ const nextConfig = {
     swcMinify: true,
     i18n: i18next.i18n,
     reactStrictMode: true,
-
     productionBrowserSourceMaps: isDev,
-
-    // transpilePackages: ['@turingscript/tokenizers'],
-
-    experimental: {
-        serverSourceMaps: isDev,
-        serverComponentsExternalPackages: ['level', 'onnxruntime-node', '@turingscript/tokenizers', '@zilliz/milvus2-sdk-node'],
-        optimizePackageImports: ['@hookform/resolvers', '@tanstack/react-table', 'react-hook-form', 'zod'],
-    },
 
     images: {
         remotePatterns: [
@@ -38,9 +29,15 @@ const nextConfig = {
         formats: ['image/avif', 'image/webp'],
     },
 
+    experimental: {
+        serverSourceMaps: isDev,
+        serverComponentsExternalPackages: ['sharp', 'onnxruntime-node', '@huggingface/transformers', '@zilliz/milvus2-sdk-node', 'level'],
+        optimizePackageImports: ['@hookform/resolvers', '@tanstack/react-table', 'react-hook-form', 'zod'],
+    },
+
     // 这项配置还有点问题：https://github.com/payloadcms/payload/issues/7501
     // outputFileTracingIncludes: {
-    //     // When deploying to Vercel, the following configuration is required
+    // When deploying to Vercel, the following configuration is required
     //     '/api/**/*': ['node_modules/@zilliz/milvus2-sdk-node/dist/proto/**/*'],
     // },
 };

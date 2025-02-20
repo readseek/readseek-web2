@@ -1,17 +1,12 @@
 'use server';
 
 import type { LSegment } from './langchain/parser';
-import type { TokenizeResult } from './langchain/tokenizer';
 import type { SearchResults, SearchResultData } from '@zilliz/milvus2-sdk-node';
 
-// @ts-ignore
-import { Tensor } from 'onnxruntime-node';
-
-import { ModelType } from '@/constants/onnx-model';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
 import MilvusDB from './database/milvus';
-import LLMFactory from './langchain/llm';
+import PipelineManager from './langchain/pipeline';
 
 export type EmbeddingTextItem = {
     number: number;
@@ -28,27 +23,14 @@ const collectionNameWithId = (contentId: string): string => {
     return `RS_DOC_${contentId.toLocaleUpperCase()}`;
 };
 
-export async function createEmbedding(text: string | string[], batchCreate = true): Promise<Array<EmbeddingTextItem> | null> {
+export async function createEmbedding(text: string | string[]): Promise<Array<EmbeddingTextItem> | null> {
     try {
-        const llm = await LLMFactory.getInstance('similarity');
-        if (llm) {
-            // Tokenize the texts
+        const taskLine = await PipelineManager.getTaskLine('embeddings');
+        if (taskLine) {
             const texts = Array.isArray(text) ? text : [text];
-            const tokenizers: TokenizeResult[] = batchCreate ? await llm.tokenizer.batchTokenizeWithCache(texts) : await llm.tokenizer.tokenize(texts);
-
-            // Run local inference
             return await Promise.all(
-                tokenizers.map(async (cV: TokenizeResult, index: number) => {
-                    const inputFeeds = {
-                        input_ids: new Tensor('int64', cV.inputIds, [1, cV.inputIds.length]),
-                        attention_mask: new Tensor('int64', cV.attentionMask, [1, cV.attentionMask.length]),
-                    };
-                    const outputs = await llm.session?.run(inputFeeds);
-                    return {
-                        number: index + 1,
-                        text: texts[index],
-                        embedding: Array.from(outputs?.sentence_embedding?.data) as Array<number>,
-                    };
+                texts.map(async (text: string, index: number) => {
+                    return await taskLine(text);
                 }),
             );
         }
@@ -63,10 +45,9 @@ export async function saveEmbedding(segments: LSegment[], cid: string) {
         const contents: string[] = segments.map(segment => segment.pageContent);
         const textItems = await createEmbedding(contents);
         if (Array.isArray(textItems) && textItems.length > 0) {
-            const llm = await LLMFactory.getInstance('similarity');
             const params = {
                 textItems,
-                dim: llm?.model.outputDimension,
+                dim: 384,
                 metas: segments.map(segment => segment.metadata),
             };
             return await MilvusDB.saveCollection(params, collectionNameWithId(cid));
@@ -82,7 +63,7 @@ export async function deleteEmbedding(cid: string) {
 }
 
 export async function searchEmbedding(text: string, cid: string, similarityThreshold: number): Promise<{ data: string[]; matched: string[] }> {
-    const textItems = await createEmbedding(text, false);
+    const textItems = await createEmbedding(text);
     if (Array.isArray(textItems) && textItems.length) {
         const rets: SearchResults = await MilvusDB.searchCollection({
             colName: collectionNameWithId(cid),

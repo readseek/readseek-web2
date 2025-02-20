@@ -33,6 +33,6 @@ export function packingMessage(msg: Pick<Message, 'role' | 'content' | 'ma' | 'r
     return {
         ...msg,
         id: msg.content && msg.content.trim().length ? Md5.hashStr(msg.content) : '响应失败，请稍后再试~',
-        timestamp: new Date().getTime(),
+        timestamp: Date.now(),
     };
 }
