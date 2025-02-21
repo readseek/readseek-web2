@@ -22,7 +22,7 @@
     },
     "dependencies": {
         "@hookform/resolvers": "^3.10.0",
-        "@huggingface/transformers": "^3.3.3",
+        "@huggingface/transformers": "git+https://github.com/tangkunyin/transformers.js.git#develop",
         "@langchain/community": "^0.3.31",
         "@langchain/core": "^0.3.40",
         "@prisma/client": "6.4.0",
