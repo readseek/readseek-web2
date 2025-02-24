@@ -1,4 +1,4 @@
-import { env, pipeline } from '@huggingface/transformers';
+import { env, pipeline, PreTrainedModel, PreTrainedTokenizer } from '@huggingface/transformers';
 import { LRUCache } from 'lru-cache';
 
 import { MODEL_ROOT_PATH } from '@/constants/application';
@@ -18,6 +18,13 @@ export const VALID_TASK_ALIASES = Object.freeze({
     // text2imgGen: '',
 });
 
+export type TaskLine = {
+    task: string;
+    model: PreTrainedModel;
+    tokenizer: PreTrainedTokenizer;
+    processor?: any;
+} & any;
+
 export default class PipelineManager {
     static #pipelineCache: LRUCache<string, any> = new LRUCache({ max: 5, ttl: 1000 * 60 * 15 });
 
@@ -26,7 +33,7 @@ export default class PipelineManager {
      * @param {keyof typeof VALID_TASK_ALIASES} task
      * @returns {Promise<T>}
      */
-    public static async getTaskLine(task: keyof typeof VALID_TASK_ALIASES) {
+    public static async getTaskLine(task: keyof typeof VALID_TASK_ALIASES): Promise<TaskLine> {
         try {
             const cached = this.#pipelineCache.get(task);
             if (cached) {
@@ -38,7 +45,6 @@ export default class PipelineManager {
                 subfolder: '',
                 cache_dir: MODEL_ROOT_PATH,
                 local_files_only: true,
-                use_external_data_format: true,
                 session_options: {
                     enableCpuMemArena: true,
                     enableMemPattern: true,

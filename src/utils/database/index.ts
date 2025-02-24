@@ -5,7 +5,7 @@ import type { Document } from '@/models/Document';
 import path from 'node:path';
 
 import { Tag } from '@/models/Tag';
-import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove } from '@/utils/database/postgresql';
+import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove, OPParams } from '@/utils/database/postgresql';
 import { saveEmbedding, deleteEmbedding } from '@/utils/embedding';
 import { parseFileContent } from '@/utils/langchain/parser';
 import { logError, logInfo, logWarn } from '@/utils/logger';
@@ -149,65 +149,68 @@ export async function getTags(): Promise<RecordData> {
     });
 }
 
-export async function saveOrUpdateDocument(data: SOUDocParam): Promise<{ state: boolean; message?: string }> {
+export async function hasRecord(id: string | number, option: Pick<OPParams, 'model'>) {
     try {
-        const { fileHash, filePath, cateId, tags } = data;
-        const doc = (await find({
-            model: 'Document',
+        const entity = (await find({
+            model: option.model,
             method: PrismaDBMethod.findUnique,
             condition: {
                 select: {
                     id: true,
                 },
-                where: { id: fileHash },
+                where: { id },
             },
-        })) as Document;
-        logInfo('Has document record ==> ', doc);
-        if (doc && doc?.id) {
-            logWarn('Same file has already been stored in database: ', fileHash);
+        })) as any;
+        if (entity && entity?.id === id) {
+            logInfo('Has unique record: ', id);
+            return true;
+        }
+    } catch (error) {
+        logError(error);
+    }
+    return false;
+}
+
+export async function saveOrUpdateDocument(data: SOUDocParam): Promise<{ state: boolean; message?: string }> {
+    try {
+        const { fileHash, filePath, cateId, tags } = data;
+        if (await hasRecord(fileHash, { model: 'Document' })) {
             return { state: false, message: 'same file content' };
         }
 
         const ext = path.parse(filePath).ext;
-        // TODO: 耗时操作，后续改成移步执行、成功后通过消息通知
-        const { state, meta, segments } = await parseFileContent(filePath, ext.substring(1).toLowerCase());
-        if (!state || !meta || !segments) {
-            return { state: false, message: 'file parsing failed' };
+        const result = await parseFileContent(filePath, ext.substring(1).toLowerCase());
+        if (result.code && result.meta && result.sections) {
+            let saveRet: any = false;
+            if (await saveEmbedding(result.sections, fileHash)) {
+                // save supabase postgresql
+                saveRet = await saveOrUpdate({
+                    model: 'Document',
+                    method: PrismaDBMethod.upsert,
+                    data: [
+                        {
+                            id: fileHash,
+                            userId: 1,
+                            type: getFileType(ext),
+                            categoryId: cateId,
+                            tags: tags.reduce((p: any, c: Tag) => {
+                                if (!p.hasOwnProperty('connectOrCreate')) {
+                                    p['connectOrCreate'] = [];
+                                }
+                                p['connectOrCreate'].push({
+                                    where: { id: c.id },
+                                    create: { name: c.name, alias: c.alias },
+                                });
+                                return p;
+                            }, {}),
+                            ...result.meta,
+                        } as Document,
+                    ],
+                });
+            }
+            return { state: Boolean(saveRet) };
         }
-
-        logInfo('Start inserting data to database...');
-        console.time('🔱 Saving db costs:');
-
-        let saveRet: any = false;
-        if (await saveEmbedding(segments, fileHash)) {
-            // save supabase postgresql
-            saveRet = await saveOrUpdate({
-                model: 'Document',
-                method: PrismaDBMethod.upsert,
-                data: [
-                    {
-                        id: fileHash,
-                        userId: 1,
-                        type: getFileType(ext),
-                        categoryId: cateId,
-                        tags: tags.reduce((p: any, c: Tag) => {
-                            if (!p.hasOwnProperty('connectOrCreate')) {
-                                p['connectOrCreate'] = [];
-                            }
-                            p['connectOrCreate'].push({
-                                where: { id: c.id },
-                                create: { name: c.name, alias: c.alias },
-                            });
-                            return p;
-                        }, {}),
-                        ...meta,
-                    } as Document,
-                ],
-            });
-        }
-        console.timeEnd('🔱 Saving db costs:');
-
-        return { state: Boolean(saveRet) };
+        return { state: false, message: 'Document parsing failed' };
     } catch (error) {
         logError(error);
     }

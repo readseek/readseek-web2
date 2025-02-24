@@ -1,6 +1,6 @@
 'use server';
 
-import type { EmbeddingTextItem } from '../embedding';
+import type { TextEmbedding } from '../embedding';
 
 import { DataType, MilvusClient, QueryReq, SearchSimpleReq, LoadState, FieldType, IndexType, MetricType, SearchReq, SearchResults, QueryResults } from '@zilliz/milvus2-sdk-node';
 
@@ -111,27 +111,27 @@ export default class MilvusDBClient {
                     const collectionFields: FieldType[] = [
                         {
                             name: 'id',
-                            description: 'segment id',
+                            description: 'segment id(unique)',
                             data_type: DataType.Int64,
                             is_primary_key: true,
                             autoID: true,
                         },
                         {
-                            name: 'meta',
-                            description: 'meta data for current document',
-                            data_type: DataType.JSON,
-                        },
-                        {
                             name: 'text',
                             description: 'segment original text',
                             data_type: DataType.VarChar,
-                            max_length: 8192,
+                            max_length: 4096,
                         },
                         {
                             name: 'embedding',
                             description: 'segment embedding vector',
                             data_type: DataType.FloatVector,
                             dim,
+                        },
+                        {
+                            name: 'meta',
+                            description: 'meta data for document',
+                            data_type: DataType.JSON,
                         },
                     ];
                     const indexParams = [
@@ -176,32 +176,38 @@ export default class MilvusDBClient {
         return false;
     }
 
-    public static async saveCollection(data: any, collectionName: string): Promise<boolean> {
-        const { textItems, dim, metas } = data;
+    public static async saveCollection(data: { embeddings: TextEmbedding[]; metas: any[]; collectionName: string; dim: number }): Promise<boolean> {
+        const { embeddings, metas, collectionName, dim } = data;
 
-        if (!textItems || textItems.length === 0 || dim === 0) {
-            throw new Error('textItems or dim can not be empty');
+        if (!embeddings || embeddings.length === 0 || !collectionName || !dim) {
+            throw new Error('Input parameter for saveCollection exception');
         }
 
         try {
             if (!(await this.checkAndCreateCollection(collectionName, dim))) {
+                logWarn('checkAndCreateCollection failed');
                 return false;
             }
             // Batch Insert the embeddings
             const res = await this.db.insert({
                 collection_name: collectionName,
-                fields_data: textItems.map((item: EmbeddingTextItem, index: number) => {
+                fields_data: embeddings.map((item: TextEmbedding, index: number) => {
                     return {
                         text: item.text,
-                        meta: metas[index],
                         embedding: item.embedding,
+                        meta: metas[index],
                     };
                 }),
             });
-            return res?.status?.code === 0;
+            if (res?.status?.code === 0) {
+                return true;
+            }
+            logWarn('saveEmbedding failed: ', res?.status?.error_code, `==>: ${res?.status?.reason}`);
         } catch (error) {
             logError('error on saveCollection: ', error);
         }
+        // Rollback create table
+        await this.deleteCollection(collectionName);
         return false;
     }
 

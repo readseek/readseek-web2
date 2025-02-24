@@ -9,8 +9,16 @@ import { logError, logInfo } from '@/utils/logger';
 
 import { getDocumentLoader } from './loader';
 
-// Langchain Document real types, for per text segment
-export type LSegment = {
+export type DocumentMeta = {
+    title: string;
+    description: string;
+    keywords: string[];
+    lang: DocumentLang; // main language
+    authors?: string[]; //original authors
+    coverUrl?: string;
+};
+
+export type DocumentSection = {
     metadata: {
         category: string;
         filename: string;
@@ -24,19 +32,10 @@ export type LSegment = {
     pageContent: string;
 };
 
-export type DocumentMeta = {
-    title: string;
-    description: string;
-    keywords: string[];
-    lang: DocumentLang; // main language
-    authors?: string[]; //original authors
-    coverUrl?: string;
-};
-
-export type ParsedResult = {
-    state: boolean;
+export type ParsedData = {
+    code: 0 | 1;
     meta?: DocumentMeta;
-    segments?: LSegment[];
+    sections?: DocumentSection[];
 };
 
 const TextSeparators = [
@@ -88,12 +87,12 @@ export async function getSplitContents(filepath: string, extName: string): Promi
     return null;
 }
 
-export async function parseFileContent(filePath: string, extName: string): Promise<ParsedResult> {
+export async function parseFileContent(filePath: string, extName: string): Promise<ParsedData> {
     try {
-        const segments = (await getSplitContents(filePath, extName)) as LSegment[];
-        if (Array.isArray(segments) && segments.length > 0) {
+        const sections = (await getSplitContents(filePath, extName)) as DocumentSection[];
+        if (Array.isArray(sections) && sections.length > 0) {
             // 标题和描述暂时均从第一节内容截取
-            const firstParts = segments[0].pageContent.split('\n\n');
+            const firstParts = sections[0].pageContent.split('\n\n');
             logInfo('File firstPart:\n', firstParts);
 
             let title = '',
@@ -111,20 +110,20 @@ export async function parseFileContent(filePath: string, extName: string): Promi
 
             // 返回实际的内容数据落库，以便前后台给用户展示
             return {
-                state: true,
+                code: 1,
                 meta: {
                     title,
                     description,
                     keywords,
-                    lang: segments[0].metadata?.languages?.length ? (segments[0].metadata.languages[0].toUpperCase() as DocumentLang) : DocumentLang.ENG,
+                    lang: sections[0].metadata?.languages?.length ? (sections[0].metadata.languages[0].toUpperCase() as DocumentLang) : DocumentLang.ENG,
                     authors: ['tomartisan'], // 先写死，后面从前端传过来。或者从网络抓取
                     coverUrl: process.env.__RSN_DEFAULT_COVER, // 后边从网络抓取，或随机
                 },
-                segments,
+                sections,
             };
         }
     } catch (error) {
         logError('parseFileContent', error);
     }
-    return { state: false };
+    return { code: 0 };
 }

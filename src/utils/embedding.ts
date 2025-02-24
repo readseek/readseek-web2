@@ -1,6 +1,7 @@
 'use server';
 
-import type { LSegment } from './langchain/parser';
+import type { DocumentSection } from './langchain/parser';
+import type { DataArray, DataType, Tensor } from '@huggingface/transformers';
 import type { SearchResults, SearchResultData } from '@zilliz/milvus2-sdk-node';
 
 import { logError, logInfo, logWarn } from '@/utils/logger';
@@ -8,10 +9,13 @@ import { logError, logInfo, logWarn } from '@/utils/logger';
 import MilvusDB from './database/milvus';
 import PipelineManager from './langchain/pipeline';
 
-export type EmbeddingTextItem = {
-    number: number;
+export type TextEmbedding = {
     text: string;
-    embedding: Array<number>;
+    dims: number[];
+    size: number;
+    location: string;
+    type: DataType;
+    embedding: DataArray;
 };
 
 /**
@@ -23,16 +27,30 @@ const collectionNameWithId = (contentId: string): string => {
     return `RS_DOC_${contentId.toLocaleUpperCase()}`;
 };
 
-export async function createEmbedding(text: string | string[]): Promise<Array<EmbeddingTextItem> | null> {
+export async function createEmbedding(text: string | string[]): Promise<{ config: any; textEmbeddings: TextEmbedding[] } | null> {
     try {
         const taskLine = await PipelineManager.getTaskLine('embeddings');
         if (taskLine) {
             const texts = Array.isArray(text) ? text : [text];
-            return await Promise.all(
-                texts.map(async (text: string, index: number) => {
-                    return await taskLine(text);
+            const textEmbeddings: TextEmbedding[] = await Promise.all(
+                texts.map(async text => {
+                    const item: Tensor = await taskLine(text);
+                    return {
+                        text,
+                        dims: item.dims,
+                        size: item.size,
+                        location: item.location,
+                        type: item.type,
+                        embedding: item.data,
+                    };
                 }),
             );
+            if (Array.isArray(textEmbeddings) && textEmbeddings.length > 0) {
+                return {
+                    textEmbeddings,
+                    config: taskLine.model.config,
+                };
+            }
         }
     } catch (error) {
         logError('createEmbedding', error);
@@ -40,17 +58,28 @@ export async function createEmbedding(text: string | string[]): Promise<Array<Em
     return null;
 }
 
-export async function saveEmbedding(segments: LSegment[], cid: string) {
+export async function saveEmbedding(sections: DocumentSection[], cid: string) {
     try {
-        const contents: string[] = segments.map(segment => segment.pageContent);
-        const textItems = await createEmbedding(contents);
-        if (Array.isArray(textItems) && textItems.length > 0) {
-            const params = {
-                textItems,
-                dim: 384,
-                metas: segments.map(segment => segment.metadata),
-            };
-            return await MilvusDB.saveCollection(params, collectionNameWithId(cid));
+        const { texts, metas } = sections.reduce(
+            (p: any, c: DocumentSection) => {
+                if (c.pageContent) {
+                    p.texts.push(c.pageContent);
+                }
+                if (c.metadata) {
+                    p.metas.push(c.metadata);
+                }
+                return p;
+            },
+            { texts: [], metas: [] },
+        );
+        const result = await createEmbedding(texts);
+        if (result) {
+            return await MilvusDB.saveCollection({
+                metas,
+                embeddings: result.textEmbeddings,
+                dim: result.config.hidden_size,
+                collectionName: collectionNameWithId(cid),
+            });
         }
     } catch (error) {
         logError('saveEmbedding', error);
