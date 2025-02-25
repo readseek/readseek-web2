@@ -92,32 +92,36 @@ export async function deleteEmbedding(cid: string) {
     return MilvusDB.deleteCollection(collectionNameWithId(cid));
 }
 
-export async function searchEmbedding(text: string, cid: string, similarityThreshold: number): Promise<{ data: string[]; matched: string[] }> {
-    const textItems = await createEmbedding(text);
-    if (Array.isArray(textItems) && textItems.length) {
-        const rets: SearchResults = await MilvusDB.searchCollection({
-            colName: collectionNameWithId(cid),
-            vector: textItems[0].embedding,
-            outPuts: ['text'],
-        });
-        if (rets.status.code === 0) {
-            return rets.results.reduce(
-                (p, c: SearchResultData) => {
-                    if (c.text) {
-                        p.data.push(c.text);
-                        if (c.score > similarityThreshold) {
-                            p.matched.push(c.text);
+export async function searchEmbedding(text: string, cid: string, similarityThreshold: number): Promise<{ data: string[]; matched: string[] } | null> {
+    const result = await createEmbedding(text);
+    if (result && Array.isArray(result.textEmbeddings)) {
+        try {
+            const rets: SearchResults = await MilvusDB.searchCollection({
+                colName: collectionNameWithId(cid),
+                vector: result.textEmbeddings[0].embedding,
+                outPuts: ['text'],
+            });
+            if (rets.status.code === 0) {
+                return rets.results.reduce(
+                    (p, c: SearchResultData) => {
+                        if (c.text) {
+                            p.data.push(c.text);
+                            if (c.score > similarityThreshold) {
+                                p.matched.push(c.text);
+                            }
+                            if (c.score > 0.5) {
+                                logInfo('score: ', c.score, 'text: ', c.text);
+                            }
                         }
-                        if (c.score > 0.5) {
-                            logInfo('score: ', c.score, 'text: ', c.text);
-                        }
-                    }
-                    return p;
-                },
-                { data: [] as string[], matched: [] as string[] },
-            );
+                        return p;
+                    },
+                    { data: [] as string[], matched: [] as string[] },
+                );
+            }
+            logWarn('searchEmbedding failed: ', rets.status);
+        } catch (error) {
+            logError(error);
         }
-        logWarn('searchEmbedding failed: ', rets.status);
     }
-    throw new Error(`invalid data while create embedding with input: ${text}`);
+    return null;
 }

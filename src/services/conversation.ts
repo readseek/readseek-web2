@@ -101,15 +101,16 @@ class ConversationService extends BaseService {
             if (input && id) {
                 messageBuff.push(packingMessage({ role: 'user', content: input }));
                 // search similar results in Milvus and check if good match exists
-                const { data, matched } = await searchEmbedding(input, id, 0.7);
-
-                logInfo('matched: ', matched.length, 'data all: ', data.length);
-
-                if (matched.length > 0) {
-                    botResponse = matched.shift() as string;
+                const searchedResult = await searchEmbedding(input, id, 0.7);
+                if (searchedResult) {
+                    const { data, matched } = searchedResult;
+                    logInfo('matched: ', matched.length, 'data all: ', data.length);
+                    if (matched.length > 0) {
+                        botResponse = matched.shift() as string;
+                    }
                 } else {
                     // use LLM to generate a response
-                    botResponse = await EnhancedChatbot.processQuery(input, data);
+                    // botResponse = await EnhancedChatbot.processQuery(input, data);
                 }
 
                 const msgOut = packingMessage({

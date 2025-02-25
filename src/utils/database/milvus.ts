@@ -273,20 +273,11 @@ export default class MilvusDBClient {
      * @param {colName, vector, outPuts}
      * @returns {QueryResults}
      */
-    public static async queryCollection(params: Record<string, any>): Promise<QueryResults> {
+    public static async queryCollection(params: Record<string, any>): Promise<QueryResults | null> {
         const { colName, vector, outPuts } = params;
         if (!(await this.loadCollection(colName))) {
             throw new Error('Collection load failed, querying break...');
         }
-        // TODO: 没有针对query场景进行适配！
-        return (await this.db.query({
-            topk: 3,
-            limit: 5,
-            collection_name: colName,
-            metric_type: MetricType.COSINE,
-            anns_field: 'embedding',
-            output_fields: outPuts,
-            vector,
-        } as CollectionQueryParams)) as QueryResults;
+        return null;
     }
 }
