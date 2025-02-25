@@ -5,7 +5,7 @@ import { existsSync, unlink } from 'node:fs';
 import path from 'node:path';
 import { promisify } from 'node:util';
 
-import { UPLOAD_PATH } from '@/constants/application';
+import { UPLOAD_PATH } from '@/constants/config';
 import { DocumentType } from '@/models/Document';
 import { deleteFileStorage, getUserFiles, getUserInfo } from '@/utils/database';
 import LevelDB from '@/utils/database/leveldb';

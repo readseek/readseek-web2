@@ -1,8 +1,8 @@
 import { AutoModel } from '@huggingface/transformers';
 import { LRUCache } from 'lru-cache';
 
-import { MODEL_ROOT_PATH } from '@/constants/application';
-import { ModelName, ModelType, OnnxModel, onnxModelWith } from '@/constants/onnx-model';
+import { MODEL_ROOT_PATH } from '@/constants/config';
+import { ModelName, ModelType, OnnxModel, onnxModelWith } from '@/constants/onnx';
 
 import { logInfo, logError } from '../logger';
 

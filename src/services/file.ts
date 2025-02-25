@@ -5,7 +5,7 @@ import path from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'util';
 
-import { UPLOAD_PATH } from '@/constants/application';
+import { UPLOAD_PATH } from '@/constants/config';
 import { getFileHash } from '@/utils/common';
 import { getCategories, getFiles, getTags, saveOrUpdateDocument } from '@/utils/database';
 import { LogAPIRoute, CheckLogin } from '@/utils/http/decorators';

@@ -1,7 +1,7 @@
 import { env, pipeline, PreTrainedModel, PreTrainedTokenizer } from '@huggingface/transformers';
 import { LRUCache } from 'lru-cache';
 
-import { MODEL_ROOT_PATH } from '@/constants/application';
+import { MODEL_ROOT_PATH } from '@/constants/config';
 
 import { logError, logInfo } from '../logger';
 

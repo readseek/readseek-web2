@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 
-import { onnxModelWith } from '@/constants/onnx-model';
+import { onnxModelWith } from '@/constants/onnx';
 import { isDevModel } from '@/utils/common';
 import { LogAPIRoute, CheckLogin } from '@/utils/http/decorators';
 
