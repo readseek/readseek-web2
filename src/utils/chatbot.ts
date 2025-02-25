@@ -11,7 +11,7 @@ export default class EnhancedChatbot {
 
     private static async initialize(): Promise<void> {
         if (!this.initialized) {
-            const taskLine = await PipelineManager.getTaskLine('txt2txtGen');
+            const taskLine = await PipelineManager.getTaskLine('t2tGenerator');
             if (taskLine) {
                 this.taskLine = taskLine;
                 this.respCache = new LRUCache({ max: 512, ttl: 1000 * 60 * 5 });

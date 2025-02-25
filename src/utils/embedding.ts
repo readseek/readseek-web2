@@ -29,7 +29,7 @@ const collectionNameWithId = (contentId: string): string => {
 
 export async function createEmbedding(text: string | string[]): Promise<{ config: any; textEmbeddings: TextEmbedding[] } | null> {
     try {
-        const extractor = await PipelineManager.getTaskLine('embeddings');
+        const extractor = await PipelineManager.getTaskLine('extractor');
         if (extractor) {
             const texts = Array.isArray(text) ? text : [text];
             const textEmbeddings: TextEmbedding[] = await Promise.all(

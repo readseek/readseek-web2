@@ -1,13 +1,53 @@
-import { logError, logInfo } from '@/utils/logger';
-
-export type ModelType = 'similarity' | 'summarization' | 'text-generation' | 'image-generation';
-
 /**
- * Value is the same as its location dir-name where onnx file it is.
+ *  Onnx model {name: task}
  */
-export const enum ModelName {
-    allMiniLML6v2 = 'all-MiniLM-L6-v2', // default for embeddings
-    gteMultilingualBase = 'gte-multilingual-base',
-    t5Summary = 't5-summary-enruzh-base-2048',
-    bloomz560m = 'bloomz-560m',
-}
+export const OnnxModel = {
+    'all-MiniLM-L6-v2': 'feature-extraction',
+
+    't5-summary-enruzh-base-2048': 'summarization',
+
+    'bloomz-560m': 'text-generation',
+
+    'distilbart-cnn-6-6': 'summarization',
+
+    'donut-base-finetuned-docvqa': 'document-question-answering',
+
+    'distilbert-base-uncased-distilled-squad': 'question-answering',
+
+    't5-small': 'translation',
+
+    'whisper-tiny.en': 'automatic-speech-recognition',
+
+    speecht5_tts: 'text-to-speech',
+};
+
+export const HuggingFacePath = (name: keyof typeof OnnxModel): string => {
+    if (name === 'all-MiniLM-L6-v2') {
+        return 'sentence-transformers/all-MiniLM-L6-v2';
+    }
+    if (name === 't5-summary-enruzh-base-2048') {
+        return 'utrobinmv/t5_summary_en_ru_zh_base_2048';
+    }
+    if (name === 'bloomz-560m') {
+        return 'bigscience/bloomz-560m';
+    }
+    if (name === 'distilbart-cnn-6-6') {
+        return 'Xenova/distilbart-cnn-6-6';
+    }
+    if (name === 'donut-base-finetuned-docvqa') {
+        return 'Xenova/donut-base-finetuned-docvqa';
+    }
+    if (name === 'distilbert-base-uncased-distilled-squad') {
+        return 'Xenova/distilbert-base-uncased-distilled-squad';
+    }
+    if (name === 't5-small') {
+        return 'Xenova/t5-small';
+    }
+    if (name === 'whisper-tiny.en') {
+        return 'Xenova/whisper-tiny.en';
+    }
+    if (name === 'speecht5_tts') {
+        return 'Xenova/speecht5_tts';
+    }
+    throw new Error('Illegal model name');
+};
