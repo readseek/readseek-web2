@@ -29,26 +29,27 @@ const collectionNameWithId = (contentId: string): string => {
 
 export async function createEmbedding(text: string | string[]): Promise<{ config: any; textEmbeddings: TextEmbedding[] } | null> {
     try {
-        const taskLine = await PipelineManager.getTaskLine('embeddings');
-        if (taskLine) {
+        const extractor = await PipelineManager.getTaskLine('embeddings');
+        if (extractor) {
             const texts = Array.isArray(text) ? text : [text];
             const textEmbeddings: TextEmbedding[] = await Promise.all(
                 texts.map(async text => {
-                    const item: Tensor = await taskLine(text);
+                    // With pooling: "mean": You'd get a single 384-dimensional vector that represents the entire sentence
+                    const item: Tensor = await extractor(text, { pooling: 'mean', normalize: true });
                     return {
                         text,
                         dims: item.dims,
                         size: item.size,
-                        location: item.location,
                         type: item.type,
-                        embedding: item.data,
+                        location: item.location,
+                        embedding: Array.from(item.data),
                     };
                 }),
             );
             if (Array.isArray(textEmbeddings) && textEmbeddings.length > 0) {
                 return {
                     textEmbeddings,
-                    config: taskLine.model.config,
+                    config: extractor.model.config,
                 };
             }
         }

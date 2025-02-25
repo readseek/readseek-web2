@@ -2,7 +2,7 @@
 
 import type { TextEmbedding } from '../embedding';
 
-import { DataType, MilvusClient, QueryReq, SearchSimpleReq, LoadState, FieldType, IndexType, MetricType, SearchReq, SearchResults, QueryResults } from '@zilliz/milvus2-sdk-node';
+import { DataType, MilvusClient, QueryReq, SearchSimpleReq, LoadState, FieldType, IndexType, MetricType, SearchReq, SearchResults, QueryResults, CreateIndexSimpleReq } from '@zilliz/milvus2-sdk-node';
 
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -13,6 +13,46 @@ export type CollectionQueryParams = QueryReq;
 const MILVUS_DBNAME = process.env.__RSN_MILVUS_DBName || 'default';
 const MILVUS_USERNAME = process.env.__RSN_MILVUS_USERNAME || 'root';
 const MILVUS_ADDRESS = process.env.__RSN_MILVUS_ADDRESS || '127.0.0.1:19530';
+
+/**
+ * dynamically selects the appropriate index type based on your collection size and configures optimal search parameters for each type
+ * @param rowCount the number of the collection row count
+ * @returns optimized Indexparams
+ */
+const AutoIndexParams = (rowCount: number) => {
+    if (rowCount < 1000) {
+        // For small collections (under 1K vectors)
+        return {
+            index_type: IndexType.FLAT,
+            metric_type: MetricType.COSINE, // Better for normalized embeddings
+            params: {}, // FLAT doesn't need additional params
+        };
+    } else if (rowCount < 10000) {
+        // For medium collections (1K-10K vectors)
+        return {
+            index_type: IndexType.IVF_FLAT,
+            metric_type: MetricType.COSINE,
+            params: { nlist: 128 }, // Number of clusters
+        };
+    } else if (rowCount < 1000000) {
+        // For large collections (10K-1M vectors)
+        return {
+            index_type: IndexType.IVF_SQ8,
+            metric_type: MetricType.COSINE,
+            params: { nlist: 1024 },
+        };
+    } else {
+        // For very large collections (>1M vectors)
+        return {
+            index_type: IndexType.HNSW,
+            metric_type: MetricType.COSINE,
+            params: {
+                M: 16, // Number of bi-directional links
+                efConstruction: 200, // Size of the dynamic candidate list for constructing the graph
+            },
+        };
+    }
+};
 
 export default class MilvusDBClient {
     static #loadedCollnections = new Set<string>();
@@ -100,7 +140,7 @@ export default class MilvusDBClient {
         return true;
     }
 
-    private static async checkAndCreateCollection(collectionName: string, dim: number): Promise<boolean> {
+    private static async checkAndCreateCollection(collectionName: string, dim: number, rowCount: number): Promise<boolean> {
         try {
             if (await this.checkAndCreateDB()) {
                 const ret = await this.db.hasCollection({
@@ -134,19 +174,15 @@ export default class MilvusDBClient {
                             data_type: DataType.JSON,
                         },
                     ];
-                    const indexParams = [
-                        {
-                            field_name: 'embedding',
-                            index_type: IndexType.IVF_FLAT,
-                            metric_type: MetricType.COSINE,
-                            params: { nlist: 1024 },
-                        },
-                    ];
                     const res = await this.db.createCollection({
                         fields: collectionFields,
-                        index_params: indexParams,
                         collection_name: collectionName,
-                        description: `Text search with file ${collectionName}`,
+                        description: `Document #${collectionName}# vector data, for semantic search`,
+                        index_params: {
+                            field_name: 'embedding',
+                            collection_name: collectionName,
+                            ...AutoIndexParams(rowCount),
+                        } as CreateIndexSimpleReq,
                     });
                     if (res?.code !== 0) {
                         logError('Failed to create collection', res?.reason);
@@ -184,7 +220,7 @@ export default class MilvusDBClient {
         }
 
         try {
-            if (!(await this.checkAndCreateCollection(collectionName, dim))) {
+            if (!(await this.checkAndCreateCollection(collectionName, dim, embeddings.length))) {
                 logWarn('checkAndCreateCollection failed');
                 return false;
             }
