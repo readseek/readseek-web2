@@ -21,6 +21,18 @@ export const OnnxModel = {
     speecht5_tts: 'text-to-speech',
 };
 
+export const OnnxSessionOptions = {
+    enableCpuMemArena: true,
+    enableMemPattern: true,
+    executionMode: 'parallel',
+    enableGraphCapture: true,
+    graphOptimizationLevel: 'all',
+    // 0 means use all available threads
+    interOpNumThreads: 0,
+    intraOpNumThreads: 0,
+    logSeverityLevel: 3,
+};
+
 export const HuggingFacePath = (name: keyof typeof OnnxModel): string => {
     if (name === 'all-MiniLM-L6-v2') {
         return 'sentence-transformers/all-MiniLM-L6-v2';

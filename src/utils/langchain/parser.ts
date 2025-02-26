@@ -7,6 +7,8 @@ import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { DocumentLang } from '@/models/Document';
 import { logError, logInfo } from '@/utils/logger';
 
+import PipelineManager from '../langchain/pipeline';
+
 import { getDocumentLoader } from './loader';
 
 export type DocumentMeta = {
@@ -89,6 +91,9 @@ export async function getSplitContents(filepath: string, extName: string): Promi
 
 export async function parseFileContent(filePath: string, extName: string): Promise<ParsedData> {
     try {
+        // Get description and content keywords with LLM summarization
+        const summarizer = await PipelineManager.getTaskLine('summarizer');
+
         const sections = (await getSplitContents(filePath, extName)) as DocumentSection[];
         if (Array.isArray(sections) && sections.length > 0) {
             // 标题和描述暂时均从第一节内容截取
