@@ -4,8 +4,6 @@
 export const OnnxModel = {
     'all-MiniLM-L6-v2': 'feature-extraction',
 
-    't5-summary-enruzh-base-2048': 'summarization',
-
     'bloomz-560m': 'text-generation',
 
     'distilbart-cnn-6-6': 'summarization',
@@ -14,11 +12,13 @@ export const OnnxModel = {
 
     'distilbert-base-uncased-distilled-squad': 'question-answering',
 
+    speecht5_tts: 'text-to-speech',
+
     't5-small': 'translation',
 
-    'whisper-tiny.en': 'automatic-speech-recognition',
+    't5-summary-enruzh-base-2048': 'summarization',
 
-    speecht5_tts: 'text-to-speech',
+    'whisper-tiny.en': 'automatic-speech-recognition',
 };
 
 export const OnnxSessionOptions = {

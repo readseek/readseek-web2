@@ -1,8 +1,9 @@
 import type { NextRequest } from 'next/server';
 
-import { onnxModelWith } from '@/constants/onnx';
 import { isDevModel } from '@/utils/common';
 import { LogAPIRoute, CheckLogin } from '@/utils/http/decorators';
+import PipelineManager from '@/utils/langchain/pipeline';
+import { logError } from '@/utils/logger';
 
 import BaseService from './_base';
 
@@ -13,9 +14,34 @@ class SystemService extends BaseService {
             return this.renderError('Bad request');
         }
         const parameter = req.nextUrl.searchParams.get('p');
-        // @ts-ignore
-        const model = onnxModelWith(parameter || 'similarity');
-        return { code: 0, data: model, message: 'ok' };
+
+        return { code: 0, data: parameter, message: 'ok' };
+    }
+
+    @LogAPIRoute
+    async test_post(req: NextRequest): Promise<APIRet> {
+        if (!isDevModel()) {
+            return this.renderError('Bad request');
+        }
+
+        const { data } = await req.json();
+        if (!data) {
+            return this.renderError('Bad input json');
+        }
+
+        try {
+            const summarizer = await PipelineManager.getTaskLine('dqa');
+            const results = await summarizer(data, {
+                max_new_tokens: 200,
+            });
+            const response: string = results?.map((item: any) => item.summary_text).join('');
+
+            return { code: 0, data: response, message: 'ok' };
+        } catch (error) {
+            logError(error);
+        }
+
+        return this.renderError('500`` request');
     }
 
     @LogAPIRoute

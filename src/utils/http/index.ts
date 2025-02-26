@@ -12,10 +12,10 @@ export const enum GET_URI {
     userFiles = 'userFiles',
     userProfile = 'userProfile',
     // only for dev debug
-    __test = '__test',
-    __env = '__env',
-    __files = '__files',
-    ___users = '___users',
+    __test = 'test',
+    __env = 'env',
+    __files = 'files',
+    ___users = 'users',
 }
 
 export const enum POST_URI {
@@ -26,6 +26,8 @@ export const enum POST_URI {
     userLogin = 'userLogin',
     userUpdate = 'userUpdate',
     userCancellation = 'userCancellation',
+    // only for dev debug
+    __test = 'test_post',
 }
 
 export type API_PATH = GET_URI | POST_URI;

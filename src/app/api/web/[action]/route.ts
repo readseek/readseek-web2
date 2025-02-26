@@ -75,6 +75,9 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
 
     let ret: APIRet;
     switch (action as POST_URI) {
+        case POST_URI.__test:
+            ret = await SystemService.test_post(req);
+            break;
         case POST_URI.convInit:
             ret = await ConversationService.init(req);
             break;

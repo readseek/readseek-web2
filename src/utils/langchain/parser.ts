@@ -92,7 +92,7 @@ export async function getSplitContents(filepath: string, extName: string): Promi
 export async function parseFileContent(filePath: string, extName: string): Promise<ParsedData> {
     try {
         // Get description and content keywords with LLM summarization
-        const summarizer = await PipelineManager.getTaskLine('summarizer');
+        // const summarizer = await PipelineManager.getTaskLine('summarizer');
 
         const sections = (await getSplitContents(filePath, extName)) as DocumentSection[];
         if (Array.isArray(sections) && sections.length > 0) {

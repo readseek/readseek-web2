@@ -3,7 +3,7 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
-import { env, pipeline, PreTrainedModel, PreTrainedTokenizer } from '@huggingface/transformers';
+import { env, pipeline, PreTrainedModel, PreTrainedTokenizer, ProgressInfo } from '@huggingface/transformers';
 import { LRUCache } from 'lru-cache';
 
 import { MODEL_ROOT_PATH } from '@/constants/config';
@@ -48,18 +48,20 @@ export default class PipelineManager {
             for (let i = 0; i < models.length; i++) {
                 const name = models[i];
                 // check all of local models
-                if (existsSync(path.join(MODEL_ROOT_PATH, `${name}/model.onnx`))) {
+                if (existsSync(path.join(MODEL_ROOT_PATH, name))) {
                     return {
                         nameOrPath: name,
                         options: {
                             device: 'auto',
                             subfolder: '',
-                            model_file_name: 'model',
+                            // model_file_name: 'model',
                             cache_dir: MODEL_ROOT_PATH,
                             local_files_only: true,
                             session_options: OnnxSessionOptions,
-                            progress_callback: (info: any) => {
-                                logInfo(info);
+                            progress_callback: (info: ProgressInfo) => {
+                                if (info.status === 'ready') {
+                                    logInfo(info);
+                                }
                             },
                         },
                     };
@@ -73,8 +75,10 @@ export default class PipelineManager {
                             cache_dir: MODEL_ROOT_PATH,
                             local_files_only: false,
                             session_options: OnnxSessionOptions,
-                            progress_callback: (info: any) => {
-                                logInfo(info);
+                            progress_callback: (info: ProgressInfo) => {
+                                if (info.status === 'ready') {
+                                    logInfo(info);
+                                }
                             },
                         },
                     };
