@@ -100,17 +100,16 @@ class ConversationService extends BaseService {
             let botResponse = '';
             if (input && id) {
                 messageBuff.push(packingMessage({ role: 'user', content: input }));
-                // search similar results in Milvus and check if good match exists
-                const searchedResult = await searchEmbedding(input, id, 0.7);
-                if (searchedResult) {
-                    const { data, matched } = searchedResult;
-                    logInfo('matched: ', matched.length, 'data all: ', data.length);
-                    if (matched.length > 0) {
-                        botResponse = matched.shift() as string;
-                    }
+
+                // search similar results in Milvus
+                const similarMatches = await searchEmbedding(input, id, 0.6);
+                if (similarMatches) {
+                    const { data, matched } = similarMatches;
+                    // chat with contexts
+                    botResponse = await EnhancedChatbot.processQuery(input, matched.length ? matched : data);
                 } else {
-                    // use LLM to generate a response
-                    // botResponse = await EnhancedChatbot.processQuery(input, data);
+                    // chat with generator
+                    botResponse = await EnhancedChatbot.processQuery(input);
                 }
 
                 const msgOut = packingMessage({
@@ -131,7 +130,7 @@ class ConversationService extends BaseService {
         } catch (error) {
             logError('chat service: ', error);
         } finally {
-            // this.syncMessage(id, messageBuff);
+            this.syncMessage(id, messageBuff);
         }
         return { code: -1, data: null, message: 'chat response failed' };
     }

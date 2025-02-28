@@ -16,14 +16,20 @@ env.localModelPath = MODEL_ROOT_PATH;
 
 export const VALID_TASK_ALIASES = Object.freeze({
     tts: 'text-to-speech',
-    qa: 'question-answering',
-    summarizer: 'summarization',
-    extractor: 'feature-extraction',
     translator: 'translation',
-    textGenerator: 'text-generation',
-    t2tGenerator: 'text2text-generation',
     asr: 'automatic-speech-recognition',
-    dqa: 'document-question-answering', // only for image input
+    // input: question and context. output: answers
+    qa: 'question-answering',
+    // input: text output: [{ summary_text }]
+    summarizer: 'summarization',
+    // input: text, option: { pooling: 'mean', normalize: true }. output: Tensor{}
+    extractor: 'feature-extraction',
+    // input: text, output: [{ generated_text }]
+    textGenerator: 'text-generation',
+    // input: text, output: [{ generated_text }]
+    t2tGenerator: 'text2text-generation',
+    // only for image input: image and question. output: answer
+    dqa: 'document-question-answering',
 });
 
 export type TaskLine = {

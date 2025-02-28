@@ -1,45 +1,51 @@
 import { LRUCache } from 'lru-cache';
 
-import PipelineManager from './langchain/pipeline';
+import { generateText, generateWithContext } from '@/utils/langchain/generator';
+
 import { logError, logInfo, logWarn } from './logger';
 
 export default class EnhancedChatbot {
     private static initialized: boolean = false;
 
     private static respCache: LRUCache<string, any>;
-    private static taskLine: any;
 
     private static async initialize(): Promise<void> {
-        if (!this.initialized) {
-            const taskLine = await PipelineManager.getTaskLine('t2tGenerator');
-            if (taskLine) {
-                this.taskLine = taskLine;
-                this.respCache = new LRUCache({ max: 512, ttl: 1000 * 60 * 5 });
+        try {
+            if (!this.initialized) {
+                this.respCache = new LRUCache({ max: 256, ttl: 1000 * 60 * 5 });
                 this.initialized = true;
                 logInfo('EnhancedChatbot has been initialized');
             }
+        } catch (error) {
+            logWarn(error);
         }
     }
 
-    private static async generateResponse(question: string, context: string): Promise<string> {
-        if (!this.initialized || !this.taskLine) {
+    private static async generateResponse(question: string, context?: string): Promise<string> {
+        if (!this.initialized) {
             throw new Error('LLM not initialized');
         }
         try {
-            const prompt = `Context: ${context}\n\nQuestion: ${question}\n\nAnswer:`;
-
-            const response = await this.taskLine(prompt, question);
-            if (response) {
-                logInfo('LLM Response:\n', response);
-                return response;
+            if (context && context.length) {
+                const resps = await generateWithContext(question, context);
+                if (Array.isArray(resps)) {
+                    return resps.map(data => data.answer).join('');
+                }
+                return resps?.answer as string;
             }
+
+            const resps = await generateText(question);
+            if (Array.isArray(resps)) {
+                return resps.map(data => data.generated_text).join('');
+            }
+            return resps as string;
         } catch (error) {
             logError(error);
         }
         return '';
     }
 
-    public static async processQuery(question: string, contexts: string[]): Promise<string> {
+    public static async processQuery(question: string, contexts?: string[]): Promise<string> {
         try {
             await this.initialize();
 
@@ -48,9 +54,7 @@ export default class EnhancedChatbot {
                 return cachedResponse as string;
             }
 
-            const context = contexts.join('\n').slice(0, 4096);
-
-            const botResponse = await this.generateResponse(question, context);
+            const botResponse = await this.generateResponse(question, contexts?.join('\n'));
             if (botResponse) {
                 this.respCache.set(question, botResponse);
             }

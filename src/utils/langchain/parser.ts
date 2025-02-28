@@ -12,7 +12,7 @@ import { Prompt } from '@/constants/prompt';
 import { DocumentLang, DocumentType } from '@/models/Document';
 import { logError } from '@/utils/logger';
 
-import { generateText, generateSummarization } from './generator';
+import { generateWithContext, generateSummarization } from './generator';
 import { getDocumentLoader } from './loader';
 
 export type DocumentMeta = {
@@ -121,10 +121,12 @@ export async function parseFileContent(filepath: string, extName: string): Promi
         const textContent = await getPureTextContent(filepath, extName);
         if (textContent) {
             // Get title description and keywords from LLMs
-            const [titles, description] = await Promise.all([generateText(Prompt.templates.title, textContent, { topK: 5 }), generateSummarization(textContent, { maxTokens: 100 })]);
-            const keywords = await generateText(Prompt.templates.keywords, description, { topK: 5 });
+            const [titles, description] = await Promise.all([generateWithContext(Prompt.templates.title, textContent, { topK: 5 }), generateSummarization(textContent, { maxTokens: 100 })]);
+            const keywords = await generateWithContext(Prompt.templates.keywords, description, { topK: 5 });
 
+            // @ts-ignore
             parsed.meta.title = (titles?.sort((a: any, b: any) => b.score - a.score).shift() as any)?.answer;
+            // @ts-ignore
             parsed.meta.keywords = keywords?.map((k: any) => k.answer);
             parsed.meta.description = description;
         }

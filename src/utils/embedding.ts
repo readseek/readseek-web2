@@ -109,9 +109,6 @@ export async function searchEmbedding(text: string, cid: string, similarityThres
                             if (c.score > similarityThreshold) {
                                 p.matched.push(c.text);
                             }
-                            if (c.score > 0.5) {
-                                logInfo('score: ', c.score, 'text: ', c.text);
-                            }
                         }
                         return p;
                     },

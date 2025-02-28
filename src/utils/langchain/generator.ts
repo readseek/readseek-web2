@@ -1,3 +1,5 @@
+import type { TextGenerationPipeline, QuestionAnsweringPipeline, SummarizationPipeline, DocumentQuestionAnsweringPipeline } from '@huggingface/transformers';
+
 import { logError } from '@/utils/logger';
 
 import PipelineManager from './pipeline';
@@ -15,12 +17,14 @@ export type GeneratorOptions = {
 
 export async function generateSummarization(text: string, options?: GeneratorOptions): Promise<string> {
     try {
-        const task = await PipelineManager.getTaskLine('summarizer');
+        const task = (await PipelineManager.getTaskLine('summarizer')) as SummarizationPipeline;
         const results = await task(text, {
             max_time: options?.maxTime ?? 120,
             max_length: options?.maxLength ?? 20,
             output_scores: options?.outputScores ?? true,
+            // @ts-ignore
             min_new_tokens: options?.minTokens ?? null,
+            // @ts-ignore
             max_new_tokens: options?.maxTokens ?? null,
             remove_invalid_values: options?.removeInvalidValues ?? true,
         });
@@ -34,10 +38,9 @@ export async function generateSummarization(text: string, options?: GeneratorOpt
     return '';
 }
 
-export async function generateText(question: string | string[], context: string | string[], options?: GeneratorOptions): Promise<string[]> {
+export async function generateWithContext(question: string | string[], context: string | string[], options?: GeneratorOptions) {
     try {
-        // QuestionAnsweringPipeline
-        const task = await PipelineManager.getTaskLine('qa');
+        const task = (await PipelineManager.getTaskLine('qa')) as QuestionAnsweringPipeline;
         const results = await task(question, context, {
             top_k: options?.topK ?? 1,
         });
@@ -48,15 +51,37 @@ export async function generateText(question: string | string[], context: string 
     return [];
 }
 
-export async function generateTextFromImage(img: string | URL, question: string | string[], options?: GeneratorOptions): Promise<string[]> {
+export async function generateText(question: string, options?: GeneratorOptions) {
     try {
-        // DocumentQuestionAnsweringPipeline
-        const task = await PipelineManager.getTaskLine('dqa');
+        const task = (await PipelineManager.getTaskLine('textGenerator')) as TextGenerationPipeline;
+        const results = await task(question, {
+            return_full_text: true,
+            max_time: options?.maxTime ?? 120,
+            max_length: options?.maxLength ?? 20,
+            output_scores: options?.outputScores ?? true,
+            // @ts-ignore
+            min_new_tokens: options?.minTokens ?? null,
+            // @ts-ignore
+            max_new_tokens: options?.maxTokens ?? null,
+            remove_invalid_values: options?.removeInvalidValues ?? true,
+        });
+        return results;
+    } catch (error) {
+        logError(error);
+    }
+    return [];
+}
+
+export async function generateTextFromImage(img: string | URL, question: string, options?: GeneratorOptions) {
+    try {
+        const task = (await PipelineManager.getTaskLine('dqa')) as DocumentQuestionAnsweringPipeline;
         const results = await task(img, question, {
             max_time: options?.maxTime ?? 120,
             max_length: options?.maxLength ?? 20,
             output_scores: options?.outputScores ?? true,
+            // @ts-ignore
             min_new_tokens: options?.minTokens ?? null,
+            // @ts-ignore
             max_new_tokens: options?.maxTokens ?? null,
             remove_invalid_values: options?.removeInvalidValues ?? true,
         });
