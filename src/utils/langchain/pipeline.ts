@@ -39,7 +39,7 @@ type AutoSelectType = {
 };
 
 export default class PipelineManager {
-    static #pipelineCache: LRUCache<string, any> = new LRUCache({ max: 5, ttl: 1000 * 60 * 15 });
+    static #pipelineCache: LRUCache<string, any> = new LRUCache({ max: 3, ttl: 1000 * 60 * 15 });
 
     private static autoSelectModel(task: string): AutoSelectType {
         // find all valid model name
