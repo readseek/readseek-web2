@@ -30,14 +30,14 @@ export const tableColumns: ColumnDef<Document>[] = [
         header: '关键词',
         enableSorting: false,
         enableHiding: true,
-        cell: ({ row }) => <div className="w-64 text-balance">{(row.getValue('keywords') as string[])?.join('|')}</div>,
+        cell: ({ row }) => <div className="w-64 text-balance">{(row.getValue('keywords') as string[])?.join(', ')}</div>,
     },
     {
         accessorKey: 'authors',
         header: '原作者',
         enableSorting: false,
         enableHiding: true,
-        cell: ({ row }) => <div className="w-28 text-balance">{(row.getValue('authors') as string[])?.join('|')}</div>,
+        cell: ({ row }) => <div className="w-28 text-balance">{(row.getValue('authors') as string[])?.join(', ')}</div>,
     },
     {
         accessorKey: 'state',
