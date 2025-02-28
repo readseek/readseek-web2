@@ -15,15 +15,15 @@ env.allowLocalModels = true;
 env.localModelPath = MODEL_ROOT_PATH;
 
 export const VALID_TASK_ALIASES = Object.freeze({
-    extractor: 'feature-extraction',
-    summarizer: 'summarization',
-    asr: 'automatic-speech-recognition',
     tts: 'text-to-speech',
     qa: 'question-answering',
-    dqa: 'document-question-answering',
+    summarizer: 'summarization',
+    extractor: 'feature-extraction',
     translator: 'translation',
     textGenerator: 'text-generation',
     t2tGenerator: 'text2text-generation',
+    asr: 'automatic-speech-recognition',
+    dqa: 'document-question-answering', // only for image input
 });
 
 export type TaskLine = {

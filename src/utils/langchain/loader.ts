@@ -15,7 +15,7 @@ import { Agent } from 'undici';
 
 import { DocumentType } from '@/models/Document';
 
-import { logInfo } from '../logger';
+import { logInfo, logError } from '../logger';
 
 /**
  * 以下hack解决：
@@ -96,9 +96,9 @@ export function getOptimizedUnstructuredLoader(filePath: string, extName: string
 export function getDocumentLoader(filePath: string, extName: string): DocumentLoader {
     let loader;
     switch (extName) {
+        case DocumentType.MARKDOWN:
         case DocumentType.TXT:
         case DocumentType.HTML:
-        case DocumentType.MARKDOWN:
             loader = new TextLoader(filePath);
             break;
         case DocumentType.PDF:

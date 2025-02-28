@@ -16,8 +16,6 @@ export const OnnxModel = {
 
     't5-small': 'translation',
 
-    't5-summary-enruzh-base-2048': 'summarization',
-
     'whisper-tiny.en': 'automatic-speech-recognition',
 };
 
@@ -36,9 +34,6 @@ export const OnnxSessionOptions = {
 export const HuggingFacePath = (name: keyof typeof OnnxModel): string => {
     if (name === 'all-MiniLM-L6-v2') {
         return 'sentence-transformers/all-MiniLM-L6-v2';
-    }
-    if (name === 't5-summary-enruzh-base-2048') {
-        return 'utrobinmv/t5_summary_en_ru_zh_base_2048';
     }
     if (name === 'bloomz-560m') {
         return 'bigscience/bloomz-560m';

@@ -1,8 +1,12 @@
 import type { NextRequest } from 'next/server';
 
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+
+import { Prompt } from '@/constants/prompt';
 import { isDevModel } from '@/utils/common';
 import { LogAPIRoute, CheckLogin } from '@/utils/http/decorators';
-import PipelineManager from '@/utils/langchain/pipeline';
+import { generateText, generateSummarization } from '@/utils/langchain/generator';
 import { logError } from '@/utils/logger';
 
 import BaseService from './_base';
@@ -24,19 +28,26 @@ class SystemService extends BaseService {
             return this.renderError('Bad request');
         }
 
-        const { data } = await req.json();
-        if (!data) {
-            return this.renderError('Bad input json');
-        }
+        // const { data } = await req.json();
+        // if (!data) {
+        //     return this.renderError('Bad input json');
+        // }
 
+        const data = readFileSync(path.join('/Users/tangkunyin/Downloads/TestFiles', 'Milvus.md'), 'utf8');
         try {
-            const summarizer = await PipelineManager.getTaskLine('dqa');
-            const results = await summarizer(data, {
-                max_new_tokens: 200,
-            });
-            const response: string = results?.map((item: any) => item.summary_text).join('');
-
-            return { code: 0, data: response, message: 'ok' };
+            const description = await generateSummarization(data, { maxTokens: 100 });
+            const title = await generateText(Prompt.templates.title, data, { topK: 5 });
+            const keywords = await generateText(Prompt.templates.keywords, description, { topK: 5 });
+            return {
+                code: 0,
+                data: {
+                    description,
+                    length: description?.length || 0,
+                    title,
+                    keywords,
+                },
+                message: 'ok',
+            };
         } catch (error) {
             logError(error);
         }

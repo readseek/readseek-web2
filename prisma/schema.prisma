@@ -55,12 +55,6 @@ model Tag {
 model Document {
   /// file content sha256, that's make sure no same file
   id          String        @id @db.VarChar(64)
-  title       String        @db.VarChar(128)
-  description String        @db.VarChar(255)
-  keywords    String[]      @db.VarChar(128)
-  /// original authors
-  authors     String[]      @db.VarChar(128)
-  
   /// one-to-one: a doc to a category
   categoryId  Int           @db.SmallInt
   category    Category      @relation(fields: [categoryId], references: [id])
@@ -72,8 +66,15 @@ model Document {
   /// one-to-one: a doc to a user
   userId      Int
   user        User          @relation(fields: [userId], references: [id])
+
+  title       String        @db.Text()
+  keywords    String[]      @db.Text()
+  description String        @db.Text()
+  coverUrl    String?       @db.Text()
+  /// original authors
+  authors     String[]      @db.VarChar(128)
+
   visible     Boolean       @default(true)
-  coverUrl    String?       @db.VarChar(255)
   viewCount   Int           @default(0)
   state       DocumentState @default(PENDING)
   createdAt   DateTime      @default(now()) @db.Timestamptz(6)
@@ -88,7 +89,7 @@ model User {
   age       Int        @db.SmallInt
   /// unique public userId for the system
   email     String     @unique @db.VarChar(128)
-  avatar    String?    @db.VarChar(255)
+  avatar    String?    @db.VarChar(300)
   /// description for user
   bio       String?    @db.VarChar(255)
   /// documents that a user posted
