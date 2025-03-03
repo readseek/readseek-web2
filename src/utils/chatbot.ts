@@ -27,16 +27,16 @@ export default class EnhancedChatbot {
         }
         try {
             if (context && context.length) {
-                const resps = await generateWithContext(question, context);
-                if (Array.isArray(resps)) {
-                    return resps.map(data => data.answer).join('');
+                const resps: any = await generateWithContext(question, context);
+                if (resps && resps?.length) {
+                    return resps.map(data => data?.answer).join('');
                 }
                 return resps?.answer as string;
             }
 
-            const resps = await generateText(question);
-            if (Array.isArray(resps)) {
-                return resps.map(data => data.generated_text).join('');
+            const resps: any = await generateText(question);
+            if (resps && resps?.length) {
+                return resps.map(data => data?.generated_text).join('');
             }
             return resps as string;
         } catch (error) {

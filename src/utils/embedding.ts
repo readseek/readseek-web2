@@ -92,7 +92,7 @@ export async function deleteEmbedding(cid: string) {
     return MilvusDB.deleteCollection(collectionNameWithId(cid));
 }
 
-export async function searchEmbedding(text: string, cid: string, similarityThreshold: number): Promise<{ data: string[]; matched: string[] } | null> {
+export async function searchEmbedding(text: string, cid: string, similarityThreshold: number): Promise<string[] | null> {
     const result = await createEmbedding(text);
     if (result && Array.isArray(result.textEmbeddings)) {
         try {
@@ -102,18 +102,12 @@ export async function searchEmbedding(text: string, cid: string, similarityThres
                 outPuts: ['text'],
             });
             if (rets.status.code === 0) {
-                return rets.results.reduce(
-                    (p, c: SearchResultData) => {
-                        if (c.text) {
-                            p.data.push(c.text);
-                            if (c.score > similarityThreshold) {
-                                p.matched.push(c.text);
-                            }
-                        }
-                        return p;
-                    },
-                    { data: [] as string[], matched: [] as string[] },
-                );
+                return rets.results.reduce((p, c: SearchResultData) => {
+                    if (c.text?.trim() && c?.score >= similarityThreshold) {
+                        p.push(c.text);
+                    }
+                    return p;
+                }, [] as string[]);
             }
             logWarn('searchEmbedding failed: ', rets.status);
         } catch (error) {
