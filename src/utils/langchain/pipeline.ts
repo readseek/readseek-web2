@@ -55,12 +55,13 @@ export default class PipelineManager {
                 const name = models[i];
                 // check all of local models
                 if (existsSync(path.join(MODEL_ROOT_PATH, name))) {
+                    const useExternal = existsSync(path.join(MODEL_ROOT_PATH, `${name}/model.onnx_data`));
                     return {
                         nameOrPath: name,
                         options: {
                             device: 'auto',
                             subfolder: '',
-                            // model_file_name: 'model',
+                            use_external_data_format: useExternal,
                             cache_dir: MODEL_ROOT_PATH,
                             local_files_only: true,
                             session_options: OnnxSessionOptions,
