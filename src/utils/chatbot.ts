@@ -27,14 +27,19 @@ export default class EnhancedChatbot {
         }
         try {
             if (context && context.length) {
-                const resps: any = await generateWithContext(question, context);
+                const resps: any = await generateWithContext(question, context, {
+                    topK: 5,
+                });
                 if (resps && resps?.length) {
-                    return resps.map(data => data?.answer).join('');
+                    // choose the highest score one
+                    return (resps?.sort((a: any, b: any) => b.score - a.score).shift() as any)?.answer;
                 }
                 return resps?.answer as string;
             }
 
-            const resps: any = await generateText(question);
+            const resps: any = await generateText(question, {
+                maxTokens: 100,
+            });
             if (resps && resps?.length) {
                 return resps.map(data => data?.generated_text).join('');
             }

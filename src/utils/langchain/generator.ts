@@ -55,10 +55,12 @@ export async function generateText(question: string, options?: GeneratorOptions)
     try {
         const task = (await PipelineManager.getTaskLine('textGenerator')) as TextGenerationPipeline;
         const results = await task(question, {
-            return_full_text: true,
+            use_cache: true,
+            do_sample: true,
+            return_full_text: false,
+            add_special_tokens: true,
             max_time: options?.maxTime ?? 120,
             max_length: options?.maxLength ?? 20,
-            output_scores: options?.outputScores ?? true,
             // @ts-ignore
             min_new_tokens: options?.minTokens ?? null,
             // @ts-ignore

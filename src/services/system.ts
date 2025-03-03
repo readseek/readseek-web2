@@ -35,16 +35,20 @@ class SystemService extends BaseService {
 
         const data = readFileSync(path.join('/Users/tangkunyin/Downloads/TestFiles', 'Milvus.md'), 'utf8');
         try {
-            const description = await generateSummarization(data, { maxTokens: 100 });
-            const title = await generateWithContext(Prompt.templates.title, data, { topK: 5 });
-            const keywords = await generateWithContext(Prompt.templates.keywords, description, { topK: 5 });
+            // const description = await generateSummarization(data, { maxTokens: 100 });
+            // const title = await generateWithContext(Prompt.templates.title, data, { topK: 5 });
+            // const keywords = await generateWithContext(Prompt.templates.keywords, description, { topK: 5 });
+            const text = await generateText('How can I get rich?', {
+                maxTokens: 100,
+            });
             return {
                 code: 0,
                 data: {
-                    description,
-                    length: description?.length || 0,
-                    title,
-                    keywords,
+                    // description,
+                    // length: description?.length || 0,
+                    // title,
+                    // keywords,
+                    text,
                 },
                 message: 'ok',
             };

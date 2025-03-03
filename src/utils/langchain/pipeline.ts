@@ -47,6 +47,20 @@ type AutoSelectType = {
 export default class PipelineManager {
     static #pipelineCache: LRUCache<string, any> = new LRUCache({ max: 3, ttl: 1000 * 60 * 15 });
 
+    private static subfolder(modelName: string): string {
+        if (existsSync(path.join(MODEL_ROOT_PATH, `${modelName}/onnx/model.onnx`))) {
+            return 'onnx';
+        }
+        return '';
+    }
+
+    private static useExternal(modelName: string, subfolder: string): boolean {
+        if (subfolder !== '') {
+            return existsSync(path.join(MODEL_ROOT_PATH, `${modelName}/${subfolder}/model.onnx_data`));
+        }
+        return existsSync(path.join(MODEL_ROOT_PATH, `${modelName}/model.onnx_data`));
+    }
+
     private static autoSelectModel(task: string): AutoSelectType {
         // find all valid model name
         const models = Object.keys(OnnxModel).filter(key => OnnxModel[key] === task);
@@ -55,13 +69,13 @@ export default class PipelineManager {
                 const name = models[i];
                 // check all of local models
                 if (existsSync(path.join(MODEL_ROOT_PATH, name))) {
-                    const useExternal = existsSync(path.join(MODEL_ROOT_PATH, `${name}/model.onnx_data`));
+                    const subfolder = this.subfolder(name);
                     return {
                         nameOrPath: name,
                         options: {
+                            subfolder,
                             device: 'auto',
-                            subfolder: '',
-                            use_external_data_format: useExternal,
+                            use_external_data_format: this.useExternal(name, subfolder),
                             cache_dir: MODEL_ROOT_PATH,
                             local_files_only: true,
                             session_options: OnnxSessionOptions,
