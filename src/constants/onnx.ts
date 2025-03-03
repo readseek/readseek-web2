@@ -4,7 +4,7 @@
 export const OnnxModel = {
     'all-MiniLM-L6-v2': 'feature-extraction',
 
-    'bloomz-560m': 'text-generation',
+    gpt2: 'text-generation',
 
     'distilbart-cnn-6-6': 'summarization',
 
@@ -35,8 +35,8 @@ export const HuggingFacePath = (name: keyof typeof OnnxModel): string => {
     if (name === 'all-MiniLM-L6-v2') {
         return 'sentence-transformers/all-MiniLM-L6-v2';
     }
-    if (name === 'bloomz-560m') {
-        return 'bigscience/bloomz-560m';
+    if (name === 'gpt2') {
+        return 'Xenova/distilgpt2';
     }
     if (name === 'distilbart-cnn-6-6') {
         return 'Xenova/distilbart-cnn-6-6';
