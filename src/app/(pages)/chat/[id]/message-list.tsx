@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 import { LocalImage } from '@/components/ImageView';
+import { MarkdownContent } from '@/components/MarkdownContent';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Message } from '@/models/Conversation';
 
@@ -30,13 +31,15 @@ export function MessageList({ data, onFeedback }: MsgListProps) {
     }
 
     return (
-        <div className="no-scrollbar my-5 w-[70%] overflow-y-scroll">
+        <div className="scrollbar-light my-5 w-[70%] overflow-y-scroll px-2">
             {data.map((m: Message, i: number) => {
                 if (m.role === 'user') {
                     return (
                         <div key={`in_${m.id}#${i}`} className="mb-3 flex w-full flex-row items-center justify-end">
-                            <div className="rounded-md bg-blue-50 px-2 pt-1 text-right">
-                                <div className="text-base text-black">{m.content}</div>
+                            <div className="rounded-md bg-blue-50 px-4 py-2 text-right">
+                                <div className="whitespace-pre-wrap break-words font-[system-ui] text-base text-black">
+                                    <MarkdownContent content={m.content} />
+                                </div>
                                 <div className="mt-2 text-xs font-light italic">{new Date(m.timestamp).toLocaleString()}</div>
                             </div>
                             <div className="flex flex-col items-center">
@@ -53,8 +56,10 @@ export function MessageList({ data, onFeedback }: MsgListProps) {
                         <div className="mr-4 aspect-square h-10 w-10">
                             <LocalImage file="conference_speaker" />
                         </div>
-                        <div className="w-full rounded-md bg-gray-100 px-2 pt-1 text-left">
-                            <div className="text-base text-black">{m.content}</div>
+                        <div className="w-full rounded-md bg-gray-100 px-4 py-2 text-left">
+                            <div className="whitespace-pre-wrap break-words font-[system-ui] text-base text-black">
+                                <MarkdownContent content={m.content} />
+                            </div>
                             <div className="mt-2 text-xs font-light italic">{new Date(m.timestamp).toLocaleString()}</div>
                         </div>
                     </div>
