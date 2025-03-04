@@ -14,7 +14,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useToast } from '@/components/ui/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { ToastAction } from '@/components/ui/toast';
-import { Conversation, Message, packingMessage } from '@/models/Conversation';
+import { Conversation, Message, NewMessage } from '@/models/Conversation';
 import { getData, postJson } from '@/utils/http/client';
 import { GET_URI, POST_URI } from '@/utils/http/index';
 import { logInfo, logWarn } from '@/utils/logger';
@@ -113,7 +113,7 @@ export default function ChatPage({ params }) {
             return ret?.data;
         },
         onMutate: (data: z.infer<typeof FormSchema>) => {
-            conversation?.messages.push(packingMessage({ role: 'user', content: data.input }));
+            conversation?.messages.push(NewMessage({ role: 'user', content: data.input }));
             setConversation(conversation);
         },
         onSuccess: (resp?: Message) => {

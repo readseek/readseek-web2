@@ -29,7 +29,7 @@ export interface Conversation {
     messages: Message[];
 }
 
-export function packingMessage(msg: Pick<Message, 'role' | 'content' | 'ma' | 'rags'>): Message {
+export function NewMessage(msg: Pick<Message, 'role' | 'content' | 'ma' | 'rags'>): Message {
     return {
         ...msg,
         id: msg.content && msg.content.trim().length ? Md5.hashStr(msg.content) : '响应失败，请稍后再试~',

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 
-import { Conversation, Message, MessageAttitude, packingMessage } from '@/models/Conversation';
+import { Conversation, Message, MessageAttitude, NewMessage } from '@/models/Conversation';
 import EnhancedChatbot from '@/utils/chatbot';
 import { getDocumentInfo } from '@/utils/database';
 import LevelDB from '@/utils/database/leveldb';
@@ -95,11 +95,11 @@ class ConversationService extends BaseService {
     @CheckLogin
     async chat(req: NextRequest): Promise<APIRet> {
         const { input, id } = await req.json();
-        const messageBuff: Message[] = [];
+        const msgBuff: Message[] = [];
         try {
             let botResponse = '';
             if (input && id) {
-                messageBuff.push(packingMessage({ role: 'user', content: input }));
+                msgBuff.push(NewMessage({ role: 'user', content: input }));
 
                 // search similar results in Milvus
                 const similarMatches = await searchEmbedding(input, id, 0.3);
@@ -111,14 +111,14 @@ class ConversationService extends BaseService {
                     botResponse = await EnhancedChatbot.processQuery(input);
                 }
 
-                const msgOut = packingMessage({
+                const msgOut = NewMessage({
                     role: 'bot',
                     content: botResponse,
                     ma: MessageAttitude.none,
                     rags: null,
                 });
 
-                messageBuff.push(msgOut);
+                msgBuff.push(msgOut);
 
                 return {
                     code: 0,
@@ -129,7 +129,7 @@ class ConversationService extends BaseService {
         } catch (error) {
             logError('chat service: ', error);
         } finally {
-            this.syncMessage(id, messageBuff);
+            this.syncMessage(id, msgBuff);
         }
         return { code: -1, data: null, message: 'chat response failed' };
     }
