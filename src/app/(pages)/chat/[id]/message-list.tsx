@@ -33,14 +33,14 @@ export function MessageList({ data, onFeedback }: MsgListProps) {
     return (
         <div className="scrollbar-light my-5 w-[70%] overflow-y-scroll px-2">
             {data.map((m: Message, i: number) => {
-                if (m.role === 'user') {
+                if (m.role === 'human') {
                     return (
                         <div key={`in_${m.id}#${i}`} className="mb-3 flex w-full flex-row items-center justify-end">
                             <div className="rounded-md bg-blue-50 px-4 py-2 text-right">
                                 <div className="whitespace-pre-wrap break-words font-[system-ui] text-base text-black">
                                     <MarkdownContent content={m.content} />
                                 </div>
-                                <div className="mt-2 text-xs font-light italic">{new Date(m.timestamp).toLocaleString()}</div>
+                                <div className="mt-2 text-xs font-light italic">{new Date(Number(m.timestamp)).toLocaleString()}</div>
                             </div>
                             <div className="flex flex-col items-center">
                                 <Avatar className="ml-4">
@@ -60,7 +60,7 @@ export function MessageList({ data, onFeedback }: MsgListProps) {
                             <div className="whitespace-pre-wrap break-words font-[system-ui] text-base text-black">
                                 <MarkdownContent content={m.content} />
                             </div>
-                            <div className="mt-2 text-xs font-light italic">{new Date(m.timestamp).toLocaleString()}</div>
+                            <div className="mt-2 text-xs font-light italic">{new Date(Number(m.timestamp)).toLocaleString()}</div>
                         </div>
                     </div>
                 );

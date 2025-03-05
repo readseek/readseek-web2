@@ -87,18 +87,18 @@ async function seedMetaData() {
     console.timeEnd('seedingMetaData costs:');
 }
 
-async function seedData() {
-    console.time('seedingData costs:');
-    const tableName = AnyModel.model.toLowerCase();
-    const ret: any = await prisma.document.create({
-        data: AnyModel.data,
-    });
-    // const ret: any = await prisma.document.upsert({
-    //     data: AnyModel.data,
-    // });
-    console.log(`Created ${tableName} with id: ${ret.id}`, ret);
-    console.timeEnd('seedingData costs:');
-}
+// async function seedData() {
+//     console.time('seedingData costs:');
+//     const tableName = AnyModel.model.toLowerCase();
+//     const ret: any = await prisma.document.create({
+//         data: AnyModel.data,
+//     });
+//     // const ret: any = await prisma.document.upsert({
+//     //     data: AnyModel.data,
+//     // });
+//     console.log(`Created ${tableName} with id: ${ret.id}`, ret);
+//     console.timeEnd('seedingData costs:');
+// }
 
 async function queryAll() {
     const ret: any = await prisma.tag.findMany({
@@ -173,13 +173,13 @@ async function queryOneData(id: string) {
 
 (async () => {
     try {
-        // await seedMetaData();
+        await seedMetaData();
 
         // await seedData();
         // await queryAll();
         // await deleteData('116897deb02eb7808caec6919da913824d933dc548763443be5653cdbe7a46c4');
 
-        await queryOneData('ec20069fa25bd07537eae8559fde792dff9d944288bc3c2ecbc8785ea98bc5c8');
+        // await queryOneData('ec20069fa25bd07537eae8559fde792dff9d944288bc3c2ecbc8785ea98bc5c8');
     } catch (error) {
         console.error(error);
     } finally {

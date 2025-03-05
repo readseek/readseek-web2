@@ -14,10 +14,10 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useToast } from '@/components/ui/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { ToastAction } from '@/components/ui/toast';
-import { Conversation, Message, NewMessage } from '@/models/Conversation';
+import { Conversation, Message, createMessageEntity } from '@/models/Conversation';
 import { getData, postJson } from '@/utils/http/client';
 import { GET_URI, POST_URI } from '@/utils/http/index';
-import { logInfo, logWarn } from '@/utils/logger';
+import { logWarn } from '@/utils/logger';
 
 import { ContentError, ContentPending } from './chat-tip';
 import { MessageList } from './message-list';
@@ -55,25 +55,11 @@ export default function ChatPage({ params }) {
         }, 100);
     };
 
-    useQuery({
-        queryKey: [GET_URI.convHistory, params.id],
+    const { isError, isPending } = useQuery({
+        queryKey: [GET_URI.convInit, params.id],
         placeholderData: keepPreviousData,
         queryFn: async () => {
-            const ret = await getData(GET_URI.convHistory, { id: params.id });
-            logInfo('conversation history: ', ret?.data || ret);
-            if (!ret || ret?.code) {
-                logWarn('历史数据加载失败:', ret?.message);
-                return [];
-            }
-            setConversation(ret?.data);
-            return ret?.data;
-        },
-    });
-
-    const { isError, isPending } = useQuery({
-        queryKey: [POST_URI.convInit, params.id],
-        queryFn: async () => {
-            const ret = await postJson(POST_URI.convInit, { id: params.id });
+            const ret = await getData(GET_URI.convInit, { cid: params.id });
             if (!ret || ret?.code) {
                 toast({
                     variant: 'destructive',
@@ -92,7 +78,15 @@ export default function ChatPage({ params }) {
                 });
                 return null;
             }
-            setDocument(ret?.data);
+
+            if (ret && ret?.data?.conv) {
+                setConversation(ret?.data?.conv);
+            }
+
+            if (ret && ret?.data?.doc) {
+                setDocument(ret?.data?.doc);
+            }
+
             return ret?.data;
         },
     });
@@ -100,7 +94,7 @@ export default function ChatPage({ params }) {
     const chattingMutation = useMutation({
         mutationKey: [POST_URI.convChat, params.id],
         mutationFn: async (data: z.infer<typeof FormSchema>) => {
-            const ret = await postJson(POST_URI.convChat, { input: data.input, id: params.id });
+            const ret = await postJson(POST_URI.convChat, { input: data.input, cid: params.id, chatId: conversation?.id });
             if (!ret || ret?.code) {
                 toast({
                     variant: 'destructive',
@@ -113,7 +107,7 @@ export default function ChatPage({ params }) {
             return ret?.data;
         },
         onMutate: (data: z.infer<typeof FormSchema>) => {
-            conversation?.messages.push(NewMessage({ role: 'user', content: data.input }));
+            conversation?.messages.push(createMessageEntity({ role: 'human', content: data.input }));
             setConversation(conversation);
         },
         onSuccess: (resp?: Message) => {
@@ -124,7 +118,7 @@ export default function ChatPage({ params }) {
             }
         },
         onError: (e: any) => {
-            logWarn('error on file search: ', e);
+            logWarn('error on chatting: ', e);
             toast({
                 title: '啊噢，失败了',
                 description: '操作失败，请稍后再试试~',

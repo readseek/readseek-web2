@@ -42,8 +42,8 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         case GET_URI.___users:
             ret = await SystemService.sysUsers(req);
             break;
-        case GET_URI.convHistory:
-            ret = await ConversationService.history(req);
+        case GET_URI.convInit:
+            ret = await ConversationService.init(req);
             break;
         case GET_URI.fileQuery:
             ret = await FileService.query(req);
@@ -77,9 +77,6 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     switch (action as POST_URI) {
         case POST_URI.__test:
             ret = await SystemService.test_post(req);
-            break;
-        case POST_URI.convInit:
-            ret = await ConversationService.init(req);
             break;
         case POST_URI.convChat:
             ret = await ConversationService.chat(req);

@@ -5,6 +5,7 @@ import path from 'node:path';
 
 import { Prompt } from '@/constants/prompt';
 import { isDevModel } from '@/utils/common';
+import { deleteConversations } from '@/utils/database';
 import { LogAPIRoute, CheckLogin } from '@/utils/http/decorators';
 import { generateText, generateWithContext, generateSummarization } from '@/utils/langchain/generator';
 import { logError } from '@/utils/logger';
@@ -28,10 +29,11 @@ class SystemService extends BaseService {
             return this.renderError('Bad request');
         }
 
-        // const { data } = await req.json();
-        // if (!data) {
-        //     return this.renderError('Bad input json');
-        // }
+        const { cid, uid } = await req.json();
+        if (cid && uid) {
+            const ret = await deleteConversations([{ cid, uid }]);
+            return { code: 0, data: ret, message: 'ok' };
+        }
 
         const data = readFileSync(path.join('/Users/tangkunyin/Downloads/TestFiles', 'Milvus.md'), 'utf8');
         try {

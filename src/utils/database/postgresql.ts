@@ -1,6 +1,7 @@
 'use server';
 
 import type { Category } from '@/models/Category';
+import type { Message, Conversation } from '@/models/Conversation';
 import type { Document } from '@/models/Document';
 import type { Tag } from '@/models/Tag';
 import type { User } from '@/models/User';
@@ -8,14 +9,16 @@ import type { User } from '@/models/User';
 import prisma from '@/utils/database/prisma';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
-// if (isDevModel()) {
-//     prisma.$on('query', e => {
-//         console.group(`DB Event: ${e.timestamp}`);
-//         console.log('🔍 Query: ' + e.query + ', ' + 'Params: ' + e.params);
-//         console.log('⌛️ Duration: ' + e.duration + 'ms');
-//         console.groupEnd();
-//     });
-// }
+import { isDevModel } from '../common';
+
+if (isDevModel()) {
+    prisma.$on('query', e => {
+        console.group(`DB Event: ${e.timestamp}`);
+        console.log('🔍 Query: ' + e.query + ', ' + 'Params: ' + e.params);
+        console.log('⌛️ Duration: ' + e.duration + 'ms');
+        console.groupEnd();
+    });
+}
 
 // https://www.prisma.io/docs/orm/reference/prisma-client-reference#model-queries
 export const enum PrismaDBMethod {
@@ -47,21 +50,23 @@ export type OPCondition = {
 
 // general parameters for CRUD
 export type OPParams = {
-    model: 'Category' | 'Tag' | 'Document' | 'User';
+    model: 'Category' | 'Tag' | 'Document' | 'User' | 'Message' | 'Conversation';
     method: PrismaDBMethod;
-    data?: (Document | Category | Tag | User)[];
+    data?: (Document | Category | Tag | User | Message | Conversation)[];
     condition?: OPCondition;
 };
 
 export type RecordData =
     | {
-          list: (Category | Tag | Document | User)[];
+          list: (Category | Tag | Document | User | Message | Conversation)[];
           total: number;
       }
     | Category
     | Tag
     | Document
     | User
+    | Message
+    | Conversation
     | null;
 
 const parseRealCondition = (data?: object): OPCondition => {
@@ -203,10 +208,9 @@ export async function remove(param: OPParams): Promise<boolean> {
 
     try {
         const cond: OPCondition = parseRealCondition(condition);
-
-        logInfo('remove condition: \n', cond);
-
         const ret = await prismaModel.deleteMany(cond);
+
+        logWarn(`delete option: ${model} \n`, ret);
         return ret?.count > 0;
     } catch (error) {
         logError('error on remove: ', error);

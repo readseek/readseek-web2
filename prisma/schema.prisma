@@ -54,31 +54,31 @@ model Tag {
 
 model Document {
   /// file content sha256, that's make sure no same file
-  id          String        @id @db.VarChar(64)
+  id         String       @id @db.VarChar(64)
   /// one-to-one: a doc to a category
-  categoryId  Int           @db.SmallInt
-  category    Category      @relation(fields: [categoryId], references: [id])
+  categoryId Int          @db.SmallInt
+  category   Category     @relation(fields: [categoryId], references: [id])
   /// one-to-many: a doc to several tags
-  tags        Tag[]
+  tags       Tag[]
   /// file type
-  type        DocumentType
-  lang        DocumentLang  @default(ENG)
+  type       DocumentType
+  lang       DocumentLang @default(ENG)
   /// one-to-one: a doc to a user
-  userId      Int
-  user        User          @relation(fields: [userId], references: [id])
+  userId     Int
+  user       User         @relation(fields: [userId], references: [id])
 
-  title       String        @db.Text()
-  keywords    String[]      @db.Text()
-  description String        @db.Text()
-  coverUrl    String?       @db.Text()
+  title       String      @db.Text()
+  keywords    String[]    @db.Text()
+  description String      @db.Text()
+  coverUrl    String?     @db.Text()
   /// original authors
-  authors     String[]      @db.VarChar(128)
+  authors     String[]    @db.VarChar(128)
 
-  visible     Boolean       @default(true)
-  viewCount   Int           @default(0)
-  state       DocumentState @default(PENDING)
-  createdAt   DateTime      @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime      @updatedAt @db.Timestamptz(6)
+  visible   Boolean       @default(true)
+  viewCount Int           @default(0)
+  state     DocumentState @default(PENDING)
+  createdAt DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime      @updatedAt @db.Timestamptz(6)
 }
 
 model User {
@@ -96,4 +96,39 @@ model User {
   posts     Document[]
   createdAt DateTime   @default(now()) @db.Timestamptz(6)
   updatedAt DateTime   @updatedAt @db.Timestamptz(6)
+}
+
+enum MessageRole {
+  bot
+  human
+}
+
+model Message {
+  id        String      @id @db.VarChar(64) // Using MD5 hash of content as ID
+  role      MessageRole
+  content   String      @db.Text()
+  timestamp String      @db.VarChar(32) // 13-digit timestamp
+  rags      String[]    @default([])
+  option    Json? // For storing flexible operation data (likes, shares, etc.)
+
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+}
+
+model Conversation {
+  id       String       @id @default(uuid())
+  cid      String       @unique // Content ID
+  uid      Int          // User ID
+  gid      Int          @default(-1) // Group ID, -1 for no group
+  name     String       @db.VarChar(255)
+  prompt   String       @default("")
+  createAt String       @db.VarChar(32)// 13-digit timestamp
+  updateAt String       @db.VarChar(32)// 13-digit timestamp
+
+  messages Message[]
+
+  @@index([uid])
+  @@index([cid])
 }

@@ -7,8 +7,7 @@ import { promisify } from 'node:util';
 
 import { UPLOAD_PATH } from '@/constants/config';
 import { DocumentType } from '@/models/Document';
-import { deleteFileStorage, getUserFiles, getUserInfo } from '@/utils/database';
-import LevelDB from '@/utils/database/leveldb';
+import { deleteConversations, deleteFileStorage, getUserFiles, getUserInfo } from '@/utils/database';
 import { LogAPIRoute, CheckLogin } from '@/utils/http/decorators';
 import { logError, logInfo } from '@/utils/logger';
 
@@ -81,9 +80,7 @@ class UserService extends BaseService {
         try {
             // clear conversation message list
             const uid = this.getSharedUid();
-            const messages = (await LevelDB.get(uid))?.filter(item => item.cid !== id);
-            const r1 = await LevelDB.put(uid, messages);
-            logInfo('message histories has been cleared');
+            const r1 = await deleteConversations([{ cid: id, uid }]);
 
             // clear embeddings and sql records
             const r2 = await deleteFileStorage(id);

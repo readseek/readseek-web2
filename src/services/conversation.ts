@@ -1,52 +1,42 @@
 import { NextRequest } from 'next/server';
 
-import { Conversation, Message, MessageAttitude, NewMessage } from '@/models/Conversation';
+import { Conversation, Message, createMessageEntity } from '@/models/Conversation';
 import EnhancedChatbot from '@/utils/chatbot';
-import { getDocumentInfo } from '@/utils/database';
-import LevelDB from '@/utils/database/leveldb';
+import { getDocumentInfo, syncMessage, getConversation, saveOrUpdateConversation } from '@/utils/database';
 import { searchEmbedding } from '@/utils/embedding';
 import { LogAPIRoute, CheckLogin } from '@/utils/http/decorators';
-import { logError, logInfo, logWarn } from '@/utils/logger';
+import { logError, logWarn } from '@/utils/logger';
 
 import BaseService from './_base';
 
 class ConversationService extends BaseService {
-    private async syncMessage(cid: string, message: Message[]): Promise<boolean> {
-        try {
-            const uid = this.getSharedUid();
-            const conHis: Conversation[] = await LevelDB.get(uid);
-            const conI = conHis?.findIndex(item => item.cid === cid);
-            if (conI !== -1) {
-                const conv = conHis[conI];
-                if (!conv.messages) {
-                    conv.messages = [];
-                }
-                conHis[conI] = {
-                    ...conv,
-                    updateAt: Date.now(),
-                    messages: conv.messages.concat(message),
-                };
-                const ret = await LevelDB.put(uid, conHis);
-                logInfo('syncMessage result:', ret, message.map(e => e.content).join(' => '));
-                return ret;
-            }
-        } catch (error) {
-            logError(error);
-        }
-        return false;
-    }
-
     @LogAPIRoute
     @CheckLogin
     async init(req: NextRequest): Promise<APIRet> {
         try {
-            const { id } = await req.json();
-            if (!id || id.trim().length !== 64) {
-                return this.renderError('parameter id is missing or incorrect');
+            const searchParams = req.nextUrl.searchParams;
+            const cid = searchParams.get('cid') as string;
+            if (!cid || cid.trim().length !== 64) {
+                return this.renderError('parameter is missing or incorrect');
             }
 
-            const doc = (await getDocumentInfo(id)) as Document;
-            return { code: 0, data: doc, message: 'ok' };
+            const uid = this.getSharedUid();
+            let [doc, conv] = await Promise.all([getDocumentInfo(cid), getConversation(cid, uid)]);
+            if (!conv) {
+                conv = {
+                    cid,
+                    uid,
+                    gid: -1,
+                    name: '',
+                    prompt: '',
+                    createAt: `${Date.now()}`,
+                    updateAt: `${Date.now()}`,
+                };
+                const ret = await saveOrUpdateConversation(conv as Conversation);
+                logWarn('no conversation history yet! Creating a new conversation...', ret);
+            }
+
+            return { code: 0, data: { doc, conv }, message: 'ok' };
         } catch (error) {
             logError('initChat: ', error);
         }
@@ -55,54 +45,16 @@ class ConversationService extends BaseService {
 
     @LogAPIRoute
     @CheckLogin
-    async history(req: NextRequest): Promise<APIRet> {
-        try {
-            const searchParams = req.nextUrl.searchParams;
-            const cid = searchParams.get('id') as string;
-            if (cid && cid.length === 64) {
-                const uid = this.getSharedUid();
-
-                let conv: any = null;
-                let conHis: Conversation[] = await LevelDB.get(uid);
-                if (!Array.isArray(conHis)) {
-                    logWarn('no conversation history yet! Creating a new conversation...');
-                    conHis = [];
-                    conv = {
-                        id: conHis.length + 1,
-                        name: '',
-                        cid,
-                        uid,
-                        gid: -1,
-                        createAt: Date.now(),
-                        updateAt: Date.now(),
-                        prompt: '',
-                        messages: [],
-                    };
-                    conHis.push(conv);
-                    await LevelDB.put(uid, conHis);
-                } else {
-                    conv = conHis.find(item => item.cid === cid);
-                }
-                return { code: 0, data: conv, message: 'ok' };
-            }
-        } catch (error) {
-            logError(error);
-        }
-        return this.renderError('Illegal url parameter');
-    }
-
-    @LogAPIRoute
-    @CheckLogin
     async chat(req: NextRequest): Promise<APIRet> {
-        const { input, id } = await req.json();
+        const { input, cid, chatId } = await req.json();
         const msgBuff: Message[] = [];
         try {
             let botResponse = '';
-            if (input && id) {
-                msgBuff.push(NewMessage({ role: 'user', content: input }));
+            if (input && cid) {
+                msgBuff.push(createMessageEntity({ role: 'human', content: input }));
 
                 // search similar results in Milvus
-                const similarMatches = await searchEmbedding(input, id, 0.3);
+                const similarMatches = await searchEmbedding(input, cid, 0.3);
                 if (similarMatches && similarMatches?.length) {
                     // chat with contexts
                     botResponse = await EnhancedChatbot.processQuery(input, similarMatches);
@@ -111,10 +63,9 @@ class ConversationService extends BaseService {
                     botResponse = await EnhancedChatbot.processQuery(input);
                 }
 
-                const msgOut = NewMessage({
+                const msgOut = createMessageEntity({
                     role: 'bot',
                     content: botResponse,
-                    ma: MessageAttitude.none,
                     rags: null,
                 });
 
@@ -129,7 +80,7 @@ class ConversationService extends BaseService {
         } catch (error) {
             logError('chat service: ', error);
         } finally {
-            this.syncMessage(id, msgBuff);
+            await syncMessage(msgBuff, chatId);
         }
         return { code: -1, data: null, message: 'chat response failed' };
     }

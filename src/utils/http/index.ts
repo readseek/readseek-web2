@@ -1,8 +1,7 @@
 import { isBrowserModel, isDevModel } from '@/utils/common';
 
 export const enum GET_URI {
-    // for conversation
-    convHistory = 'convHistory',
+    convInit = 'convInit',
     // for document file
     fileTags = 'fileTags',
     fileCategories = 'fileCategories',
@@ -19,7 +18,6 @@ export const enum GET_URI {
 }
 
 export const enum POST_URI {
-    convInit = 'convInit',
     convChat = 'convChat',
     fileUpload = 'fileUpload',
     fileDelete = 'fileDelete',

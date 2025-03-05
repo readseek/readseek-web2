@@ -1,10 +1,11 @@
 'use server';
 
+import type { Message, Conversation } from '@/models/Conversation';
 import type { Document } from '@/models/Document';
+import type { Tag } from '@/models/Tag';
 
 import path from 'node:path';
 
-import { Tag } from '@/models/Tag';
 import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove, OPParams } from '@/utils/database/postgresql';
 import { saveEmbedding, deleteEmbedding } from '@/utils/embedding';
 import { parseFileContent } from '@/utils/langchain/parser';
@@ -208,7 +209,7 @@ export async function saveOrUpdateDocument(data: SOUDocParam): Promise<{ state: 
                     ],
                 });
             }
-            return { state: Boolean(saveRet) };
+            return { state: !!saveRet };
         }
         return { state: false, message: 'Document parsing failed' };
     } catch (error) {
@@ -276,4 +277,105 @@ export async function getDocumentInfo(id: string): Promise<RecordData> {
             where: { id },
         },
     });
+}
+
+export async function saveOrUpdateConversation(conv: Conversation): Promise<boolean> {
+    try {
+        const result = await saveOrUpdate({
+            model: 'Conversation',
+            method: PrismaDBMethod.upsert,
+            data: [
+                {
+                    ...conv,
+                } as Conversation,
+            ],
+            condition: {
+                where: { cid: conv.cid, uid: conv.uid },
+                update: conv,
+            },
+        });
+        return !!result;
+    } catch (error) {
+        logError(error);
+    }
+    return false;
+}
+
+export async function getConversation(cid: string, uid: number): Promise<RecordData> {
+    try {
+        return await find({
+            model: 'Conversation',
+            method: PrismaDBMethod.findUnique,
+            condition: {
+                where: { cid, uid },
+                include: { messages: true },
+            },
+        });
+    } catch (error) {
+        logError(error);
+    }
+    return null;
+}
+
+export async function syncMessage(message: Message[], conversationId: string): Promise<boolean> {
+    try {
+        const result = await saveOrUpdate({
+            model: 'Message',
+            method: PrismaDBMethod.createManyAndReturn,
+            data: message.map(msg => ({ ...msg, conversationId })),
+        });
+        return !!result;
+    } catch (error) {
+        logError(error);
+    }
+    return false;
+}
+
+export async function deleteConversations(params: { cid: string; uid: number }[]): Promise<boolean> {
+    try {
+        const conversations = await Promise.all(
+            params.map(param =>
+                find({
+                    model: 'Conversation',
+                    method: PrismaDBMethod.findMany,
+                    condition: {
+                        select: { id: true },
+                        where: param,
+                    },
+                }),
+            ),
+        );
+        const conversationIds = conversations?.map((item: any) => item?.list?.map(item => item?.id)).flat();
+
+        if (conversationIds?.length) {
+            await remove({
+                model: 'Message',
+                method: PrismaDBMethod.deleteMany,
+                condition: {
+                    where: {
+                        conversationId: {
+                            in: conversationIds,
+                        },
+                    },
+                },
+            });
+
+            const result = await Promise.all(
+                params.map(param =>
+                    remove({
+                        model: 'Conversation',
+                        method: PrismaDBMethod.deleteMany,
+                        condition: {
+                            where: param,
+                        },
+                    }),
+                ),
+            );
+
+            return result.every(r => r);
+        }
+    } catch (error) {
+        logError(error);
+    }
+    return false;
 }
