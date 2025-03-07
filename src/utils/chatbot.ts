@@ -12,7 +12,7 @@ export default class EnhancedChatbot {
     private static async initialize(): Promise<void> {
         try {
             if (!this.initialized) {
-                this.respCache = new LRUCache({ max: 256, ttl: 1000 * 60 * 5 });
+                this.respCache = new LRUCache({ max: 100, ttl: 1000 * 60 * 3 });
                 this.initialized = true;
                 logInfo('EnhancedChatbot has been initialized');
             }

@@ -45,7 +45,7 @@ type AutoSelectType = {
 };
 
 export default class PipelineManager {
-    static #pipelineCache: LRUCache<string, any> = new LRUCache({ max: 3, ttl: 1000 * 60 * 15 });
+    static #pipelineCache: LRUCache<string, any> = new LRUCache({ max: 5, ttl: 1000 * 60 * 10 });
 
     private static subfolder(modelName: string): string {
         if (existsSync(path.join(MODEL_ROOT_PATH, `${modelName}/onnx/model.onnx`))) {
