@@ -2,6 +2,7 @@ import { isBrowserModel, isDevModel } from '@/utils/common';
 
 export const enum GET_URI {
     convInit = 'convInit',
+    convStart = 'convStart',
     // for document file
     fileTags = 'fileTags',
     fileCategories = 'fileCategories',

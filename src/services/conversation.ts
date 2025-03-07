@@ -15,28 +15,53 @@ class ConversationService extends BaseService {
     async init(req: NextRequest): Promise<APIRet> {
         try {
             const searchParams = req.nextUrl.searchParams;
+            const convId = searchParams.get('id') as string;
+            if (!convId) {
+                return this.renderError('parameter is missing or incorrect');
+            }
+
+            const conv = (await getConversation({ where: { id: convId }, include: { messages: true } })) as Conversation;
+            if (conv) {
+                const doc = await getDocumentInfo(conv?.cid);
+                if (!doc) {
+                    return this.renderError('document not found');
+                }
+                return { code: 0, data: { doc, conv }, message: 'ok' };
+            }
+        } catch (error) {
+            logError('initChat: ', error);
+        }
+        return { code: -1, data: null, message: 'chat start failed' };
+    }
+
+    @LogAPIRoute
+    @CheckLogin
+    async start(req: NextRequest): Promise<APIRet> {
+        try {
+            const searchParams = req.nextUrl.searchParams;
             const cid = searchParams.get('cid') as string;
             if (!cid || cid.trim().length !== 64) {
                 return this.renderError('parameter is missing or incorrect');
             }
 
             const uid = this.getSharedUid();
-            let [doc, conv] = await Promise.all([getDocumentInfo(cid), getConversation(cid, uid)]);
-            if (!conv) {
-                conv = {
-                    cid,
-                    uid,
-                    gid: -1,
-                    name: '',
-                    prompt: '',
-                    createAt: `${Date.now()}`,
-                    updateAt: `${Date.now()}`,
-                };
-                const ret = await saveOrUpdateConversation(conv as Conversation);
-                logWarn('no conversation history yet! Creating a new conversation...', ret);
+            const conv: any = await getConversation({ where: { cid, uid }, select: { id: true } });
+            if (conv) {
+                return { code: 0, data: conv, message: 'ok' };
             }
 
-            return { code: 0, data: { doc, conv }, message: 'ok' };
+            const newConv = await saveOrUpdateConversation({
+                cid,
+                uid,
+                gid: -1,
+                name: '',
+                prompt: '',
+                createAt: `${Date.now()}`,
+                updateAt: `${Date.now()}`,
+            } as Conversation);
+
+            logWarn('no conversation history yet! Create a new one: ', newConv);
+            return { code: 0, data: newConv, message: 'ok' };
         } catch (error) {
             logError('initChat: ', error);
         }
@@ -46,7 +71,7 @@ class ConversationService extends BaseService {
     @LogAPIRoute
     @CheckLogin
     async chat(req: NextRequest): Promise<APIRet> {
-        const { input, cid, chatId } = await req.json();
+        const { input, chatId, cid } = await req.json();
         const msgBuff: Message[] = [];
         try {
             let botResponse = '';

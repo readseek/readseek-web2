@@ -74,8 +74,16 @@ export default function FileListPage(props) {
         setPagination(pagination);
     }
 
-    function handleChatWith(id: string) {
-        router.push(`/chat/${id}`);
+    async function handleChatWith(cid: string) {
+        const ret = await getData(GET_URI.convStart, { cid });
+        if (!ret || ret?.code) {
+            toast({
+                title: '啊噢~',
+                description: '对话开启失败，请稍后再试试~',
+            });
+            return false;
+        }
+        router.push(`/chat/${ret?.data?.id}`);
     }
 
     if (isPending) {

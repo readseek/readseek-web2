@@ -45,6 +45,9 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         case GET_URI.convInit:
             ret = await ConversationService.init(req);
             break;
+        case GET_URI.convStart:
+            ret = await ConversationService.start(req);
+            break;
         case GET_URI.fileQuery:
             ret = await FileService.query(req);
             break;

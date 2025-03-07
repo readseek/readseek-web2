@@ -6,7 +6,7 @@ import type { Tag } from '@/models/Tag';
 
 import path from 'node:path';
 
-import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove, OPParams } from '@/utils/database/postgresql';
+import { RecordData, PrismaDBMethod, saveOrUpdate, find, remove, OPParams, OPCondition } from '@/utils/database/postgresql';
 import { saveEmbedding, deleteEmbedding } from '@/utils/embedding';
 import { parseFileContent } from '@/utils/langchain/parser';
 import { logError, logInfo, logWarn } from '@/utils/logger';
@@ -279,9 +279,9 @@ export async function getDocumentInfo(id: string): Promise<RecordData> {
     });
 }
 
-export async function saveOrUpdateConversation(conv: Conversation): Promise<boolean> {
+export async function saveOrUpdateConversation(conv: Conversation): Promise<Record<string, any> | null> {
     try {
-        const result = await saveOrUpdate({
+        return await saveOrUpdate({
             model: 'Conversation',
             method: PrismaDBMethod.upsert,
             data: [
@@ -294,22 +294,18 @@ export async function saveOrUpdateConversation(conv: Conversation): Promise<bool
                 update: conv,
             },
         });
-        return !!result;
     } catch (error) {
         logError(error);
     }
-    return false;
+    return null;
 }
 
-export async function getConversation(cid: string, uid: number): Promise<RecordData> {
+export async function getConversation(condition: OPCondition): Promise<RecordData> {
     try {
         return await find({
             model: 'Conversation',
             method: PrismaDBMethod.findUnique,
-            condition: {
-                where: { cid, uid },
-                include: { messages: true },
-            },
+            condition: condition,
         });
     } catch (error) {
         logError(error);

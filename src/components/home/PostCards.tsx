@@ -3,14 +3,18 @@
 import type { Document } from '@/models/Document';
 
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useCallback } from 'react';
 
 import { RemoteImage, NodataImage, ErrorImage, LoadingImage } from '@/components/ImageView';
+import { useToast } from '@/components/ui/hooks/use-toast';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { GET_URI } from '@/utils/http';
-import { getServerData } from '@/utils/http/server';
+import { getData } from '@/utils/http/client';
 
-export async function getPosts() {
-    const ret: any = await getServerData(GET_URI.fileList);
+async function getClientPosts() {
+    const ret: any = await getData(GET_URI.fileList);
     if (!Array.isArray(ret?.data.list) || !ret.data.list.length) {
         return { total: 0, posts: [] };
     }
@@ -18,11 +22,30 @@ export async function getPosts() {
 }
 
 export function PostCards() {
+    const router = useRouter();
+    const { toast } = useToast();
+
     const { data, isError, isPending } = useQuery({
         queryKey: ['fileList'],
-        queryFn: getPosts,
+        queryFn: getClientPosts,
         //initialdata, // no use initialdata: https://tanstack.com/query/latest/docs/framework/react/guides/ssr#get-started-fast-with-initialdata
     });
+
+    const handleChatWith = useCallback(
+        async (cid: string, e: any) => {
+            e.preventDefault();
+            const ret: any = await getData(GET_URI.convStart, { cid });
+            if (ret && ret?.data?.id) {
+                router.push(`/chat/${ret?.data?.id}`);
+            } else {
+                toast({
+                    title: '啊噢~',
+                    description: '会话开启失败，请稍后再一次~',
+                });
+            }
+        },
+        [router, toast],
+    );
 
     if (isPending) {
         return (
@@ -60,9 +83,9 @@ export function PostCards() {
                                 className="no-scrollbar absolute bottom-0 left-0 z-10 flex h-[25%] w-full flex-col items-start overflow-y-scroll bg-neutral-600 bg-opacity-45 p-1 text-white transition-all duration-500 group-hover:h-[80%] group-hover:bg-opacity-85">
                                 <span className="text-lg underline">{'标题: '}</span>
                                 <h2 className="max-h-12 w-full overflow-clip indent-2 text-base hover:italic hover:underline">
-                                    <a href={`/chat/${doc.id}`} target="_blank" title={doc.title}>
+                                    <Link href={`/chat?ref=home`} target="_blank" title={doc.title} onClick={e => handleChatWith(doc.id, e)}>
                                         {doc.title}
-                                    </a>
+                                    </Link>
                                 </h2>
                                 {doc.authors ? (
                                     <>

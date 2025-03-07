@@ -17,7 +17,7 @@ import { ToastAction } from '@/components/ui/toast';
 import { Conversation, Message, createMessageEntity } from '@/models/Conversation';
 import { getData, postJson } from '@/utils/http/client';
 import { GET_URI, POST_URI } from '@/utils/http/index';
-import { logWarn } from '@/utils/logger';
+import { logWarn, logInfo } from '@/utils/logger';
 
 import { ContentError, ContentPending } from './chat-tip';
 import { MessageList } from './message-list';
@@ -59,7 +59,7 @@ export default function ChatPage({ params }) {
         queryKey: [GET_URI.convInit, params.id],
         placeholderData: keepPreviousData,
         queryFn: async () => {
-            const ret = await getData(GET_URI.convInit, { cid: params.id });
+            const ret = await getData(GET_URI.convInit, { id: params.id });
             if (!ret || ret?.code) {
                 toast({
                     variant: 'destructive',
@@ -79,12 +79,12 @@ export default function ChatPage({ params }) {
                 return null;
             }
 
-            if (ret && ret?.data?.conv) {
-                setConversation(ret?.data?.conv);
-            }
-
             if (ret && ret?.data?.doc) {
                 setDocument(ret?.data?.doc);
+            }
+
+            if (ret && ret?.data?.conv) {
+                setConversation(ret?.data?.conv);
             }
 
             return ret?.data;
@@ -94,7 +94,7 @@ export default function ChatPage({ params }) {
     const chattingMutation = useMutation({
         mutationKey: [POST_URI.convChat, params.id],
         mutationFn: async (data: z.infer<typeof FormSchema>) => {
-            const ret = await postJson(POST_URI.convChat, { input: data.input, cid: params.id, chatId: conversation?.id });
+            const ret = await postJson(POST_URI.convChat, { input: data.input, chatId: params.id, cid: doc?.id });
             if (!ret || ret?.code) {
                 toast({
                     variant: 'destructive',
