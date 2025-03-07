@@ -22,7 +22,17 @@ class ConversationService extends BaseService {
 
             const conv = (await getConversation({ where: { id: convId }, include: { messages: true } })) as Conversation;
             if (conv) {
-                const doc = await getDocumentInfo(conv?.cid);
+                const doc = await getDocumentInfo(conv?.cid, {
+                    select: {
+                        id: true,
+                        title: true,
+                        description: true,
+                        keywords: true,
+                        authors: true,
+                        createdAt: true,
+                        updatedAt: true,
+                    },
+                });
                 if (!doc) {
                     return this.renderError('document not found');
                 }

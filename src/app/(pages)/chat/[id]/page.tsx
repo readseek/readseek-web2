@@ -17,7 +17,7 @@ import { ToastAction } from '@/components/ui/toast';
 import { Conversation, Message, createMessageEntity } from '@/models/Conversation';
 import { getData, postJson } from '@/utils/http/client';
 import { GET_URI, POST_URI } from '@/utils/http/index';
-import { logWarn, logInfo } from '@/utils/logger';
+import { logWarn } from '@/utils/logger';
 
 import { ContentError, ContentPending } from './chat-tip';
 import { MessageList } from './message-list';
@@ -58,6 +58,8 @@ export default function ChatPage({ params }) {
     const { isError, isPending } = useQuery({
         queryKey: [GET_URI.convInit, params.id],
         placeholderData: keepPreviousData,
+        refetchOnMount: 'always',
+        experimental_prefetchInRender: true,
         queryFn: async () => {
             const ret = await getData(GET_URI.convInit, { id: params.id });
             if (!ret || ret?.code) {

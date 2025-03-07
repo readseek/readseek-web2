@@ -240,11 +240,9 @@ export async function deleteFileStorage(id: string): Promise<boolean> {
     return det1 && det2;
 }
 
-export async function getDocumentInfo(id: string): Promise<RecordData> {
-    return await find({
-        model: 'Document',
-        method: PrismaDBMethod.findUnique,
-        condition: {
+export async function getDocumentInfo(id: string, condition?: OPCondition): Promise<RecordData> {
+    if (!condition) {
+        condition = {
             select: {
                 title: true,
                 description: true,
@@ -266,14 +264,21 @@ export async function getDocumentInfo(id: string): Promise<RecordData> {
                 },
                 user: {
                     select: {
-                        name: true,
-                        email: true,
-                        avatar: true,
                         bio: true,
-                        createdAt: true,
+                        name: true,
+                        avatar: true,
+                        email: false,
+                        createdAt: false,
                     },
                 },
             },
+        };
+    }
+    return await find({
+        model: 'Document',
+        method: PrismaDBMethod.findUnique,
+        condition: {
+            ...condition,
             where: { id },
         },
     });
