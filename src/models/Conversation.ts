@@ -32,10 +32,14 @@ export interface Conversation {
 }
 
 export function createMessageEntity(msg: Pick<Message, 'role' | 'content' | 'rags'>): Message {
+    const timestamp = `${Date.now()}`;
+    if (!msg.content || msg.content.trim().length === 0 || msg.content === 'null' || msg.content === 'undefined') {
+        msg.content = '抱歉，没太明白你的意思，请重再试~';
+    }
     return {
         ...msg,
-        id: msg.content && msg.content.trim().length ? Md5.hashStr(msg.content) : '响应失败，请稍后再试~',
-        timestamp: `${Date.now()}`,
+        timestamp,
+        id: Md5.hashStr(`${timestamp}: ${msg.content}`) as string,
         rags: msg.rags ?? [],
     };
 }

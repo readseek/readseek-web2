@@ -25,6 +25,7 @@ import { MessageList } from './message-list';
 const FormSchema = z.object({
     input: z
         .string()
+        .trim()
         .min(1, {
             message: '不能一言不发噢',
         })
