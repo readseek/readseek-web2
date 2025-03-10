@@ -4,6 +4,8 @@
 export const OnnxModel = {
     'all-MiniLM-L6-v2': 'feature-extraction',
 
+    // Xenova/Phi-3-mini-4k-instruct: 'text-generation',
+    // Xenova/distilgpt2: 'text-generation',
     'smolLM2-360M-Instruct': 'text-generation',
 
     'distilbart-cnn-6-6': 'summarization',

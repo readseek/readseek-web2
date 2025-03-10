@@ -4,7 +4,7 @@ import type { Document } from 'langchain/document';
 
 import fs from 'fs/promises';
 
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { TokenTextSplitter } from 'langchain/text_splitter';
 import { remark } from 'remark';
 import strip from 'strip-markdown';
 
@@ -44,49 +44,18 @@ export type ParsedData = {
     sections?: DocumentSection[];
 };
 
-const TextSeparators = [
-    '\n\n',
-    '\n',
-    ' ',
-    '.',
-    ',',
-    '\u200b', // Zero-width space
-    '\uff0c', //Fullwidth comma
-    '\u3001', // Ideographic comma
-    '\uff0e', // Fullwidth full stop
-    '\u3002', //Ideographic full stop
-    '',
-];
-
-const CommonSplitterParams = {
-    chunkSize: 1500,
-    chunkOverlap: 120,
-    keepSeparator: true,
-    separators: TextSeparators,
-};
-
-export async function getSplitContents(filepath: string, extName: string): Promise<Document[] | null> {
+export async function getSplitterDocument(filepath: string, extName: string): Promise<Document[] | null> {
     try {
         console.time('🕰 loadAndSplit costs:');
 
-        let textSplitter: any = null;
-        if (extName === 'md') {
-            textSplitter = new RecursiveCharacterTextSplitter({
-                ...CommonSplitterParams,
-                separators: [...new Set(TextSeparators.concat(RecursiveCharacterTextSplitter.getSeparatorsForLanguage('markdown')))],
-            });
-        } else if (extName === 'html') {
-            textSplitter = new RecursiveCharacterTextSplitter({
-                ...CommonSplitterParams,
-                separators: [...new Set(TextSeparators.concat(RecursiveCharacterTextSplitter.getSeparatorsForLanguage('html')))],
-            });
-        } else {
-            textSplitter = new RecursiveCharacterTextSplitter({ ...CommonSplitterParams });
-        }
+        const splitter: any = new TokenTextSplitter({
+            chunkSize: 2500,
+            chunkOverlap: 200,
+        });
 
-        return await getDocumentLoader(filepath, extName).loadAndSplit(textSplitter);
+        return await getDocumentLoader(filepath, extName).loadAndSplit(splitter);
     } catch (error: any) {
-        logError('❌ getSplitContents: ', error?.message, ', cause is: ', error?.cause);
+        logError('❌ getSplitterDocument: ', error?.message, ', cause is: ', error?.cause);
     } finally {
         console.timeEnd('🕰 loadAndSplit costs:');
     }
@@ -131,7 +100,7 @@ export async function parseFileContent(filepath: string, extName: string): Promi
             parsed.meta.description = description;
         }
 
-        const sections = (await getSplitContents(filepath, extName)) as DocumentSection[];
+        const sections = (await getSplitterDocument(filepath, extName)) as DocumentSection[];
         if (sections && sections?.length > 0) {
             parsed.sections = sections;
             parsed.meta.lang = sections[0].metadata?.languages?.length ? (sections[0].metadata.languages[0].toUpperCase() as DocumentLang) : DocumentLang.ENG;
