@@ -346,9 +346,12 @@ export async function deleteConversations(params: { cid: string; uid: number }[]
                 }),
             ),
         );
-        const conversationIds = conversations?.map((item: any) => item?.list?.map(item => item?.id)).flat();
+        const conversationIds = conversations
+            ?.filter(item => !!item)
+            .map((item: any) => item?.list?.map(item => item?.id))
+            .flat();
 
-        if (conversationIds && conversationIds?.length > 0) {
+        if (conversationIds && conversationIds?.length) {
             await remove({
                 model: 'Message',
                 method: PrismaDBMethod.deleteMany,
