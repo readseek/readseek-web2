@@ -49,7 +49,7 @@ export async function getSplitterDocument(filepath: string, extName: string): Pr
         console.time('🕰 loadAndSplit costs:');
 
         const splitter: any = new TokenTextSplitter({
-            chunkSize: 2500,
+            chunkSize: 2000,
             chunkOverlap: 200,
         });
 

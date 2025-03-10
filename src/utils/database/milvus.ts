@@ -160,7 +160,7 @@ export default class MilvusDBClient {
                             name: 'text',
                             description: 'segment original text',
                             data_type: DataType.VarChar,
-                            max_length: 1024 * 16, //16k
+                            max_length: 1024 * 10, //10k
                         },
                         {
                             name: 'embedding',

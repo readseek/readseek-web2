@@ -89,7 +89,7 @@ class ConversationService extends BaseService {
                 msgBuff.push(createMessageEntity({ role: 'human', content: input }));
 
                 // search similar results in Milvus
-                const similarMatches = await searchEmbedding(input, cid, 0.3);
+                const similarMatches = await searchEmbedding(input, cid, 0.1);
                 if (similarMatches && similarMatches?.length) {
                     // chat with contexts
                     botResponse = await EnhancedChatbot.processQuery(input, similarMatches);
