@@ -348,7 +348,7 @@ export async function deleteConversations(params: { cid: string; uid: number }[]
         );
         const conversationIds = conversations?.map((item: any) => item?.list?.map(item => item?.id)).flat();
 
-        if (conversationIds?.length) {
+        if (conversationIds && conversationIds?.length > 0) {
             await remove({
                 model: 'Message',
                 method: PrismaDBMethod.deleteMany,
