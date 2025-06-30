@@ -39,7 +39,7 @@ const Users = [
     {
         name: 'Lucas',
         age: 3,
-        email: 'itomartisan@google.com',
+        email: 'admin@readseek.com',
         avatar: 'https://hello.tangkunyin.com/avatars.png',
         bio: 'An AI Assistant for Mr Tomartisan',
     },
